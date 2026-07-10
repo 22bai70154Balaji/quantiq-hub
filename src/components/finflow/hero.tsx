@@ -43,11 +43,11 @@ export function HeroConverter() {
           <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
           <ConverterField label="You send" value={amount} currency={from} onAmount={setAmount} onCurrency={setFrom} />
           <button
             onClick={() => { const t = from; setFrom(to); setTo(t); }}
-            className="mx-auto grid h-10 w-10 place-items-center rounded-full border bg-background transition hover:rotate-180 hover:bg-muted"
+            className="mx-auto grid h-10 w-10 shrink-0 place-items-center rounded-full border bg-background transition hover:rotate-180 hover:bg-muted"
             aria-label="Swap"
           >
             <ArrowLeftRight className="h-4 w-4" />
@@ -83,7 +83,7 @@ function ConverterField({
   onAmount?: (n: number) => void; onCurrency: (c: string) => void; readOnly?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border bg-background/60 p-4">
+    <div className="min-w-0 rounded-2xl border bg-background/60 p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 flex items-center gap-2">
         <input
@@ -91,12 +91,12 @@ function ConverterField({
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => onAmount?.(Number(e.target.value))}
           readOnly={readOnly}
-          className="flex-1 min-w-0 bg-transparent font-display text-2xl font-semibold tracking-tight focus:outline-none sm:text-3xl"
+          className="w-full min-w-0 flex-1 bg-transparent font-display text-xl font-semibold tracking-tight focus:outline-none sm:text-2xl"
         />
         <select
           value={currency}
           onChange={(e) => onCurrency(e.target.value)}
-          className="rounded-full border bg-transparent px-3 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+          className="shrink-0 rounded-full border bg-transparent px-3 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
         >
           {POPULAR.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
