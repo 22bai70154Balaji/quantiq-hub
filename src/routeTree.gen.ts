@@ -15,8 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiRouteImport } from './routes/ai'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CalcTypeRouteImport } from './routes/calc.$type'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCalcTypeRouteImport } from './routes/_authenticated/calc.$type'
 
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
@@ -47,14 +47,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CalcTypeRoute = CalcTypeRouteImport.update({
-  id: '/calc/$type',
-  path: '/calc/$type',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalcTypeRoute = AuthenticatedCalcTypeRouteImport.update({
+  id: '/calc/$type',
+  path: '/calc/$type',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
@@ -65,7 +65,7 @@ export interface FileRoutesByFullPath {
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/calc/$type': typeof CalcTypeRoute
+  '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -74,7 +74,7 @@ export interface FileRoutesByTo {
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/calc/$type': typeof CalcTypeRoute
+  '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,7 +85,7 @@ export interface FileRoutesById {
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/calc/$type': typeof CalcTypeRoute
+  '/_authenticated/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,7 +115,7 @@ export interface FileRouteTypes {
     | '/calculators'
     | '/news'
     | '/_authenticated/dashboard'
-    | '/calc/$type'
+    | '/_authenticated/calc/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -125,7 +125,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CalculatorsRoute: typeof CalculatorsRoute
   NewsRoute: typeof NewsRoute
-  CalcTypeRoute: typeof CalcTypeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,13 +171,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calc/$type': {
-      id: '/calc/$type'
-      path: '/calc/$type'
-      fullPath: '/calc/$type'
-      preLoaderRoute: typeof CalcTypeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -186,15 +178,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calc/$type': {
+      id: '/_authenticated/calc/$type'
+      path: '/calc/$type'
+      fullPath: '/calc/$type'
+      preLoaderRoute: typeof AuthenticatedCalcTypeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCalcTypeRoute: typeof AuthenticatedCalcTypeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCalcTypeRoute: AuthenticatedCalcTypeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -207,7 +208,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CalculatorsRoute: CalculatorsRoute,
   NewsRoute: NewsRoute,
-  CalcTypeRoute: CalcTypeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
