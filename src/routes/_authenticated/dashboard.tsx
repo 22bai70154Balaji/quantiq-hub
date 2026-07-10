@@ -17,15 +17,23 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "saved" | "favorites" | "profile";
+type Tab = "saved" | "favorites" | "profile" | "users";
 
 function Dashboard() {
   const [tab, setTab] = useState<Tab>("saved");
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      setEmail(data.user?.email ?? "");
+      if (data.user) {
+        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
+        setIsAdmin(!!roles?.some((r) => r.role === "admin"));
+      }
+    })();
   }, []);
 
   const signOut = async () => {
