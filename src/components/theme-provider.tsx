@@ -9,9 +9,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("finflow.theme") as Theme | null;
-    const prefers = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial: Theme = stored ?? (prefers ? "dark" : "light");
-    setTheme(initial);
+    if (stored) setTheme(stored);
   }, []);
 
   useEffect(() => {
