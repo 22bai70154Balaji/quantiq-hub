@@ -21,6 +21,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,9 +36,15 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (!phone.trim() || phone.replace(/\D/g, "").length < 7) {
+          throw new Error("Please enter a valid phone number");
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin + "/dashboard" },
+          options: {
+            emailRedirectTo: window.location.origin + "/dashboard",
+            data: { phone: phone.trim() },
+          },
         });
         if (error) throw error;
         toast.success("Account created — welcome!");
