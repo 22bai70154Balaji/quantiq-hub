@@ -123,111 +123,104 @@ export function HomeLoanEngine() {
   const exportPdf = async () => {
     try {
       const doc = new jsPDF({ unit: "pt", format: "a4" });
-      const w = doc.internal.pageSize.getWidth();
-      const h = doc.internal.pageSize.getHeight();
+      const ctx = createPdfCtx(doc);
+      pdfHeader(ctx, "Home Loan Analysis Report", `Rates as of ${RATES_LAST_UPDATED}`);
 
-      // Header
-      doc.setFillColor(17, 24, 39);
-      doc.rect(0, 0, w, 100, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold").setFontSize(24).text("FinFlow AI", 40, 46);
-      doc.setFont("helvetica", "normal").setFontSize(11).text("Home Loan Analysis Report", 40, 68);
-      doc.setFontSize(9).text(new Date().toLocaleString(), w - 40, 46, { align: "right" });
-      doc.text(`Rates as of ${RATES_LAST_UPDATED}`, w - 40, 62, { align: "right" });
-      doc.setTextColor(0, 0, 0);
+      pdfSection(ctx, "Applicant summary");
+      pdfKv(ctx, "Location", `${i.city}, ${i.state}, ${COUNTRIES[i.country].name}`);
+      pdfKv(ctx, "Age", `${i.age}`);
+      pdfKv(ctx, "Employment", EMPLOYMENT.find((e) => e.value === i.employmentType)?.label ?? i.employmentType);
+      pdfKv(ctx, "Credit score", `${i.creditScore}`);
+      pdfKv(ctx, "Monthly income", pdfMoney(i.monthlyIncome, i.country));
+      pdfKv(ctx, "Co-applicant income", pdfMoney(i.coApplicantIncome, i.country));
+      pdfKv(ctx, "Existing EMIs", pdfMoney(i.existingEmis, i.country));
 
-      let y = 130;
-      const section = (title: string) => {
-        if (y > h - 100) { doc.addPage(); y = 60; }
-        doc.setFont("helvetica", "bold").setFontSize(13).text(title, 40, y);
-        y += 8; doc.setDrawColor(220); doc.line(40, y, w - 40, y); y += 16;
-        doc.setFont("helvetica", "normal").setFontSize(10);
-      };
-      const kv = (k: string, v: string) => {
-        if (y > h - 60) { doc.addPage(); y = 60; }
-        doc.text(k, 40, y); doc.text(v, w - 40, y, { align: "right" }); y += 15;
-      };
+      ctx.y += 10;
+      pdfSection(ctx, "Property & loan");
+      pdfKv(ctx, "Property type", PROPERTY_TYPES.find((p) => p.value === i.propertyType)?.label ?? i.propertyType);
+      pdfKv(ctx, "Property price", pdfMoney(i.propertyPrice, i.country));
+      pdfKv(ctx, "Down payment", pdfMoney(i.downPayment, i.country));
+      pdfKv(ctx, "Loan amount", pdfMoney(r.loanAmount, i.country));
+      pdfKv(ctx, "LTV", `${r.ltv.toFixed(1)}%`);
+      pdfKv(ctx, "Interest rate", `${i.interestRate}% (${i.rateType})`);
+      pdfKv(ctx, "Tenure", `${i.tenureYears} years`);
 
-      section("Applicant summary");
-      kv("Location", `${i.city}, ${i.state}, ${COUNTRIES[i.country].name}`);
-      kv("Age", `${i.age}`);
-      kv("Employment", EMPLOYMENT.find((e) => e.value === i.employmentType)?.label ?? i.employmentType);
-      kv("Credit score", `${i.creditScore}`);
-      kv("Monthly income", formatMoney(i.monthlyIncome, i.country));
-      kv("Co-applicant income", formatMoney(i.coApplicantIncome, i.country));
-      kv("Existing EMIs", formatMoney(i.existingEmis, i.country));
+      ctx.y += 10;
+      pdfSection(ctx, "Loan summary");
+      pdfKv(ctx, "Monthly EMI", pdfMoney(r.emi, i.country));
+      pdfKv(ctx, "Total interest", pdfMoney(r.totalInterest, i.country));
+      pdfKv(ctx, "Total payable", pdfMoney(r.totalPayable, i.country));
+      pdfKv(ctx, "Processing fee", pdfMoney(r.processingFee, i.country));
+      pdfKv(ctx, "DTI ratio", `${r.dti.toFixed(1)}%`);
+      pdfKv(ctx, "Affordability score", `${r.affordabilityScore}/100`);
+      pdfKv(ctx, "Max eligible loan", pdfMoney(r.maxEligibleLoan, i.country));
+      pdfKv(ctx, "Prepay 10%/mo saves", pdfMoney(r.prepaymentSavings, i.country));
 
-      y += 10; section("Property & loan");
-      kv("Property type", PROPERTY_TYPES.find((p) => p.value === i.propertyType)?.label ?? i.propertyType);
-      kv("Property price", formatMoney(i.propertyPrice, i.country));
-      kv("Down payment", formatMoney(i.downPayment, i.country));
-      kv("Loan amount", formatMoney(r.loanAmount, i.country));
-      kv("LTV", `${r.ltv.toFixed(1)}%`);
-      kv("Interest rate", `${i.interestRate}% (${i.rateType})`);
-      kv("Tenure", `${i.tenureYears} years`);
-
-      y += 10; section("Loan summary");
-      kv("Monthly EMI", formatMoney(r.emi, i.country));
-      kv("Total interest", formatMoney(r.totalInterest, i.country));
-      kv("Total payable", formatMoney(r.totalPayable, i.country));
-      kv("Processing fee", formatMoney(r.processingFee, i.country));
-      kv("DTI ratio", `${r.dti.toFixed(1)}%`);
-      kv("Affordability score", `${r.affordabilityScore}/100`);
-      kv("Max eligible loan", formatMoney(r.maxEligibleLoan, i.country));
-      kv("Prepay 10%/mo saves", formatMoney(r.prepaymentSavings, i.country));
-
-      y += 10; section(`Government & country charges (${COUNTRIES[i.country].name})`);
+      ctx.y += 10;
+      pdfSection(ctx, `Government & country charges (${COUNTRIES[i.country].name})`);
       const ch = r.charges;
-      if (ch.stampDuty) kv("Stamp duty", formatMoney(ch.stampDuty, i.country));
-      if (ch.registration) kv("Registration", formatMoney(ch.registration, i.country));
-      if (ch.gst) kv("GST", formatMoney(ch.gst, i.country));
-      if (ch.dld) kv("DLD fees (4%)", formatMoney(ch.dld, i.country));
-      if (ch.agencyCommission) kv("Agency commission (2%)", formatMoney(ch.agencyCommission, i.country));
-      if (ch.mortgageRegistration) kv("Mortgage registration", formatMoney(ch.mortgageRegistration, i.country));
-      if (ch.pmi) kv("Annual PMI", formatMoney(ch.pmi, i.country));
-      if (ch.hoa) kv("Annual HOA", formatMoney(ch.hoa, i.country));
-      kv("Legal charges", formatMoney(ch.legal, i.country));
-      kv("Annual property tax", formatMoney(ch.yearlyPropertyTax, i.country));
-      kv("Annual insurance", formatMoney(ch.propertyInsurance, i.country));
-      kv("Total upfront", formatMoney(r.totalUpfrontCost, i.country));
+      if (ch.stampDuty) pdfKv(ctx, "Stamp duty", pdfMoney(ch.stampDuty, i.country));
+      if (ch.registration) pdfKv(ctx, "Registration", pdfMoney(ch.registration, i.country));
+      if (ch.gst) pdfKv(ctx, "GST", pdfMoney(ch.gst, i.country));
+      if (ch.dld) pdfKv(ctx, "DLD fees (4%)", pdfMoney(ch.dld, i.country));
+      if (ch.agencyCommission) pdfKv(ctx, "Agency commission (2%)", pdfMoney(ch.agencyCommission, i.country));
+      if (ch.mortgageRegistration) pdfKv(ctx, "Mortgage registration", pdfMoney(ch.mortgageRegistration, i.country));
+      if (ch.pmi) pdfKv(ctx, "Annual PMI", pdfMoney(ch.pmi, i.country));
+      if (ch.hoa) pdfKv(ctx, "Annual HOA", pdfMoney(ch.hoa, i.country));
+      pdfKv(ctx, "Legal charges", pdfMoney(ch.legal, i.country));
+      pdfKv(ctx, "Annual property tax", pdfMoney(ch.yearlyPropertyTax, i.country));
+      pdfKv(ctx, "Annual insurance", pdfMoney(ch.propertyInsurance, i.country));
+      pdfKv(ctx, "Total upfront", pdfMoney(r.totalUpfrontCost, i.country));
 
-      y += 10; section("Bank comparison");
-      doc.setFont("helvetica", "bold").setFontSize(9);
-      doc.text("Bank", 40, y); doc.text("Rate", 220, y); doc.text("EMI", 300, y);
-      doc.text("Total interest", 390, y); doc.text("Eligible", w - 40, y, { align: "right" });
-      y += 12; doc.setFont("helvetica", "normal");
-      bankRows.forEach((row) => {
-        if (y > h - 60) { doc.addPage(); y = 60; }
-        doc.text(row.bank.name, 40, y);
-        doc.text(`${row.rate.toFixed(2)}%`, 220, y);
-        doc.text(formatMoney(row.emi, i.country), 300, y);
-        doc.text(formatMoney(row.totalInt, i.country), 390, y);
-        doc.text(row.eligible ? "Yes" : "No", w - 40, y, { align: "right" });
-        y += 14;
-      });
+      ctx.y += 10;
+      pdfSection(ctx, "Bank comparison");
+      pdfTable(
+        ctx,
+        [
+          { label: "Bank", x: 40 },
+          { label: "Rate", x: 200 },
+          { label: "EMI", x: 260 },
+          { label: "Total interest", x: 360 },
+          { label: "Eligible", x: 0, align: "right" },
+        ],
+        bankRows.map((row) => [
+          row.bank.name,
+          `${row.rate.toFixed(2)}%`,
+          pdfMoney(row.emi, i.country),
+          pdfMoney(row.totalInt, i.country),
+          row.eligible ? "Yes" : "No",
+        ]),
+      );
 
-      y += 10; section("Amortization (yearly)");
-      doc.setFont("helvetica", "bold").setFontSize(9);
-      doc.text("Year", 40, y); doc.text("Principal", 140, y); doc.text("Interest", 280, y); doc.text("Balance", w - 40, y, { align: "right" });
-      y += 12; doc.setFont("helvetica", "normal");
-      r.amortization.forEach((a) => {
-        if (y > h - 80) { doc.addPage(); y = 60; }
-        doc.text(String(a.year), 40, y);
-        doc.text(formatMoney(a.principal, i.country), 140, y);
-        doc.text(formatMoney(a.interest, i.country), 280, y);
-        doc.text(formatMoney(a.balance, i.country), w - 40, y, { align: "right" });
-        y += 13;
-      });
+      ctx.y += 10;
+      pdfSection(ctx, "Amortization (yearly)");
+      pdfTable(
+        ctx,
+        [
+          { label: "Year", x: 40 },
+          { label: "Principal", x: 120 },
+          { label: "Interest", x: 260 },
+          { label: "Balance", x: 0, align: "right" },
+        ],
+        r.amortization.map((a) => [
+          String(a.year),
+          pdfMoney(a.principal, i.country),
+          pdfMoney(a.interest, i.country),
+          pdfMoney(a.balance, i.country),
+        ]),
+      );
 
       if (aiAnalysis) {
-        doc.addPage(); y = 60;
-        section("AI advisor analysis");
-        const plain = aiAnalysis.replace(/[#*_`]/g, "");
-        const wrapped = doc.splitTextToSize(plain, w - 80);
+        doc.addPage();
+        ctx.y = ctx.margin;
+        pdfSection(ctx, "AI advisor analysis");
+        const plain = pdfSafe(aiAnalysis.replace(/[#*_`]/g, ""));
+        const wrapped = doc.splitTextToSize(plain, ctx.w - ctx.margin * 2);
         doc.setFontSize(10);
         wrapped.forEach((line: string) => {
-          if (y > h - 60) { doc.addPage(); y = 60; }
-          doc.text(line, 40, y); y += 13;
+          ensureRoom(ctx, 14);
+          doc.text(line, ctx.margin, ctx.y);
+          ctx.y += 13;
         });
       }
 
@@ -236,17 +229,11 @@ export function HomeLoanEngine() {
         const qrUrl = typeof window !== "undefined" ? window.location.href : "https://finflow.ai";
         const qrData = await QRCode.toDataURL(qrUrl, { margin: 1, width: 128 });
         doc.setPage(doc.getNumberOfPages());
-        doc.addImage(qrData, "PNG", w - 100, h - 100, 60, 60);
-        doc.setFontSize(8).setTextColor(120).text("Scan to open", w - 100, h - 30);
+        doc.addImage(qrData, "PNG", ctx.w - 90, ctx.h - 90, 54, 54);
+        doc.setFontSize(7).setTextColor(120).text("Scan for live report", ctx.w - 90, ctx.h - 30);
       } catch { /* qr optional */ }
 
-      doc.setFontSize(8).setTextColor(140);
-      const pageCount = doc.getNumberOfPages();
-      for (let p = 1; p <= pageCount; p++) {
-        doc.setPage(p);
-        doc.text(`FinFlow AI  •  Page ${p} of ${pageCount}  •  Not financial advice`, 40, h - 20);
-      }
-
+      pdfFooter(ctx, "FinFlow AI  -  Not financial advice");
       doc.save(`FinFlow-HomeLoan-${i.city.replace(/\W+/g, "-")}.pdf`);
       toast.success("PDF report downloaded");
     } catch (e) {
