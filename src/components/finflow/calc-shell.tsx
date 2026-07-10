@@ -25,8 +25,10 @@ export function CalcShell({
       user_id: user.id,
       calculator_type: saveType!,
       name: saveName ?? title,
-      inputs: saveInputs ?? {},
-      results: saveResults ?? {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      inputs: (saveInputs ?? {}) as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      results: (saveResults ?? {}) as any,
     });
     if (error) toast.error(error.message); else toast.success("Saved to dashboard");
   };
