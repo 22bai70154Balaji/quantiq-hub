@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { useSyncExternalStore } from "react";
 import type { Country } from "./countries";
 
 // Simple client-side store for country preference. Persists via localStorage.
@@ -11,9 +11,6 @@ function initial(): Country {
   return "IN";
 }
 
-type Store = { country: Country; setCountry: (c: Country) => void };
-
-// tiny store to avoid pulling zustand — implement subscription manually
 type Listener = () => void;
 const listeners = new Set<Listener>();
 let state: Country = "IN";
