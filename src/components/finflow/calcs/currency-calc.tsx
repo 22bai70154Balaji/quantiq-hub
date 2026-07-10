@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight } from "lucide-react";
 import { getExchangeRates } from "@/lib/finflow/exchange.functions";
-import { CalcShell, InputRow, NumberInput, StatCard } from "./calc-shell";
+import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
 import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AED", "JPY", "AUD", "CAD", "CHF", "SGD", "CNY", "HKD"];
