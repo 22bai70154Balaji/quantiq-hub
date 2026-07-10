@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <>
+    <div className="bg-page-gradient min-h-screen">
       <Navbar />
       <main>
         <Hero />
@@ -29,6 +29,6 @@ function Index() {
         <TrustAndTestimonials />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
