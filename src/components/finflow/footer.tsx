@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { FinFlowLogo } from "@/components/finflow/logo";
 
 export function Footer() {
   return (
@@ -7,12 +7,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <span className="font-display text-lg font-semibold">FinFlow<span className="text-primary">.ai</span></span>
-            </div>
+            <FinFlowLogo className="h-9 w-auto text-foreground" />
             <p className="mt-3 text-sm text-muted-foreground max-w-xs">
               Premium financial calculators and AI-powered insights for India, USA, and UAE.
             </p>
