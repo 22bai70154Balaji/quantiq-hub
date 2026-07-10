@@ -5,7 +5,7 @@ import { Download, ChevronLeft, ChevronRight, Sparkles, Check, X, Trophy, Zap, S
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
-import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfTable, pdfFooter, pdfMoney, pdfSafe, ensureRoom } from "@/lib/finflow/pdf";
+import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfTable, pdfFooter, pdfMoney, pdfSafe, ensureRoom, loadFinflowLogoPng } from "@/lib/finflow/pdf";
 import { Button } from "@/components/ui/button";
 import { useServerFn } from "@tanstack/react-start";
 import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
@@ -124,7 +124,8 @@ export function HomeLoanEngine() {
     try {
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const ctx = createPdfCtx(doc);
-      pdfHeader(ctx, "Home Loan Analysis Report", `Rates as of ${RATES_LAST_UPDATED}`);
+      const logo = await loadFinflowLogoPng();
+      pdfHeader(ctx, "Home Loan Analysis Report", `Rates as of ${RATES_LAST_UPDATED}`, logo);
 
       pdfSection(ctx, "Applicant summary");
       pdfKv(ctx, "Location", `${i.city}, ${i.state}, ${COUNTRIES[i.country].name}`);

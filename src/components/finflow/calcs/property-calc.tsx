@@ -9,7 +9,7 @@ import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
 import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfFooter, pdfMoney } from "@/lib/finflow/pdf";
+import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfFooter, pdfMoney, loadFinflowLogoPng } from "@/lib/finflow/pdf";
 
 const CITIES: Record<string, string[]> = {
   IN: ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai", "Kolkata"],
@@ -36,12 +36,13 @@ export function PropertyCalc() {
     { name: "Property tax", value: r.propertyTax, color: "oklch(0.7 0.16 155)" },
   ].filter((p) => p.value > 0);
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     try {
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const ctx = createPdfCtx(doc);
       const c = COUNTRIES[country];
-      pdfHeader(ctx, "Property Cost Breakdown Report");
+      const logo = await loadFinflowLogoPng();
+      pdfHeader(ctx, "Property Cost Breakdown Report", undefined, logo);
 
       pdfSection(ctx, "Property details");
       pdfKv(ctx, "Location", `${city}, ${c.name}`);
