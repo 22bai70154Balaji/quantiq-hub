@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { callGroq } from "./groq.server";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
@@ -22,29 +23,16 @@ export const askFinFlowAi = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data }) => {
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("AI service not configured");
-
     const contextMsg = data.country
       ? `User country: ${data.country === "IN" ? "India (INR)" : data.country === "US" ? "USA (USD)" : "UAE (AED)"}. Default calculations and examples to this jurisdiction unless asked otherwise.`
       : "";
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-      body: JSON.stringify({
-        model: "openai/gpt-5.5",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT + (contextMsg ? "\n\n" + contextMsg : "") },
-          ...data.messages,
-        ],
-      }),
-    });
-
-    if (res.status === 429) throw new Error("Too many requests — please wait a moment.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Add credits from workspace settings.");
-    if (!res.ok) throw new Error(`AI request failed (${res.status})`);
-
-    const j = (await res.json()) as { choices: Array<{ message: { content: string } }> };
-    return { reply: j.choices[0]?.message?.content ?? "" };
+    const reply = await callGroq(
+      [
+        { role: "system", content: SYSTEM_PROMPT + (contextMsg ? "\n\n" + contextMsg : "") },
+        ...data.messages,
+      ],
+      { temperature: 0.6 },
+    );
+    return { reply };
   });
