@@ -124,7 +124,8 @@ export function HomeLoanEngine() {
     try {
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const ctx = createPdfCtx(doc);
-      pdfHeader(ctx, "Home Loan Analysis Report", `Rates as of ${RATES_LAST_UPDATED}`);
+      const logo = await loadFinflowLogoPng();
+      pdfHeader(ctx, "Home Loan Analysis Report", `Rates as of ${RATES_LAST_UPDATED}`, logo);
 
       pdfSection(ctx, "Applicant summary");
       pdfKv(ctx, "Location", `${i.city}, ${i.state}, ${COUNTRIES[i.country].name}`);
