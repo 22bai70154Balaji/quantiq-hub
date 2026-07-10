@@ -72,7 +72,7 @@ export function HeroConverter() {
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
