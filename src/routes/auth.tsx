@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Lock, ArrowRight, Phone } from "lucide-react";
+import { Mail, Lock, ArrowRight, Phone } from "lucide-react";
+import { FinFlowLogo } from "@/components/finflow/logo";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -66,9 +67,8 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen place-items-center bg-hero px-4 py-12">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground shadow-elegant"><Sparkles className="h-4 w-4" /></div>
-          <span className="font-display text-xl font-semibold">FinFlow<span className="text-primary">.ai</span></span>
+        <Link to="/" className="mb-6 flex items-center justify-center" aria-label="FinFlow AI home">
+          <FinFlowLogo className="h-10 w-auto text-foreground" />
         </Link>
         <div className="rounded-3xl border bg-card/80 p-8 shadow-elegant backdrop-blur-xl">
           <h1 className="font-display text-2xl font-semibold tracking-tight">
