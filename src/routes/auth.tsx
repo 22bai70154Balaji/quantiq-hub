@@ -49,7 +49,11 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Account created — welcome!");
+        // Fire-and-forget welcome email — never block the signup flow on this.
+        sendWelcomeEmail({ data: { to: email, name: email.split("@")[0] } }).catch((err) => {
+          console.warn("welcome email failed", err);
+        });
+        toast.success("Account created — welcome! Check your inbox.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
