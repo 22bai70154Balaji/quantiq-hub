@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Moon, Sun, Sparkles, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useCountry } from "@/lib/finflow/country-store";
@@ -44,8 +44,12 @@ export function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground shadow-elegant">
-            <Sparkles className="h-4 w-4" />
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary to-fuchsia-500 text-primary-foreground shadow-elegant">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M4 20 L4 4 L20 4" />
+              <path d="M4 14 L10 8 L14 12 L20 6" />
+              <circle cx="20" cy="6" r="1.6" fill="currentColor" stroke="none" />
+            </svg>
           </div>
           <span className="font-display text-lg font-semibold tracking-tight">FinFlow<span className="text-primary">.ai</span></span>
         </Link>
