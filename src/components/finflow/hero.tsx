@@ -43,11 +43,11 @@ export function HeroConverter() {
           <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
           <ConverterField label="You send" value={amount} currency={from} onAmount={setAmount} onCurrency={setFrom} />
           <button
             onClick={() => { const t = from; setFrom(to); setTo(t); }}
-            className="mx-auto grid h-10 w-10 place-items-center rounded-full border bg-background transition hover:rotate-180 hover:bg-muted"
+            className="mx-auto grid h-10 w-10 shrink-0 place-items-center rounded-full border bg-background transition hover:rotate-180 hover:bg-muted"
             aria-label="Swap"
           >
             <ArrowLeftRight className="h-4 w-4" />
