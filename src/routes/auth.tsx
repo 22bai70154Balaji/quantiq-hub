@@ -99,6 +99,14 @@ function AuthPage() {
                 placeholder="••••••••"
                 className="h-11 w-full rounded-xl border bg-background pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
+            {mode === "signup" && (
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 555 123 4567"
+                  className="h-11 w-full rounded-xl border bg-background pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+            )}
             <Button type="submit" className="w-full rounded-xl" disabled={loading}>
               {loading ? "Please wait…" : (mode === "signin" ? "Sign in" : "Create account")}
               <ArrowRight className="ml-1 h-4 w-4" />
