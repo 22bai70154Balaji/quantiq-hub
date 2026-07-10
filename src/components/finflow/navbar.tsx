@@ -43,15 +43,8 @@ export function Navbar() {
       className={`fixed inset-x-0 top-0 z-50 transition-all ${scrolled ? "glass border-b" : ""}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary to-fuchsia-500 text-primary-foreground shadow-elegant">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M4 20 L4 4 L20 4" />
-              <path d="M4 14 L10 8 L14 12 L20 6" />
-              <circle cx="20" cy="6" r="1.6" fill="currentColor" stroke="none" />
-            </svg>
-          </div>
-          <span className="font-display text-lg font-semibold tracking-tight">FinFlow<span className="text-primary">.ai</span></span>
+        <Link to="/" className="flex items-center" aria-label="FinFlow AI home">
+          <FinFlowLogo className="h-8 w-auto text-foreground" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
