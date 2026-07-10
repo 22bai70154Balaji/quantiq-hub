@@ -190,7 +190,6 @@
 
 @utility glass {
   background: color-mix(in oklab, var(--color-card) 55%, transparent);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
   backdrop-filter: blur(22px) saturate(180%);
   border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
   box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent) inset,
