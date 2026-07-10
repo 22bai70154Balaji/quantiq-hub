@@ -9,6 +9,7 @@ import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
 import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfFooter, pdfMoney } from "@/lib/finflow/pdf";
 
 const CITIES: Record<string, string[]> = {
   IN: ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai", "Kolkata"],
@@ -38,57 +39,40 @@ export function PropertyCalc() {
   const exportPdf = () => {
     try {
       const doc = new jsPDF({ unit: "pt", format: "a4" });
-      const w = doc.internal.pageSize.getWidth();
+      const ctx = createPdfCtx(doc);
       const c = COUNTRIES[country];
-      // Header
-      doc.setFillColor(20, 20, 30);
-      doc.rect(0, 0, w, 90, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold").setFontSize(22).text("FinFlow AI", 40, 42);
-      doc.setFont("helvetica", "normal").setFontSize(11).text("Property Cost Breakdown Report", 40, 62);
-      doc.setFontSize(9).text(new Date().toLocaleString(), w - 40, 42, { align: "right" });
-      doc.setTextColor(0, 0, 0);
+      pdfHeader(ctx, "Property Cost Breakdown Report");
 
-      let y = 130;
-      doc.setFont("helvetica", "bold").setFontSize(14).text("Property details", 40, y);
-      y += 20; doc.setFont("helvetica", "normal").setFontSize(11);
-      const rows: [string, string][] = [
-        ["Location", `${city}, ${c.name}`],
-        ["Property price", formatMoney(price, country)],
-        ["Down payment", formatMoney(down, country)],
-        ["Loan amount", formatMoney(r.loan, country)],
-        ["Interest rate", `${rate}% p.a.`],
-        ["Tenure", `${years} years`],
-      ];
-      rows.forEach(([k, v]) => { doc.text(k, 40, y); doc.text(v, w - 40, y, { align: "right" }); y += 18; });
+      pdfSection(ctx, "Property details");
+      pdfKv(ctx, "Location", `${city}, ${c.name}`);
+      pdfKv(ctx, "Property price", pdfMoney(price, country));
+      pdfKv(ctx, "Down payment", pdfMoney(down, country));
+      pdfKv(ctx, "Loan amount", pdfMoney(r.loan, country));
+      pdfKv(ctx, "Interest rate", `${rate}% p.a.`);
+      pdfKv(ctx, "Tenure", `${years} years`);
 
-      y += 20; doc.setFont("helvetica", "bold").setFontSize(14).text("Monthly & interest", 40, y);
-      y += 20; doc.setFont("helvetica", "normal").setFontSize(11);
-      const emiRows: [string, string][] = [
-        ["Monthly EMI", formatMoney(r.emi, country)],
-        ["Total interest paid", formatMoney(r.totalInterest, country)],
-        ["Total loan payments", formatMoney(r.totalPayments, country)],
-      ];
-      emiRows.forEach(([k, v]) => { doc.text(k, 40, y); doc.text(v, w - 40, y, { align: "right" }); y += 18; });
+      ctx.y += 10;
+      pdfSection(ctx, "Monthly & interest");
+      pdfKv(ctx, "Monthly EMI", pdfMoney(r.emi, country));
+      pdfKv(ctx, "Total interest paid", pdfMoney(r.totalInterest, country));
+      pdfKv(ctx, "Total loan payments", pdfMoney(r.totalPayments, country));
 
-      y += 20; doc.setFont("helvetica", "bold").setFontSize(14).text("Charges & taxes", 40, y);
-      y += 20; doc.setFont("helvetica", "normal").setFontSize(11);
-      const chargeRows: [string, string][] = [
-        ["Stamp duty", formatMoney(r.stampDuty, country)],
-        ["Registration", formatMoney(r.registration, country)],
-        ["GST / VAT", formatMoney(r.gst, country)],
-        [`Insurance (${years} yrs)`, formatMoney(r.insurance, country)],
-        [`Property tax (${years} yrs)`, formatMoney(r.propertyTax, country)],
-      ];
-      chargeRows.forEach(([k, v]) => { doc.text(k, 40, y); doc.text(v, w - 40, y, { align: "right" }); y += 18; });
+      ctx.y += 10;
+      pdfSection(ctx, "Charges & taxes");
+      pdfKv(ctx, "Stamp duty", pdfMoney(r.stampDuty, country));
+      pdfKv(ctx, "Registration", pdfMoney(r.registration, country));
+      pdfKv(ctx, "GST / VAT", pdfMoney(r.gst, country));
+      pdfKv(ctx, `Insurance (${years} yrs)`, pdfMoney(r.insurance, country));
+      pdfKv(ctx, `Property tax (${years} yrs)`, pdfMoney(r.propertyTax, country));
 
-      y += 30;
-      doc.setDrawColor(200); doc.line(40, y, w - 40, y); y += 25;
-      doc.setFont("helvetica", "bold").setFontSize(14).text("Total cost of ownership", 40, y);
-      doc.text(formatMoney(r.totalCost, country), w - 40, y, { align: "right" }); y += 40;
+      ctx.y += 20;
+      doc.setDrawColor(200).line(ctx.margin, ctx.y, ctx.w - ctx.margin, ctx.y);
+      ctx.y += 22;
+      doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(20, 22, 34);
+      doc.text("Total cost of ownership", ctx.margin, ctx.y);
+      doc.text(pdfMoney(r.totalCost, country), ctx.w - ctx.margin, ctx.y, { align: "right" });
 
-      doc.setFont("helvetica", "italic").setFontSize(9).setTextColor(120);
-      doc.text("Estimates based on typical rates. Consult a licensed advisor for a precise breakdown.", 40, doc.internal.pageSize.getHeight() - 30);
+      pdfFooter(ctx, "Estimates only - consult a licensed advisor.");
       doc.save(`FinFlow-Property-${city.replace(/\W+/g, "-")}.pdf`);
       toast.success("PDF report downloaded");
     } catch (e) {
