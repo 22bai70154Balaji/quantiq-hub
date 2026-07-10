@@ -9,7 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorsRouteImport } from './routes/calculators'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiRouteImport } from './routes/ai'
@@ -18,9 +21,24 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalcTypeRouteImport } from './routes/_authenticated/calc.$type'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculatorsRoute = CalculatorsRouteImport.update({
@@ -63,7 +81,10 @@ export interface FileRoutesByFullPath {
   '/ai': typeof AiRoute
   '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
+  '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
@@ -72,7 +93,10 @@ export interface FileRoutesByTo {
   '/ai': typeof AiRoute
   '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
+  '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
@@ -83,7 +107,10 @@ export interface FileRoutesById {
   '/ai': typeof AiRoute
   '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
+  '/contact': typeof ContactRoute
   '/news': typeof NewsRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
@@ -94,7 +121,10 @@ export interface FileRouteTypes {
     | '/ai'
     | '/auth'
     | '/calculators'
+    | '/contact'
     | '/news'
+    | '/privacy'
+    | '/terms'
     | '/dashboard'
     | '/calc/$type'
   fileRoutesByTo: FileRoutesByTo
@@ -103,7 +133,10 @@ export interface FileRouteTypes {
     | '/ai'
     | '/auth'
     | '/calculators'
+    | '/contact'
     | '/news'
+    | '/privacy'
+    | '/terms'
     | '/dashboard'
     | '/calc/$type'
   id:
@@ -113,7 +146,10 @@ export interface FileRouteTypes {
     | '/ai'
     | '/auth'
     | '/calculators'
+    | '/contact'
     | '/news'
+    | '/privacy'
+    | '/terms'
     | '/_authenticated/dashboard'
     | '/_authenticated/calc/$type'
   fileRoutesById: FileRoutesById
@@ -124,16 +160,40 @@ export interface RootRouteChildren {
   AiRoute: typeof AiRoute
   AuthRoute: typeof AuthRoute
   CalculatorsRoute: typeof CalculatorsRoute
+  ContactRoute: typeof ContactRoute
   NewsRoute: typeof NewsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/news': {
       id: '/news'
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calculators': {
@@ -207,7 +267,10 @@ const rootRouteChildren: RootRouteChildren = {
   AiRoute: AiRoute,
   AuthRoute: AuthRoute,
   CalculatorsRoute: CalculatorsRoute,
+  ContactRoute: ContactRoute,
   NewsRoute: NewsRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
