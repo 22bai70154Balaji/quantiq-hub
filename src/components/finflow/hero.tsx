@@ -83,7 +83,7 @@ function ConverterField({
   onAmount?: (n: number) => void; onCurrency: (c: string) => void; readOnly?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border bg-background/60 p-4">
+    <div className="min-w-0 rounded-2xl border bg-background/60 p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="mt-1 flex items-center gap-2">
         <input
@@ -91,12 +91,12 @@ function ConverterField({
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => onAmount?.(Number(e.target.value))}
           readOnly={readOnly}
-          className="flex-1 min-w-0 bg-transparent font-display text-2xl font-semibold tracking-tight focus:outline-none sm:text-3xl"
+          className="w-full min-w-0 flex-1 bg-transparent font-display text-xl font-semibold tracking-tight focus:outline-none sm:text-2xl"
         />
         <select
           value={currency}
           onChange={(e) => onCurrency(e.target.value)}
-          className="rounded-full border bg-transparent px-3 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
+          className="shrink-0 rounded-full border bg-transparent px-3 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
         >
           {POPULAR.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
