@@ -541,9 +541,9 @@ function BankComparison({ rows, country, bestEmi, bestRate, bestValue }: {
 
 function Kv({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-muted-foreground">{k}</span>
-      <span className="font-mono font-medium">{v}</span>
+    <div className="flex items-baseline justify-between gap-2 min-w-0">
+      <span className="shrink-0 text-muted-foreground">{k}</span>
+      <span className="min-w-0 truncate text-right font-mono font-medium tabular-nums">{v}</span>
     </div>
   );
 }
