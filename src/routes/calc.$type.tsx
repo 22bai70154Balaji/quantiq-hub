@@ -7,6 +7,7 @@ import { EmiCalc } from "@/components/finflow/calcs/emi-calc";
 import { SipCalc } from "@/components/finflow/calcs/sip-calc";
 import { SimpleCalc } from "@/components/finflow/calcs/simple-calc";
 import { PropertyCalc } from "@/components/finflow/calcs/property-calc";
+import { HomeLoanEngine } from "@/components/finflow/calcs/home-loan-engine";
 
 const VALID: CalcSlug[] = ["currency", "mortgage", "home-loan", "income-tax", "gst", "salary", "sip", "fd", "compound-interest", "inflation", "retirement", "property"];
 
@@ -35,7 +36,7 @@ function CalcPage() {
       <main>
         {slug === "currency" && <CurrencyCalc />}
         {slug === "mortgage" && <EmiCalc slug="mortgage" defaultRate={6.8} defaultYears={30} defaultPrincipal={400000} />}
-        {slug === "home-loan" && <EmiCalc slug="home-loan" defaultRate={8.5} defaultYears={20} defaultPrincipal={5000000} />}
+        {slug === "home-loan" && <HomeLoanEngine />}
         {slug === "sip" && <SipCalc />}
         {slug === "property" && <PropertyCalc />}
         {["fd", "compound-interest", "inflation", "retirement", "gst", "income-tax", "salary"].includes(slug) && <SimpleCalc slug={slug} />}

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { callGroq } from "./groq.server";
 
 export type NewsItem = {
   title: string;
@@ -28,24 +29,13 @@ export const getFinanceNews = createServerFn({ method: "GET" })
     if (cache && cache.region === data.region && Date.now() - cache.at < TTL) {
       return { items: cache.items, source: "ai", updated: new Date(cache.at).toISOString() };
     }
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) return { items: FALLBACK, source: "fallback", updated: new Date().toISOString() };
+    if (!process.env.GROQ_API_KEY) {
+      return { items: FALLBACK, source: "fallback", updated: new Date().toISOString() };
+    }
 
     try {
-      const prompt = `Generate 6 realistic, current financial news headlines relevant to ${data.region === "Global" ? "India, USA, and UAE" : data.region}. Cover markets, interest rates, real estate, and policy. Respond ONLY with a JSON array of objects with keys: title (short, punchy), summary (1 sentence), category (one of: Markets, Rates, Crypto, Real Estate, Policy, Global), region (one of: India, USA, UAE, Global), impact (positive|neutral|negative). No prose, no markdown fence.`;
-
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [{ role: "user", content: prompt }],
-          response_format: { type: "json_object" },
-        }),
-      });
-      if (!res.ok) throw new Error(`AI ${res.status}`);
-      const j = (await res.json()) as { choices: Array<{ message: { content: string } }> };
-      const raw = j.choices[0]?.message?.content ?? "";
+      const prompt = `Generate 6 realistic, current financial news headlines relevant to ${data.region === "Global" ? "India, USA, and UAE" : data.region}. Cover markets, interest rates, real estate, and policy. Respond ONLY with a JSON object with an "items" array of objects with keys: title (short, punchy), summary (1 sentence), category (one of: Markets, Rates, Crypto, Real Estate, Policy, Global), region (one of: India, USA, UAE, Global), impact (positive|neutral|negative). No prose, no markdown fence.`;
+      const raw = await callGroq([{ role: "user", content: prompt }], { json: true, temperature: 0.8 });
       const parsed = JSON.parse(raw);
       const items: NewsItem[] = Array.isArray(parsed) ? parsed : parsed.items ?? parsed.news ?? [];
       if (!items.length) throw new Error("empty");
