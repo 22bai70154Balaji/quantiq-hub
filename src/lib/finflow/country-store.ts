@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { Country } from "./countries";
 
-// Simple client-side store for country preference. Persists via localStorage.
 const KEY = "finflow.country";
 
 function initial(): Country {
@@ -37,20 +36,10 @@ export function setCountry(c: Country) {
 
 export function subscribeCountry(l: Listener) {
   listeners.add(l);
-  return () => listeners.delete(l);
+  return () => { listeners.delete(l); };
 }
 
-// React hook
-import { useSyncExternalStore } from "react";
 export function useCountry(): [Country, (c: Country) => void] {
-  const c = useSyncExternalStore(
-    (cb) => { const off = subscribeCountry(cb); return () => { off; }; },
-    () => getCountry(),
-    () => "IN" as Country,
-  );
+  const c = useSyncExternalStore(subscribeCountry, getCountry, () => "IN" as Country);
   return [c, setCountry];
 }
-
-// suppress unused
-export const _unused = create;
-export type _S = Store;
