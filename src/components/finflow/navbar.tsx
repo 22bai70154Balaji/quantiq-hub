@@ -39,10 +39,7 @@ export function Navbar() {
   }, []);
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    <header
       className={`fixed inset-x-0 top-0 z-50 transition-all ${scrolled ? "glass border-b" : ""}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
