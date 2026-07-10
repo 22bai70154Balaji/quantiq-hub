@@ -80,7 +80,9 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="relative min-h-screen">
+        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-hero" />
+        <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[640px] bg-mesh opacity-25" />
         {children}
         <Scripts />
       </body>
