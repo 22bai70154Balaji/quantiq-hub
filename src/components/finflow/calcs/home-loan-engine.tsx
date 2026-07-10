@@ -12,7 +12,7 @@ import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 import { useCountry } from "@/lib/finflow/country-store";
 import { COUNTRIES, formatMoney } from "@/lib/finflow/countries";
 import { computeHomeLoan, type HomeLoanInputs, type PropertyType, type EmploymentType, type RateType } from "@/lib/finflow/home-loan";
-import { banksForCountry, processingFeeAmount, RATES_LAST_UPDATED, type Bank } from "@/lib/finflow/banks";
+import { banksForCountry, bankLogoUrl, processingFeeAmount, RATES_LAST_UPDATED, type Bank } from "@/lib/finflow/banks";
 import { calcEmi } from "@/lib/finflow/calculators";
 import { analyzeHomeLoan } from "@/lib/finflow/home-loan-ai.functions";
 
@@ -493,15 +493,37 @@ function BankComparison({ rows, country, bestEmi, bestRate, bestValue }: {
           if (bestValue && row.bank.id === bestValue.bank.id) badges.push({ icon: <ShieldCheck className="h-3 w-3" />, label: "Best value", tone: "bg-primary/15 text-primary" });
           return (
             <motion.div key={row.bank.id} whileHover={{ y: -2 }} className="rounded-2xl border bg-background/60 p-4 shadow-sm">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-lg">{row.bank.logo}</div>
-                  <div>
-                    <div className="text-sm font-semibold">{row.bank.name}</div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div
+                    className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border bg-white shadow-sm"
+                    style={{ boxShadow: `inset 0 0 0 1px ${row.bank.color}22` }}
+                  >
+                    <img
+                      src={bankLogoUrl(row.bank)}
+                      alt={`${row.bank.name} logo`}
+                      loading="lazy"
+                      onError={(e) => {
+                        const t = e.currentTarget;
+                        t.style.display = "none";
+                        (t.nextElementSibling as HTMLElement | null)?.style.setProperty("display", "grid");
+                      }}
+                      className="h-full w-full object-contain p-1"
+                    />
+                    <span
+                      className="hidden h-full w-full place-items-center text-lg"
+                      style={{ background: row.bank.color, color: "#fff" }}
+                      aria-hidden
+                    >
+                      {row.bank.name.slice(0, 1)}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold">{row.bank.name}</div>
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{COUNTRIES[row.bank.country].name}</div>
                   </div>
                 </div>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${row.eligible ? "bg-emerald-500/15 text-emerald-500" : "bg-red-500/15 text-red-500"}`}>
+                <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${row.eligible ? "bg-emerald-500/15 text-emerald-500" : "bg-red-500/15 text-red-500"}`}>
                   {row.eligible ? <><Check className="h-3 w-3" /> Eligible</> : <><X className="h-3 w-3" /> Not eligible</>}
                 </span>
               </div>
