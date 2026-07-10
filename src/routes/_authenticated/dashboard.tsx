@@ -59,11 +59,11 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-8 inline-flex rounded-full border bg-card p-1">
-            {(["saved", "favorites", "profile"] as Tab[]).map((t) => (
+          <div className="mt-8 inline-flex flex-wrap rounded-full border bg-card p-1">
+            {((["saved", "favorites", "profile", ...(isAdmin ? ["users" as const] : [])]) as Tab[]).map((t) => (
               <button key={t} onClick={() => setTab(t)}
                 className={`rounded-full px-4 py-1.5 text-sm capitalize transition ${tab === t ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}>
-                {t === "saved" ? "Saved calculations" : t}
+                {t === "saved" ? "Saved calculations" : t === "users" ? "Users" : t}
               </button>
             ))}
           </div>
@@ -72,6 +72,7 @@ function Dashboard() {
             {tab === "saved" && <SavedList />}
             {tab === "favorites" && <FavoritesList />}
             {tab === "profile" && <Profile />}
+            {tab === "users" && isAdmin && <UsersList />}
           </div>
         </div>
       </main>
