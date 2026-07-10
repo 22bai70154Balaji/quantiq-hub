@@ -11,8 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as CalculatorsRouteImport } from './routes/calculators'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AiRouteImport } from './routes/ai'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalcTypeRouteImport } from './routes/calc.$type'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
@@ -22,6 +26,20 @@ const NewsRoute = NewsRouteImport.update({
 const CalculatorsRoute = CalculatorsRouteImport.update({
   id: '/calculators',
   path: '/calculators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiRoute = AiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,36 +52,77 @@ const CalcTypeRoute = CalcTypeRouteImport.update({
   path: '/calc/$type',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
+  '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/calc/$type': typeof CalcTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
+  '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/calc/$type': typeof CalcTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/ai': typeof AiRoute
+  '/auth': typeof AuthRoute
   '/calculators': typeof CalculatorsRoute
   '/news': typeof NewsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/calc/$type': typeof CalcTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calculators' | '/news' | '/calc/$type'
+  fullPaths:
+    | '/'
+    | '/ai'
+    | '/auth'
+    | '/calculators'
+    | '/news'
+    | '/dashboard'
+    | '/calc/$type'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calculators' | '/news' | '/calc/$type'
-  id: '__root__' | '/' | '/calculators' | '/news' | '/calc/$type'
+  to:
+    | '/'
+    | '/ai'
+    | '/auth'
+    | '/calculators'
+    | '/news'
+    | '/dashboard'
+    | '/calc/$type'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/ai'
+    | '/auth'
+    | '/calculators'
+    | '/news'
+    | '/_authenticated/dashboard'
+    | '/calc/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AiRoute: typeof AiRoute
+  AuthRoute: typeof AuthRoute
   CalculatorsRoute: typeof CalculatorsRoute
   NewsRoute: typeof NewsRoute
   CalcTypeRoute: typeof CalcTypeRoute
@@ -85,6 +144,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalculatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai': {
+      id: '/ai'
+      path: '/ai'
+      fullPath: '/ai'
+      preLoaderRoute: typeof AiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,11 +179,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalcTypeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AiRoute: AiRoute,
+  AuthRoute: AuthRoute,
   CalculatorsRoute: CalculatorsRoute,
   NewsRoute: NewsRoute,
   CalcTypeRoute: CalcTypeRoute,
