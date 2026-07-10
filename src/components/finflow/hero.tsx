@@ -114,52 +114,32 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-hero" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-mesh opacity-30" />
       <div className="relative mx-auto max-w-5xl px-6 text-center">
-        <motion.div
-          initial={{ y: 12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3 py-1 text-xs backdrop-blur-md"
-        >
+        <div className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3 py-1 text-xs backdrop-blur-md">
           <Sparkles className="h-3 w-3 text-primary" />
           <span className="font-medium">AI-powered financial insights</span>
           <span className="h-3 w-px bg-border" />
           <span className="text-muted-foreground">India · USA · UAE</span>
-        </motion.div>
+        </div>
 
-        <motion.h1
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="mt-6 font-display text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl"
-        >
+        <h1 className="mt-6 font-display text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
           Money math,
           <br />
           <span className="text-gradient">made effortless.</span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl"
-        >
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
           12 professional calculators, live exchange rates, and an AI assistant that explains every number.
           Built for professionals in India, USA, and UAE.
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
-        >
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link to="/calculators" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:opacity-95">
             Explore calculators <ArrowRight className="h-4 w-4" />
           </Link>
           <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
             <TrendingUp className="h-4 w-4" /> Ask FinFlow AI
           </Link>
-        </motion.div>
+        </div>
 
         <HeroConverter />
       </div>
