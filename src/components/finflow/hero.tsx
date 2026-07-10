@@ -27,10 +27,7 @@ export function HeroConverter() {
   const converted = amount * rate;
 
   return (
-    <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    <div
       className="relative mx-auto mt-12 w-full max-w-2xl"
     >
       <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-20 blur-2xl" />
