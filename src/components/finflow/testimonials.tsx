@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 const TESTIMONIALS = [
-  { name: "Priya Sharma", role: "Financial Advisor · Mumbai", quote: "The property calculator saves me hours per client meeting. The stamp-duty breakdown alone is worth it.", rating: 5 },
-  { name: "Marcus Chen", role: "Software Engineer · San Francisco", quote: "Finally an SIP calculator that also handles USD and lets me compare with 401(k) growth. Beautiful UI.", rating: 5 },
-  { name: "Ahmed Al-Farsi", role: "Investor · Dubai", quote: "Live AED conversion and Dubai property costs in one place. This is the tool I didn't know I needed.", rating: 5 },
+  { name: "Shivaram", role: "Research Student in Fintech", quote: "The property calculator saves me hours per client meeting. The stamp-duty breakdown alone is worth it.", rating: 5 },
+  { name: "Sumanth S", role: "Research Student in Fintech", quote: "Finally an SIP calculator that also handles USD and lets me compare with 401(k) growth. Beautiful UI.", rating: 5 },
+  { name: "Sahithi", role: "Research Student in Fintech", quote: "Live AED conversion and Dubai property costs in one place. This is the tool I didn't know I needed.", rating: 5 },
 ];
 
 const TRUST = [
