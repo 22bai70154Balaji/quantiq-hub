@@ -8,6 +8,7 @@ import { COUNTRIES, type Country } from "@/lib/finflow/countries";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { FinFlowLogo } from "@/components/finflow/logo";
 
 const NAV = [
   { to: "/", label: "Home" },
