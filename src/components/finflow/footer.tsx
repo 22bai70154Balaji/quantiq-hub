@@ -25,11 +25,11 @@ export function Footer() {
             { to: "/calc/property", label: "Property" },
           ]} />
           <FooterCol title="Company" links={[
-            { to: "/", label: "About" },
-            { to: "/", label: "Privacy" },
-            { to: "/", label: "Terms" },
-            { to: "/", label: "Contact" },
+            { to: "/privacy", label: "Privacy" },
+            { to: "/terms", label: "Terms" },
+            { to: "/contact", label: "Contact" },
           ]} />
+
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 border-t pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} FinFlow AI. All figures are estimates, not financial advice.</p>
