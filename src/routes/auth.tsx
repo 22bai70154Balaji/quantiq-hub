@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Lock, ArrowRight } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,9 +36,15 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (!phone.trim() || phone.replace(/\D/g, "").length < 7) {
+          throw new Error("Please enter a valid phone number");
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin + "/dashboard" },
+          options: {
+            emailRedirectTo: window.location.origin + "/dashboard",
+            data: { phone: phone.trim() },
+          },
         });
         if (error) throw error;
         toast.success("Account created — welcome!");
@@ -92,6 +99,14 @@ function AuthPage() {
                 placeholder="••••••••"
                 className="h-11 w-full rounded-xl border bg-background pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
+            {mode === "signup" && (
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 555 123 4567"
+                  className="h-11 w-full rounded-xl border bg-background pl-10 pr-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
+            )}
             <Button type="submit" className="w-full rounded-xl" disabled={loading}>
               {loading ? "Please wait…" : (mode === "signin" ? "Sign in" : "Create account")}
               <ArrowRight className="ml-1 h-4 w-4" />

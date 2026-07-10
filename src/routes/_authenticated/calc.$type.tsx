@@ -11,7 +11,7 @@ import { HomeLoanEngine } from "@/components/finflow/calcs/home-loan-engine";
 
 const VALID: CalcSlug[] = ["currency", "mortgage", "home-loan", "income-tax", "gst", "salary", "sip", "fd", "compound-interest", "inflation", "retirement", "property"];
 
-export const Route = createFileRoute("/calc/$type")({
+export const Route = createFileRoute("/_authenticated/calc/$type")({
   beforeLoad: ({ params }) => {
     if (!VALID.includes(params.type as CalcSlug)) throw notFound();
   },
