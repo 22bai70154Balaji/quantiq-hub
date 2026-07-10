@@ -5,6 +5,7 @@ import { Download, ChevronLeft, ChevronRight, Sparkles, Check, X, Trophy, Zap, S
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfTable, pdfFooter, pdfMoney, pdfSafe, ensureRoom } from "@/lib/finflow/pdf";
 import { Button } from "@/components/ui/button";
 import { useServerFn } from "@tanstack/react-start";
 import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
