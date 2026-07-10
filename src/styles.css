@@ -189,10 +189,21 @@
 }
 
 @utility glass {
-  background: color-mix(in oklab, var(--color-card) 60%, transparent);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--color-border);
+  background: color-mix(in oklab, var(--color-card) 55%, transparent);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent) inset,
+              0 8px 32px -12px color-mix(in oklab, var(--color-foreground) 10%, transparent);
+}
+
+@utility bg-page-gradient {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, oklch(from var(--primary) l c h / 0.22), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 100% 10%, oklch(0.7 0.18 190 / 0.18), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 0% 25%, oklch(0.65 0.2 320 / 0.15), transparent 60%),
+    radial-gradient(ellipse 90% 60% at 50% 110%, oklch(from var(--primary) l c h / 0.18), transparent 65%),
+    var(--color-background);
+  background-attachment: fixed;
 }
 
 @utility card-elevated {
