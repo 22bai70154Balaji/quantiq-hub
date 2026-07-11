@@ -27,83 +27,111 @@ export function HeroConverter() {
   const converted = amount * rate;
 
   return (
-    <div
-      className="relative mx-auto mt-12 w-full max-w-2xl"
-    >
-      <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-30 blur-2xl" />
-      <div className="border-sheen relative overflow-hidden rounded-3xl bg-card/70 p-6 shadow-elegant backdrop-blur-xl sm:p-8">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            Live rate
-          </div>
-          <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
-        </div>
+    <div className="relative mx-auto mt-14 w-full max-w-4xl">
+      {/* violet glow halo */}
+      <div className="pointer-events-none absolute inset-0 rounded-[2rem] bg-primary/10 blur-2xl" aria-hidden />
+      <div className="relative rounded-[2rem] p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+        <div className="relative overflow-hidden rounded-[calc(2rem-1px)] glass-strong p-6 sm:p-10">
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-grain opacity-[0.04] mix-blend-overlay" />
 
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
-          <ConverterField label="You send" value={amount} currency={from} onAmount={setAmount} onCurrency={setFrom} />
-          <button
-            onClick={() => { const t = from; setFrom(to); setTo(t); }}
-            className="mx-auto grid h-10 w-10 shrink-0 place-items-center rounded-full border bg-background transition hover:rotate-180 hover:bg-muted"
-            aria-label="Swap"
-          >
-            <ArrowLeftRight className="h-4 w-4" />
-          </button>
-          <ConverterField
-            label="Recipient gets"
-            value={Number(converted.toFixed(2))}
-            currency={to}
-            onCurrency={setTo}
-            readOnly
-          />
-        </div>
+          <div className="relative grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
+            {/* left: input + metrics */}
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                    You send
+                  </label>
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
+                    </span>
+                    Live
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <select value={from} onChange={(e) => setFrom(e.target.value)}
+                    className="shrink-0 bg-transparent font-display text-3xl tracking-tight text-foreground/90 focus:outline-none">
+                    {POPULAR.map((c) => <option key={c} value={c} className="bg-background">{c}</option>)}
+                  </select>
+                  <input
+                    type="number"
+                    value={Number.isFinite(amount) ? amount : 0}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    className="w-full min-w-0 flex-1 bg-transparent font-mono text-4xl font-medium tabular-nums tracking-tight focus:outline-none sm:text-5xl"
+                  />
+                </div>
+                <div className="h-px w-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
+              </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <div>
-            {isLoading ? "Fetching latest rates…" : (
-              <>1 {from} = <span className="font-mono font-semibold text-foreground">{rate.toFixed(4)}</span> {to}</>
-            )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                  <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Live rate</div>
+                  <div className="mt-1 font-mono text-lg tabular-nums text-primary">
+                    {isLoading ? "—" : rate.toFixed(4)}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                  <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Inverse</div>
+                  <div className="mt-1 font-mono text-lg tabular-nums" style={{ color: "oklch(0.82 0.13 82)" }}>
+                    {rate ? (1 / rate).toFixed(4) : "—"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* right: result panel */}
+            <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.05] p-6">
+              <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl" aria-hidden />
+              <div className="relative flex h-full flex-col justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+                      AI-optimized yield
+                    </label>
+                    <button
+                      onClick={() => { const t = from; setFrom(to); setTo(t); }}
+                      className="grid h-7 w-7 place-items-center rounded-full border border-white/10 text-muted-foreground transition hover:rotate-180 hover:bg-white/5"
+                      aria-label="Swap"
+                    >
+                      <ArrowLeftRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-mono text-4xl font-medium tabular-nums tracking-tight text-foreground sm:text-5xl">
+                      {converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                    </span>
+                    <select value={to} onChange={(e) => setTo(e.target.value)}
+                      className="shrink-0 bg-transparent font-display text-xl italic text-muted-foreground focus:outline-none"
+                      style={{ fontFamily: "var(--font-serif)" }}>
+                      {POPULAR.map((c) => <option key={c} value={c} className="bg-background not-italic">{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between font-mono text-[11px] tracking-wide">
+                    <span className="text-muted-foreground uppercase tracking-[0.2em]">1 {from}</span>
+                    <span className="text-foreground tabular-nums">= {rate.toFixed(4)} {to}</span>
+                  </div>
+                  <Link
+                    to="/calc/currency"
+                    className="cta-glow group flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.24em]"
+                  >
+                    Open full converter
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-          <Link to="/calc/currency" className="inline-flex items-center gap-1 text-primary hover:underline">
-            Full converter <ArrowRight className="h-3 w-3" />
-          </Link>
         </div>
       </div>
     </div>
   );
 }
 
-function ConverterField({
-  label, value, currency, onAmount, onCurrency, readOnly,
-}: {
-  label: string; value: number; currency: string;
-  onAmount?: (n: number) => void; onCurrency: (c: string) => void; readOnly?: boolean;
-}) {
-  return (
-    <div className="min-w-0 rounded-2xl border bg-background/60 p-4">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="mt-1 flex items-center gap-2">
-        <input
-          type="number"
-          value={Number.isFinite(value) ? value : 0}
-          onChange={(e) => onAmount?.(Number(e.target.value))}
-          readOnly={readOnly}
-          className="w-full min-w-0 flex-1 bg-transparent font-mono text-xl font-semibold tracking-tight tabular-nums focus:outline-none sm:text-2xl"
-        />
-        <select
-          value={currency}
-          onChange={(e) => onCurrency(e.target.value)}
-          className="shrink-0 rounded-full border bg-transparent px-3 py-1 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          {POPULAR.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-    </div>
-  );
-}
 
 export function Hero() {
   return (
@@ -150,16 +178,15 @@ export function Hero() {
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/calculators"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elegant"
-            style={{ background: "var(--gradient-primary)" }}
+            className="cta-glow group inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.24em]"
           >
-            <span className="relative z-10 flex items-center gap-2">
-              Explore calculators <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-            <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            Start Calculating <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
-          <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
-            <TrendingUp className="h-4 w-4" /> Ask Calculyx AI
+          <Link
+            to="/ai"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-white/[0.06] hover:text-foreground"
+          >
+            <TrendingUp className="h-3.5 w-3.5" /> Explore Features
           </Link>
         </div>
 

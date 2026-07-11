@@ -6,6 +6,7 @@ import { CalculatorsGrid } from "@/components/finflow/calculators-grid";
 import { NewsSection } from "@/components/finflow/news-section";
 import { InteractiveChart } from "@/components/finflow/chart";
 import { TrustAndTestimonials } from "@/components/finflow/testimonials";
+import { StatusBar } from "@/components/finflow/status-bar";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,6 +37,7 @@ function Index() {
         <TrustAndTestimonials />
       </main>
       <Footer />
+      <StatusBar />
     </div>
   );
 }

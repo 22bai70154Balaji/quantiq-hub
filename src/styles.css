@@ -208,19 +208,34 @@
 }
 
 @utility glass {
-  background: color-mix(in oklab, var(--color-card) 55%, transparent);
-  backdrop-filter: blur(22px) saturate(180%);
-  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
-  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent) inset,
-              0 8px 32px -12px color-mix(in oklab, var(--color-foreground) 10%, transparent);
+  background: color-mix(in oklab, var(--color-card) 42%, transparent);
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 6%, transparent);
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-foreground) 5%, transparent) inset,
+              0 12px 40px -16px color-mix(in oklab, #000 55%, transparent);
 }
+
+@utility glass-strong {
+  background: color-mix(in oklab, #000 60%, transparent);
+  backdrop-filter: blur(40px) saturate(160%);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 6%, transparent);
+}
+
+@utility cta-glow {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  box-shadow: 0 0 40px oklch(from var(--primary) l c h / 0.35),
+              0 0 0 1px oklch(from var(--primary) l c h / 0.5) inset;
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .3s cubic-bezier(.2,.8,.2,1);
+}
+.cta-glow:hover { transform: scale(1.02); box-shadow: 0 0 60px oklch(from var(--primary) l c h / 0.5), 0 0 0 1px oklch(from var(--primary) l c h / 0.65) inset; }
+.cta-glow:active { transform: scale(.98); }
 
 @utility bg-page-gradient {
   background:
-    radial-gradient(ellipse 150% 100% at 50% -30%, oklch(from var(--primary) l c h / 0.22), transparent 80%),
-    radial-gradient(ellipse 100% 80% at 100% 0%, oklch(0.7 0.14 200 / 0.14), transparent 82%),
-    radial-gradient(ellipse 100% 80% at 0% 15%, oklch(0.65 0.18 300 / 0.14), transparent 82%),
-    radial-gradient(ellipse 140% 70% at 50% 115%, oklch(0.6 0.14 250 / 0.16), transparent 82%),
+    radial-gradient(ellipse 60% 60% at -10% -20%, oklch(from var(--primary) l c h / 0.14), transparent 65%),
+    radial-gradient(ellipse 50% 50% at 110% 110%, oklch(0.82 0.13 82 / 0.08), transparent 65%),
+    radial-gradient(ellipse 80% 40% at 50% -10%, oklch(from var(--primary) l c h / 0.10), transparent 70%),
     var(--color-background);
   background-attachment: fixed;
   background-repeat: no-repeat;
