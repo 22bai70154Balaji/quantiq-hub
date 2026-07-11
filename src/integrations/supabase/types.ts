@@ -135,30 +135,51 @@ export type Database = {
       }
       saved_calculations: {
         Row: {
+          ai_insights: Json | null
           calculator_type: string
+          country: string | null
           created_at: string
           id: string
           inputs: Json
+          is_public: boolean
           name: string
+          report_id: string | null
           results: Json
+          share_slug: string | null
+          summary: Json
+          updated_at: string
           user_id: string
         }
         Insert: {
+          ai_insights?: Json | null
           calculator_type: string
+          country?: string | null
           created_at?: string
           id?: string
           inputs?: Json
+          is_public?: boolean
           name: string
+          report_id?: string | null
           results?: Json
+          share_slug?: string | null
+          summary?: Json
+          updated_at?: string
           user_id: string
         }
         Update: {
+          ai_insights?: Json | null
           calculator_type?: string
+          country?: string | null
           created_at?: string
           id?: string
           inputs?: Json
+          is_public?: boolean
           name?: string
+          report_id?: string | null
           results?: Json
+          share_slug?: string | null
+          summary?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
