@@ -249,118 +249,122 @@ export function HomeLoanEngine() {
       saveType="home-loan" saveInputs={i as unknown as Record<string, unknown>}
       saveResults={{ emi: r.emi, ltv: r.ltv, dti: r.dti, affordabilityScore: r.affordabilityScore }}>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
-        {/* LEFT — multi-step form */}
-        <div className="rounded-2xl border bg-card/60 p-6 shadow-soft backdrop-blur-xl">
-          <StepIndicator step={step} />
-          <AnimatePresence mode="wait">
-            <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }} className="mt-6 space-y-4">
-              {step === 0 && (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="State / Emirate">
-                      <select value={i.state} onChange={(e) => set("state", e.target.value)} className="h-11 w-full rounded-xl border bg-background px-3 text-sm">
-                        {STATES[i.country].map((s) => <option key={s}>{s}</option>)}
+      <div className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:items-start">
+          {/* LEFT — multi-step form (compact, self-sized) */}
+          <div className="self-start rounded-2xl border bg-card/60 p-5 shadow-soft backdrop-blur-xl">
+            <StepIndicator step={step} />
+            <AnimatePresence mode="wait">
+              <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }} className="mt-5 space-y-3.5">
+                {step === 0 && (
+                  <>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="State / Emirate">
+                        <select value={i.state} onChange={(e) => set("state", e.target.value)} className="h-10 w-full rounded-xl border bg-background px-2.5 text-sm">
+                          {STATES[i.country].map((s) => <option key={s}>{s}</option>)}
+                        </select>
+                      </InputRow>
+                      <InputRow label="City">
+                        <select value={i.city} onChange={(e) => set("city", e.target.value)} className="h-10 w-full rounded-xl border bg-background px-2.5 text-sm">
+                          {CITIES[i.country].map((c) => <option key={c}>{c}</option>)}
+                        </select>
+                      </InputRow>
+                    </div>
+                    <InputRow label="Property type">
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {PROPERTY_TYPES.map((p) => (
+                          <button key={p.value} onClick={() => set("propertyType", p.value)}
+                            className={`rounded-xl border px-2 py-1.5 text-[11px] transition ${i.propertyType === p.value ? "border-primary bg-primary/10 text-primary" : "hover:border-foreground/30"}`}>
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </InputRow>
+                    <InputRow label={`Property price (${COUNTRIES[i.country].symbol})`}>
+                      <NumberInput value={i.propertyPrice} onChange={(v) => set("propertyPrice", v)} step={10000} />
+                    </InputRow>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="Down payment"><NumberInput value={i.downPayment} onChange={(v) => set("downPayment", v)} step={10000} /></InputRow>
+                      <InputRow label="Additional costs"><NumberInput value={i.additionalInitialCosts} onChange={(v) => set("additionalInitialCosts", v)} step={1000} /></InputRow>
+                    </div>
+                    <InputRow label="Area (sq ft, optional)"><NumberInput value={i.areaSqft ?? 0} onChange={(v) => set("areaSqft", v)} step={50} /></InputRow>
+                  </>
+                )}
+                {step === 1 && (
+                  <>
+                    <InputRow label="Loan amount (auto)" hint="Calculated from price − down payment">
+                      <div className="rounded-xl border bg-muted/30 px-3 py-2 font-mono text-sm">{formatMoney(r.loanAmount, i.country)}</div>
+                    </InputRow>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="Interest rate (%)"><NumberInput value={i.interestRate} onChange={(v) => set("interestRate", v)} step={0.05} /></InputRow>
+                      <InputRow label="Tenure (years)"><NumberInput value={i.tenureYears} onChange={(v) => set("tenureYears", v)} step={1} min={1} max={35} /></InputRow>
+                    </div>
+                    <InputRow label="Rate type">
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["fixed", "floating"] as RateType[]).map((rt) => (
+                          <button key={rt} onClick={() => set("rateType", rt)}
+                            className={`rounded-xl border px-2.5 py-1.5 text-sm capitalize transition ${i.rateType === rt ? "border-primary bg-primary/10 text-primary" : "hover:border-foreground/30"}`}>
+                            {rt}
+                          </button>
+                        ))}
+                      </div>
+                    </InputRow>
+                    <InputRow label="Existing loans (outstanding)"><NumberInput value={i.existingLoans} onChange={(v) => set("existingLoans", v)} step={10000} /></InputRow>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="Processing fee override" hint="0 = auto"><NumberInput value={i.processingFee} onChange={(v) => set("processingFee", v)} step={1000} /></InputRow>
+                      <InputRow label="Insurance cost/yr"><NumberInput value={i.insuranceCost} onChange={(v) => set("insuranceCost", v)} step={1000} /></InputRow>
+                    </div>
+                  </>
+                )}
+                {step === 2 && (
+                  <>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="Monthly income"><NumberInput value={i.monthlyIncome} onChange={(v) => set("monthlyIncome", v)} step={5000} /></InputRow>
+                      <InputRow label="Co-applicant income"><NumberInput value={i.coApplicantIncome} onChange={(v) => set("coApplicantIncome", v)} step={5000} /></InputRow>
+                    </div>
+                    <InputRow label="Existing EMIs (per month)"><NumberInput value={i.existingEmis} onChange={(v) => set("existingEmis", v)} step={1000} /></InputRow>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <InputRow label="Credit score"><NumberInput value={i.creditScore} onChange={(v) => set("creditScore", v)} step={5} min={300} max={900} /></InputRow>
+                      <InputRow label="Age"><NumberInput value={i.age} onChange={(v) => set("age", v)} step={1} min={18} max={70} /></InputRow>
+                    </div>
+                    <InputRow label="Employment type">
+                      <select value={i.employmentType} onChange={(e) => set("employmentType", e.target.value as EmploymentType)}
+                        className="h-10 w-full rounded-xl border bg-background px-2.5 text-sm">
+                        {EMPLOYMENT.map((e) => <option key={e.value} value={e.value}>{e.label}</option>)}
                       </select>
                     </InputRow>
-                    <InputRow label="City">
-                      <select value={i.city} onChange={(e) => set("city", e.target.value)} className="h-11 w-full rounded-xl border bg-background px-3 text-sm">
-                        {CITIES[i.country].map((c) => <option key={c}>{c}</option>)}
-                      </select>
-                    </InputRow>
-                  </div>
-                  <InputRow label="Property type">
-                    <div className="grid grid-cols-3 gap-2">
-                      {PROPERTY_TYPES.map((p) => (
-                        <button key={p.value} onClick={() => set("propertyType", p.value)}
-                          className={`rounded-xl border px-3 py-2 text-xs transition ${i.propertyType === p.value ? "border-primary bg-primary/10 text-primary" : "hover:border-foreground/30"}`}>
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
-                  </InputRow>
-                  <InputRow label={`Property price (${COUNTRIES[i.country].symbol})`}>
-                    <NumberInput value={i.propertyPrice} onChange={(v) => set("propertyPrice", v)} step={10000} />
-                  </InputRow>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="Down payment"><NumberInput value={i.downPayment} onChange={(v) => set("downPayment", v)} step={10000} /></InputRow>
-                    <InputRow label="Additional costs"><NumberInput value={i.additionalInitialCosts} onChange={(v) => set("additionalInitialCosts", v)} step={1000} /></InputRow>
-                  </div>
-                  <InputRow label="Area (sq ft, optional)"><NumberInput value={i.areaSqft ?? 0} onChange={(v) => set("areaSqft", v)} step={50} /></InputRow>
-                </>
-              )}
-              {step === 1 && (
-                <>
-                  <InputRow label="Loan amount (auto)" hint="Calculated from price − down payment">
-                    <div className="rounded-xl border bg-muted/30 px-3 py-2.5 font-mono text-base">{formatMoney(r.loanAmount, i.country)}</div>
-                  </InputRow>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="Interest rate (%)"><NumberInput value={i.interestRate} onChange={(v) => set("interestRate", v)} step={0.05} /></InputRow>
-                    <InputRow label="Tenure (years)"><NumberInput value={i.tenureYears} onChange={(v) => set("tenureYears", v)} step={1} min={1} max={35} /></InputRow>
-                  </div>
-                  <InputRow label="Rate type">
-                    <div className="grid grid-cols-2 gap-2">
-                      {(["fixed", "floating"] as RateType[]).map((rt) => (
-                        <button key={rt} onClick={() => set("rateType", rt)}
-                          className={`rounded-xl border px-3 py-2 text-sm capitalize transition ${i.rateType === rt ? "border-primary bg-primary/10 text-primary" : "hover:border-foreground/30"}`}>
-                          {rt}
-                        </button>
-                      ))}
-                    </div>
-                  </InputRow>
-                  <InputRow label="Existing loans (outstanding)"><NumberInput value={i.existingLoans} onChange={(v) => set("existingLoans", v)} step={10000} /></InputRow>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="Processing fee override" hint="0 = auto"><NumberInput value={i.processingFee} onChange={(v) => set("processingFee", v)} step={1000} /></InputRow>
-                    <InputRow label="Insurance cost/yr"><NumberInput value={i.insuranceCost} onChange={(v) => set("insuranceCost", v)} step={1000} /></InputRow>
-                  </div>
-                </>
-              )}
-              {step === 2 && (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="Monthly income"><NumberInput value={i.monthlyIncome} onChange={(v) => set("monthlyIncome", v)} step={5000} /></InputRow>
-                    <InputRow label="Co-applicant income"><NumberInput value={i.coApplicantIncome} onChange={(v) => set("coApplicantIncome", v)} step={5000} /></InputRow>
-                  </div>
-                  <InputRow label="Existing EMIs (per month)"><NumberInput value={i.existingEmis} onChange={(v) => set("existingEmis", v)} step={1000} /></InputRow>
-                  <div className="grid grid-cols-2 gap-3">
-                    <InputRow label="Credit score"><NumberInput value={i.creditScore} onChange={(v) => set("creditScore", v)} step={5} min={300} max={900} /></InputRow>
-                    <InputRow label="Age"><NumberInput value={i.age} onChange={(v) => set("age", v)} step={1} min={18} max={70} /></InputRow>
-                  </div>
-                  <InputRow label="Employment type">
-                    <select value={i.employmentType} onChange={(e) => set("employmentType", e.target.value as EmploymentType)}
-                      className="h-11 w-full rounded-xl border bg-background px-3 text-sm">
-                      {EMPLOYMENT.map((e) => <option key={e.value} value={e.value}>{e.label}</option>)}
-                    </select>
-                  </InputRow>
-                </>
-              )}
-            </motion.div>
-          </AnimatePresence>
+                  </>
+                )}
+              </motion.div>
+            </AnimatePresence>
 
-          <div className="mt-6 flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="rounded-full">
-              <ChevronLeft className="mr-1 h-4 w-4" /> Back
-            </Button>
-            {step < 2 ? (
-              <Button size="sm" onClick={() => setStep((s) => Math.min(2, s + 1))} className="rounded-full">
-                Next <ChevronRight className="ml-1 h-4 w-4" />
+            <div className="mt-5 flex items-center justify-between">
+              <Button variant="outline" size="sm" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0} className="rounded-full">
+                <ChevronLeft className="mr-1 h-4 w-4" /> Back
               </Button>
-            ) : (
-              <Button size="sm" onClick={exportPdf} className="rounded-full">
-                <Download className="mr-1 h-4 w-4" /> Download PDF
-              </Button>
-            )}
+              {step < 2 ? (
+                <Button size="sm" onClick={() => setStep((s) => Math.min(2, s + 1))} className="rounded-full">
+                  Next <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button size="sm" onClick={exportPdf} className="rounded-full">
+                  <Download className="mr-1 h-4 w-4" /> Download PDF
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT — top results */}
+          <div className="space-y-4">
+            <StatGrid r={r} country={i.country} />
+            <ChartsRow r={r} country={i.country} />
+            <ChargesCard r={r} country={i.country} />
           </div>
         </div>
 
-        {/* RIGHT — results */}
-        <div className="space-y-4">
-          <StatGrid r={r} country={i.country} />
-          <ChartsRow r={r} country={i.country} />
-          <BankComparison rows={bankRows} country={i.country} bestEmi={bestEmi} bestRate={bestRate} bestValue={bestValue} />
-          <ChargesCard r={r} country={i.country} />
-          <AiSection onRun={runAI} loading={aiLoading} analysis={aiAnalysis} />
-        </div>
+        {/* FULL WIDTH — bank comparison + AI */}
+        <BankComparison rows={bankRows} country={i.country} bestEmi={bestEmi} bestRate={bestRate} bestValue={bestValue} />
+        <AiSection onRun={runAI} loading={aiLoading} analysis={aiAnalysis} />
       </div>
     </CalcShell>
   );
@@ -474,7 +478,7 @@ function BankComparison({ rows, country, bestEmi, bestRate, bestValue }: {
           <div className="text-xs text-muted-foreground">Rates updated {RATES_LAST_UPDATED}. Illustrative — confirm with the bank.</div>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {rows.map((row) => {
           const badges: { icon: React.ReactNode; label: string; tone: string }[] = [];
           if (bestRate && row.bank.id === bestRate.bank.id) badges.push({ icon: <Zap className="h-3 w-3" />, label: "Lowest rate", tone: "bg-emerald-500/15 text-emerald-500" });
