@@ -13,18 +13,23 @@ import type { AnalysisPayload, Kpi } from "@/lib/finflow/analysis/types";
 
 export const Route = createFileRoute("/r/$slug")({
   loader: ({ params }) => getSharedCalculation({ data: { slug: params.slug } }),
-  head: ({ loaderData }) => {
-    const title = loaderData?.name ? `${loaderData.name} — Calculyx AI report` : "Shared financial analysis — Calculyx AI";
-    const desc = `A shareable Calculyx AI ${String(loaderData?.calculator_type ?? "financial")} analysis. Estimates only — verify with your bank.`;
+  head: ({ loaderData, params }) => {
+    const title = loaderData?.name ? `${loaderData.name} — Calculyxai Report` : "Shared Financial Analysis — Calculyxai";
+    const desc = `A shareable Calculyxai ${String(loaderData?.calculator_type ?? "financial")} analysis. Estimates only — verify with your bank or advisor.`;
+    const url = `https://calculyxai.online/r/${params.slug}`;
     return {
       meta: [
         { title },
         { name: "description", content: desc },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
-        { property: "og:type", content: "website" },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   errorComponent: ({ error }) => (
