@@ -222,8 +222,6 @@
 
 @utility border-sheen {
   position: relative;
-}
-@utility border-sheen {
   &::before {
     content: "";
     position: absolute;
