@@ -82,7 +82,7 @@ export function HeroConverter() {
             </div>
 
             {/* right: result panel */}
-            <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.05] p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.06] p-6">
               <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl" aria-hidden />
               <div className="relative flex h-full flex-col justify-between gap-6">
                 <div className="space-y-2">
@@ -92,7 +92,7 @@ export function HeroConverter() {
                     </label>
                     <button
                       onClick={() => { const t = from; setFrom(to); setTo(t); }}
-                      className="grid h-7 w-7 place-items-center rounded-full border border-white/10 text-muted-foreground transition hover:rotate-180 hover:bg-white/5"
+                      className="grid h-7 w-7 place-items-center rounded-full border border-border/60 text-muted-foreground transition hover:rotate-180 hover:bg-foreground/5"
                       aria-label="Swap"
                     >
                       <ArrowLeftRight className="h-3 w-3" />
