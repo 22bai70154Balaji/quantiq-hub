@@ -5,13 +5,17 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — Calculyx AI" },
-      { name: "description", content: "The terms governing your use of Calculyx AI calculators, AI assistant, and related tools." },
-      { property: "og:title", content: "Terms of Service — Calculyx AI" },
-      { property: "og:description", content: "The terms governing your use of Calculyx AI." },
+      { title: "Terms of Service — Calculyxai" },
+      { name: "description", content: "The terms governing your use of Calculyxai's financial calculators, AI assistant, and related tools." },
+      { property: "og:title", content: "Terms of Service — Calculyxai" },
+      { property: "og:description", content: "The terms governing your use of Calculyxai." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/terms" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/terms" }],
   }),
   component: TermsPage,
 });
