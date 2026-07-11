@@ -8,6 +8,9 @@ import { useCountry } from "@/lib/finflow/country-store";
 import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
 import { CALC_BY_SLUG, type CalcSlug } from "@/lib/finflow/registry";
 import type { AnalysisPayload, Kpi, LabelledValue } from "@/lib/finflow/analysis/types";
+import { taxRulesFor } from "@/lib/finflow/tax-rules";
+import { taxSavingTips } from "@/lib/finflow/tax-tips";
+import { TaxRulesPanel } from "../tax-rules-panel";
 
 export function SimpleCalc({ slug }: { slug: CalcSlug }) {
   const meta = CALC_BY_SLUG[slug];
@@ -178,11 +181,14 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
     if (slug === "income-tax") {
       const r = country === "IN" ? indiaTaxNewRegime(income) : country === "US" ? usaFederalTax(income) : uaeTax(income);
       const total = "total" in r ? r.total : "tax" in r ? r.tax : 0;
-      const rulesLabel = country === "IN" ? "India — New Regime FY24-25" : country === "US" ? "USA — Federal (Single, 2024)" : "UAE (no personal income tax)";
+      const rules = taxRulesFor(country);
+      const tips = taxSavingTips(country, income);
+      const tipLines = tips.map((t) => `${t.title}: ${t.detail}`);
       return base(
         [
           { label: "Annual income", value: money(income) },
-          { label: "Rules", value: rulesLabel },
+          { label: "Rules", value: rules.regime },
+          ...(rules.standardDeduction ? [{ label: rules.standardDeduction.label, value: money(rules.standardDeduction.amount) }] : []),
         ],
         [
           { label: "Estimated tax", value: money(total), tone: "destructive" },
@@ -191,14 +197,18 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
         ],
         {
           assumptions: [
-            `${rulesLabel}. Does not include state/local, surcharge tiers beyond default, or 4% cess.`,
-            "Assumes no deductions or exemptions beyond the standard for the regime.",
+            `${rules.regime}. Effective ${rules.effectiveFrom}.`,
+            ...rules.notes,
+            "Tax-saving ideas below are informational and depend on individual circumstances.",
+            ...tipLines,
           ],
           raw: { inputs: { income, country }, results: { tax: total, effectiveRate: r.effectiveRate } },
-          aiBrief: `${rulesLabel}. Income ${money(income)} → tax ~${money(total)} (${r.effectiveRate.toFixed(2)}%).`,
+          aiBrief: `${rules.regime}. Income ${money(income)} → tax ~${money(total)} (${r.effectiveRate.toFixed(2)}%). ${tips.length} country-specific tax-saving ideas available: ${tips.map((t) => t.title).join(", ")}.`,
         }
       );
     }
+
+
 
     if (slug === "salary") {
       const r = salaryBreakdown({ gross, country });
@@ -332,20 +342,24 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
       const r = country === "IN" ? indiaTaxNewRegime(income) : country === "US" ? usaFederalTax(income) : uaeTax(income);
       const total = "total" in r ? r.total : "tax" in r ? r.tax : 0;
       return (
-        <Layout inputs={
-          <>
-            <InputRow label="Annual income"><NumberInput value={income} onChange={setIncome} step={10000} /></InputRow>
-            <div className="text-xs text-muted-foreground">Using {country === "IN" ? "India (New Regime FY24-25)" : country === "US" ? "USA Federal (Single, 2024)" : "UAE (no personal income tax)"} rules. Change country in the top nav.</div>
-          </>
-        } stats={
-          <>
-            <StatCard label="Estimated tax" value={money(total)} tone="destructive" />
-            <StatCard label="Effective rate" value={`${r.effectiveRate.toFixed(2)}%`} />
-            <StatCard label="Take home" value={money(income - total)} tone="primary" />
-          </>
-        } />
+        <>
+          <Layout inputs={
+            <>
+              <InputRow label="Annual income"><NumberInput value={income} onChange={setIncome} step={10000} /></InputRow>
+              <div className="text-xs text-muted-foreground">Change country in the top nav to switch tax rules.</div>
+            </>
+          } stats={
+            <>
+              <StatCard label="Estimated tax" value={money(total)} tone="destructive" />
+              <StatCard label="Effective rate" value={`${r.effectiveRate.toFixed(2)}%`} />
+              <StatCard label="Take home" value={money(income - total)} tone="primary" />
+            </>
+          } />
+          <TaxRulesPanel country={country} income={income} />
+        </>
       );
     }
+
     if (slug === "salary") {
       const r = salaryBreakdown({ gross, country });
       return (
