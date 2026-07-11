@@ -140,6 +140,9 @@ function AiPage() {
             </Button>
           </form>
           <div className="mt-2 text-center text-xs text-muted-foreground">
+            AI responses are informational only — not financial, legal, or tax advice. Verify with your bank or a qualified advisor.
+          </div>
+          <div className="mt-1 text-center text-xs text-muted-foreground">
             <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground"><ArrowLeft className="h-3 w-3" /> Back to home</Link>
           </div>
         </div>
