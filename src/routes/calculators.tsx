@@ -6,9 +6,16 @@ import { CalculatorsGrid } from "@/components/finflow/calculators-grid";
 export const Route = createFileRoute("/calculators")({
   head: () => ({
     meta: [
-      { title: "All Calculators — Calculyx AI" },
-      { name: "description", content: "Browse 12 financial calculators for currency, loans, taxes, investments, and real estate." },
+      { title: "All Financial Calculators — Calculyxai" },
+      { name: "description", content: "Browse Calculyxai's 12 financial calculators — currency, mortgage, home loan, SIP, FD, tax, GST, salary, property, retirement, inflation, and compound interest." },
+      { property: "og:title", content: "All Financial Calculators — Calculyxai" },
+      { property: "og:description", content: "Precision calculators for currency, loans, taxes, investments, and real estate across India, USA, and UAE." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://calculyxai.online/calculators" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/calculators" }],
   }),
   component: () => (
     <div className="bg-page-gradient min-h-screen">
