@@ -103,9 +103,8 @@ export function HeroConverter() {
                       {converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                     </span>
                     <select value={to} onChange={(e) => setTo(e.target.value)}
-                      className="shrink-0 bg-transparent font-display text-xl italic text-muted-foreground focus:outline-none"
-                      style={{ fontFamily: "var(--font-serif)" }}>
-                      {POPULAR.map((c) => <option key={c} value={c} className="bg-background not-italic">{c}</option>)}
+                      className="shrink-0 bg-transparent font-mono text-lg font-medium text-muted-foreground focus:outline-none">
+                      {POPULAR.map((c) => <option key={c} value={c} className="bg-background">{c}</option>)}
                     </select>
                   </div>
                 </div>
