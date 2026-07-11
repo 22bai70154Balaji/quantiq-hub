@@ -5,9 +5,9 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
-      { title: "Cookie Policy — FinFlow AI" },
-      { name: "description", content: "How FinFlow AI uses cookies and local storage to keep you signed in and remember your preferences." },
-      { property: "og:title", content: "Cookie Policy — FinFlow AI" },
+      { title: "Cookie Policy — Calculyx AI" },
+      { name: "description", content: "How Calculyx AI uses cookies and local storage to keep you signed in and remember your preferences." },
+      { property: "og:title", content: "Cookie Policy — Calculyx AI" },
       { property: "og:description", content: "Strictly necessary cookies only — no ad trackers." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -30,7 +30,7 @@ function CookiesPage() {
 
           <div className="prose prose-slate mt-8 max-w-none text-[15px] leading-7 text-foreground/90 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:mt-3 [&>ul]:mt-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:mt-1">
             <p>
-              FinFlow AI uses a small number of cookies and browser storage entries so the app can work. We do
+              Calculyx AI uses a small number of cookies and browser storage entries so the app can work. We do
               not use third-party advertising trackers or cross-site marketing pixels.
             </p>
 

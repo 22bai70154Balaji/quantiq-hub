@@ -14,10 +14,10 @@ import { sendContactEmail } from "@/lib/finflow/contact-email.functions";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — FinFlow AI" },
-      { name: "description", content: "Get in touch with the FinFlow AI team. Send us a message and we'll get back to you." },
-      { property: "og:title", content: "Contact — FinFlow AI" },
-      { property: "og:description", content: "Get in touch with the FinFlow AI team." },
+      { title: "Contact — Calculyx AI" },
+      { name: "description", content: "Get in touch with the Calculyx AI team. Send us a message and we'll get back to you." },
+      { property: "og:title", content: "Contact — Calculyx AI" },
+      { property: "og:description", content: "Get in touch with the Calculyx AI team." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -10,7 +10,7 @@ import { TrustAndTestimonials } from "@/components/finflow/testimonials";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FinFlow AI — Premium Financial Calculators & AI Insights" },
+      { title: "Calculyx AI — Premium Financial Calculators & AI Insights" },
       { name: "description", content: "12 professional calculators for mortgage, SIP, tax, and currency across India, USA, and UAE — powered by AI." },
     ],
   }),

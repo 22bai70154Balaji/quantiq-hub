@@ -11,7 +11,7 @@ import { askFinFlowAi } from "@/lib/finflow/ai.functions";
 import { useCountry } from "@/lib/finflow/country-store";
 
 export const Route = createFileRoute("/ai")({
-  head: () => ({ meta: [{ title: "AI Assistant — FinFlow AI" }] }),
+  head: () => ({ meta: [{ title: "AI Assistant — Calculyx AI" }] }),
   component: AiPage,
 });
 
@@ -68,7 +68,7 @@ function AiPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-display text-xl font-semibold tracking-tight">FinFlow <span className="font-serif italic text-gold">AI</span></div>
+              <div className="font-display text-xl font-semibold tracking-tight">Calculyx <span className="font-serif italic text-gold">AI</span></div>
               <div className="text-xs text-muted-foreground">Informational only · not financial advice</div>
             </div>
           </div>
@@ -80,7 +80,7 @@ function AiPage() {
                   <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-elegant">
                     <Sparkles className="h-6 w-6" />
                   </div>
-                  <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight">Ask FinFlow AI anything</h2>
+                  <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight">Ask Calculyx AI anything</h2>
                   <p className="mt-2 text-sm text-muted-foreground">Powered by advanced reasoning models. Tuned for India, USA, and UAE finance.</p>
                   <div className="mt-6 grid gap-2 sm:grid-cols-2">
                     {SUGGESTIONS.map((s) => (

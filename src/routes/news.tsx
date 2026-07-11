@@ -8,7 +8,7 @@ import { useCountry } from "@/lib/finflow/country-store";
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "Financial News — FinFlow AI" },
+      { title: "Financial News — Calculyx AI" },
       { name: "description", content: "AI-summarised daily financial news for India, USA, and UAE." },
     ],
   }),

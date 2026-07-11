@@ -44,7 +44,7 @@ export function Navbar() {
       <div
         className={`mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 rounded-full border border-sheen glass pl-3 pr-2 sm:pl-5 sm:pr-3 transition-shadow ${scrolled ? "shadow-elegant" : "shadow-soft"}`}
       >
-        <Link to="/" className="flex items-center" aria-label="FinFlow AI home">
+        <Link to="/" className="flex items-center" aria-label="Calculyx AI home">
           <FinFlowLogo className="h-8 w-auto text-foreground" />
         </Link>
 

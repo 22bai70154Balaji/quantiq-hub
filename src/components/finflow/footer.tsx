@@ -10,7 +10,7 @@ export function Footer() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
           <p>
             <strong className="text-foreground">Disclaimer:</strong> All calculators, AI responses, and news
-            summaries on FinFlow AI are informational estimates only — not financial, tax, or legal advice.
+            summaries on Calculyx AI are informational estimates only — not financial, tax, or legal advice.
             Rates and rules change; always verify details with the relevant bank or authority before making a
             financial decision.{" "}
             <Link to="/disclaimer" className="text-primary underline underline-offset-4">Read full disclaimer</Link>.
@@ -42,7 +42,7 @@ export function Footer() {
           ]} />
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 border-t pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} FinFlow AI. All figures are estimates, not financial advice.</p>
+          <p>© {new Date().getFullYear()} Calculyx AI. All figures are estimates, not financial advice.</p>
           <p>Made with precision.</p>
         </div>
       </div>

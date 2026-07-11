@@ -75,7 +75,7 @@ export function PropertyCalc() {
       doc.text(pdfMoney(r.totalCost, country), ctx.w - ctx.margin, ctx.y, { align: "right" });
 
       pdfFooter(ctx, "Estimates only - consult a licensed advisor.");
-      doc.save(`FinFlow-Property-${city.replace(/\W+/g, "-")}.pdf`);
+      doc.save(`Calculyx-Property-${city.replace(/\W+/g, "-")}.pdf`);
       toast.success("PDF report downloaded");
     } catch (e) {
       toast.error("Could not generate PDF");

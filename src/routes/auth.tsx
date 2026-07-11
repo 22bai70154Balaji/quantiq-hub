@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { sendWelcomeEmail } from "@/lib/finflow/welcome-email.functions";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in — FinFlow AI" }] }),
+  head: () => ({ meta: [{ title: "Sign in — Calculyx AI" }] }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (data.user) throw redirect({ to: "/dashboard" });
@@ -72,7 +72,7 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen place-items-center bg-hero px-4 py-12">
       <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-md">
-        <Link to="/" className="mb-6 flex items-center justify-center" aria-label="FinFlow AI home">
+        <Link to="/" className="mb-6 flex items-center justify-center" aria-label="Calculyx AI home">
           <FinFlowLogo className="h-10 w-auto text-foreground" />
         </Link>
         <div className="rounded-3xl border bg-card/80 p-8 shadow-elegant backdrop-blur-xl">

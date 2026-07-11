@@ -227,15 +227,15 @@ export function HomeLoanEngine() {
 
       // QR code at footer of last page
       try {
-        const qrUrl = typeof window !== "undefined" ? window.location.href : "https://finflow.ai";
+        const qrUrl = typeof window !== "undefined" ? window.location.href : "https://calculyx.ai";
         const qrData = await QRCode.toDataURL(qrUrl, { margin: 1, width: 128 });
         doc.setPage(doc.getNumberOfPages());
         doc.addImage(qrData, "PNG", ctx.w - 90, ctx.h - 90, 54, 54);
         doc.setFontSize(7).setTextColor(120).text("Scan for live report", ctx.w - 90, ctx.h - 30);
       } catch { /* qr optional */ }
 
-      pdfFooter(ctx, "FinFlow AI  -  Not financial advice");
-      doc.save(`FinFlow-HomeLoan-${i.city.replace(/\W+/g, "-")}.pdf`);
+      pdfFooter(ctx, "Calculyx AI  -  Not financial advice");
+      doc.save(`Calculyx-HomeLoan-${i.city.replace(/\W+/g, "-")}.pdf`);
       toast.success("PDF report downloaded");
     } catch (e) {
       console.error(e);
