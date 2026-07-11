@@ -91,7 +91,7 @@ function ConverterField({
           value={Number.isFinite(value) ? value : 0}
           onChange={(e) => onAmount?.(Number(e.target.value))}
           readOnly={readOnly}
-          className="w-full min-w-0 flex-1 bg-transparent font-display text-xl font-semibold tracking-tight focus:outline-none sm:text-2xl"
+          className="w-full min-w-0 flex-1 bg-transparent font-mono text-xl font-semibold tracking-tight tabular-nums focus:outline-none sm:text-2xl"
         />
         <select
           value={currency}
