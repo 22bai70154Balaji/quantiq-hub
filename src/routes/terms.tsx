@@ -5,10 +5,10 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — FinFlow AI" },
-      { name: "description", content: "The terms governing your use of FinFlow AI calculators, AI assistant, and related tools." },
-      { property: "og:title", content: "Terms of Service — FinFlow AI" },
-      { property: "og:description", content: "The terms governing your use of FinFlow AI." },
+      { title: "Terms of Service — Calculyx AI" },
+      { name: "description", content: "The terms governing your use of Calculyx AI calculators, AI assistant, and related tools." },
+      { property: "og:title", content: "Terms of Service — Calculyx AI" },
+      { property: "og:description", content: "The terms governing your use of Calculyx AI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -30,7 +30,7 @@ function TermsPage() {
 
           <div className="prose prose-slate mt-8 max-w-none text-[15px] leading-7 text-foreground/90 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:mt-3 [&>ul]:mt-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:mt-1">
             <p>
-              By accessing or using FinFlow AI ("the service"), you agree to these Terms. If you do not agree,
+              By accessing or using Calculyx AI ("the service"), you agree to these Terms. If you do not agree,
               please do not use the service.
             </p>
 
@@ -70,14 +70,14 @@ function TermsPage() {
 
             <h2>Limitation of liability</h2>
             <p>
-              To the maximum extent permitted by law, FinFlow AI and its contributors will not be liable for any
+              To the maximum extent permitted by law, Calculyx AI and its contributors will not be liable for any
               indirect, incidental, or consequential damages, or for financial losses arising from decisions you
               make based on the service.
             </p>
 
             <h2>Intellectual property</h2>
             <p>
-              The FinFlow AI brand, interface, and content are owned by us. You keep ownership of any data or
+              The Calculyx AI brand, interface, and content are owned by us. You keep ownership of any data or
               content you submit, and you grant us the limited right to process it to operate the service on
               your behalf.
             </p>

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/calc/$type")({
     const meta = CALC_BY_SLUG[params.type as CalcSlug];
     return {
       meta: [
-        { title: `${meta?.name ?? "Calculator"} — FinFlow AI` },
+        { title: `${meta?.name ?? "Calculator"} — Calculyx AI` },
         { name: "description", content: meta?.tagline ?? "Financial calculator" },
       ],
     };

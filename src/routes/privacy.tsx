@@ -5,10 +5,10 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — FinFlow AI" },
-      { name: "description", content: "How FinFlow AI collects, uses, and protects your data across our financial calculators and AI tools." },
-      { property: "og:title", content: "Privacy Policy — FinFlow AI" },
-      { property: "og:description", content: "How FinFlow AI collects, uses, and protects your data." },
+      { title: "Privacy Policy — Calculyx AI" },
+      { name: "description", content: "How Calculyx AI collects, uses, and protects your data across our financial calculators and AI tools." },
+      { property: "og:title", content: "Privacy Policy — Calculyx AI" },
+      { property: "og:description", content: "How Calculyx AI collects, uses, and protects your data." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -30,8 +30,8 @@ function PrivacyPage() {
 
           <div className="prose prose-slate mt-8 max-w-none text-[15px] leading-7 text-foreground/90 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:mt-3 [&>ul]:mt-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:mt-1">
             <p>
-              This page explains what information FinFlow AI ("we", "us") collects, how we use it, and the choices
-              you have. This page is maintained by the FinFlow AI team and is not an independent legal certification.
+              This page explains what information Calculyx AI ("we", "us") collects, how we use it, and the choices
+              you have. This page is maintained by the Calculyx AI team and is not an independent legal certification.
             </p>
 
             <h2>Information we collect</h2>
@@ -77,7 +77,7 @@ function PrivacyPage() {
 
             <h2>Financial disclaimer</h2>
             <p>
-              FinFlow AI provides estimates and educational tools only. Nothing on this site constitutes financial,
+              Calculyx AI provides estimates and educational tools only. Nothing on this site constitutes financial,
               legal, or tax advice. Always consult a qualified advisor before making financial decisions.
             </p>
 

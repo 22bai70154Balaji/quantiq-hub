@@ -20,7 +20,7 @@ export function exportCsv(payload: AnalysisPayload, reportId: string): void {
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     }).join(","));
 
-  push([`FinFlow AI — ${payload.title}`]);
+  push([`Calculyx AI — ${payload.title}`]);
   push([`Report ID`, reportId]);
   push([`Generated`, new Date().toISOString()]);
   push([`Country`, payload.country]);
@@ -60,7 +60,7 @@ export function exportXlsx(payload: AnalysisPayload, reportId: string): void {
   const wb = XLSX.utils.book_new();
 
   const summarySheet = XLSX.utils.aoa_to_sheet([
-    ["FinFlow AI"],
+    ["Calculyx AI"],
     [payload.title],
     ["Report ID", reportId],
     ["Generated", new Date().toISOString()],

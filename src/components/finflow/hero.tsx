@@ -156,7 +156,7 @@ export function Hero() {
             <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </Link>
           <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
-            <TrendingUp className="h-4 w-4" /> Ask FinFlow AI
+            <TrendingUp className="h-4 w-4" /> Ask Calculyx AI
           </Link>
         </div>
 

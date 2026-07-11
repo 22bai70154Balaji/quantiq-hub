@@ -6,7 +6,7 @@ import { CalculatorsGrid } from "@/components/finflow/calculators-grid";
 export const Route = createFileRoute("/calculators")({
   head: () => ({
     meta: [
-      { title: "All Calculators — FinFlow AI" },
+      { title: "All Calculators — Calculyx AI" },
       { name: "description", content: "Browse 12 financial calculators for currency, loans, taxes, investments, and real estate." },
     ],
   }),

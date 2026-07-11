@@ -21,7 +21,7 @@ export const sendContactEmail = createServerFn({ method: "POST" })
       return { sent: false, reason: "not_configured" as const };
     }
 
-    const from = process.env.RESEND_FROM ?? "FinFlow AI <onboarding@resend.dev>";
+    const from = process.env.RESEND_FROM ?? "Calculyx AI <onboarding@resend.dev>";
 
     const html = `<!doctype html><html><body style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#0f172a;background:#f5f7fb;padding:24px;">
       <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 24px rgba(9,37,80,0.08);">
@@ -47,7 +47,7 @@ export const sendContactEmail = createServerFn({ method: "POST" })
         from,
         to: [OWNER_EMAIL],
         reply_to: data.email,
-        subject: `[FinFlow Contact] ${data.subject}`,
+        subject: `[Calculyx Contact] ${data.subject}`,
         html,
         text,
       }),

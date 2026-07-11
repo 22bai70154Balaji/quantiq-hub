@@ -69,7 +69,7 @@ export const analyzeCalculation = createServerFn({ method: "POST" })
     }
 
     const jurisdiction = data.country === "IN" ? "India (INR)" : data.country === "US" ? "USA (USD)" : "UAE (AED)";
-    const sys = `You are FinFlow AI's financial analyst. You are given a compact "brief" describing a user's calculation.
+    const sys = `You are Calculyx AI's financial analyst. You are given a compact "brief" describing a user's calculation.
 Return STRICT JSON matching:
 {"summary": string (max 3 sentences),
  "recommendations": string[3-5],

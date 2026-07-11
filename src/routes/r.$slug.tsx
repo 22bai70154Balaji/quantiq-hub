@@ -14,8 +14,8 @@ import type { AnalysisPayload, Kpi } from "@/lib/finflow/analysis/types";
 export const Route = createFileRoute("/r/$slug")({
   loader: ({ params }) => getSharedCalculation({ data: { slug: params.slug } }),
   head: ({ loaderData }) => {
-    const title = loaderData?.name ? `${loaderData.name} — FinFlow AI report` : "Shared financial analysis — FinFlow AI";
-    const desc = `A shareable FinFlow AI ${String(loaderData?.calculator_type ?? "financial")} analysis. Estimates only — verify with your bank.`;
+    const title = loaderData?.name ? `${loaderData.name} — Calculyx AI report` : "Shared financial analysis — Calculyx AI";
+    const desc = `A shareable Calculyx AI ${String(loaderData?.calculator_type ?? "financial")} analysis. Estimates only — verify with your bank.`;
     return {
       meta: [
         { title },
@@ -87,7 +87,7 @@ function SharedReportPage() {
       <main className="pt-24">
         <article className="mx-auto max-w-5xl px-6 py-10">
           <div className="text-xs font-medium uppercase tracking-[0.14em] text-primary flex flex-wrap items-center gap-2">
-            <span>Shared FinFlow AI report</span>
+            <span>Shared Calculyx AI report</span>
             {row.report_id && (<><span className="text-muted-foreground">·</span><span className="font-mono text-muted-foreground">{row.report_id}</span></>)}
             <span className="text-muted-foreground">·</span>
             <span className="text-muted-foreground">{c.flag} {c.name}</span>

@@ -13,7 +13,7 @@ import { useCountry } from "@/lib/finflow/country-store";
 import { COUNTRIES, type Country } from "@/lib/finflow/countries";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — FinFlow AI" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Calculyx AI" }] }),
   component: Dashboard,
 });
 

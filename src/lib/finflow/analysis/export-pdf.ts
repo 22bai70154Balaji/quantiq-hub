@@ -219,7 +219,7 @@ export async function exportPdf({ payload, reportId, shareUrl, chartNodeIds, ins
 
   pdfFooter(
     ctx,
-    "FinFlow AI · Estimates only, not financial advice. Verify with your bank or advisor.",
+    "Calculyx AI · Estimates only, not financial advice. Verify with your bank or advisor.",
   );
 
   doc.save(`${reportId}.pdf`);

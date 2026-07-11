@@ -1,5 +1,5 @@
 /**
- * Custom SVG icons for each FinFlow AI calculator.
+ * Custom SVG icons for each Calculyx AI calculator.
  * Designed as a matching set — 24×24 grid, 1.6 stroke, rounded joins,
  * with a subtle accent fill so they read as bespoke pictograms rather than
  * generic lucide glyphs. All icons inherit `currentColor` so they tint from

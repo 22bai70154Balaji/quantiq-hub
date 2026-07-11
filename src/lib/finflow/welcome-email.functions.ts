@@ -9,11 +9,11 @@ const input = z.object({
 });
 
 /**
- * Sends the FinFlow AI welcome email via the Resend gateway.
+ * Sends the Calculyx AI welcome email via the Resend gateway.
  *
  * Uses the shared `onboarding@resend.dev` sender by default. To email real
  * users, verify a domain in Resend and set `RESEND_FROM` (e.g.
- * "FinFlow AI <hello@yourdomain.com>") as a project secret.
+ * "Calculyx AI <hello@yourdomain.com>") as a project secret.
  */
 export const sendWelcomeEmail = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => input.parse(data))
@@ -25,7 +25,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
       return { sent: false, reason: "not_configured" as const };
     }
 
-    const from = process.env.RESEND_FROM ?? "FinFlow AI <onboarding@resend.dev>";
+    const from = process.env.RESEND_FROM ?? "Calculyx AI <onboarding@resend.dev>";
     const displayName = data.name?.trim() || "there";
 
     const html = renderWelcomeHtml(displayName);
@@ -41,7 +41,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
       body: JSON.stringify({
         from,
         to: [data.to],
-        subject: "Welcome to FinFlow AI 🎉",
+        subject: "Welcome to Calculyx AI 🎉",
         html,
         text,
       }),
@@ -66,7 +66,7 @@ function renderWelcomeHtml(name: string) {
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(9,37,80,0.08);">
             <tr>
               <td style="background:linear-gradient(120deg,#014A92 0%,#0BE8FB 100%);padding:28px 32px;color:#ffffff;">
-                <div style="font-size:22px;font-weight:700;letter-spacing:-0.02em;">FinFlow AI</div>
+                <div style="font-size:22px;font-weight:700;letter-spacing:-0.02em;">Calculyx AI</div>
                 <div style="opacity:.9;font-size:14px;margin-top:4px;">Premium financial calculators &amp; AI insights</div>
               </td>
             </tr>
@@ -74,7 +74,7 @@ function renderWelcomeHtml(name: string) {
               <td style="padding:32px;">
                 <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#092550;">Welcome, ${escapeHtml(name)} 👋</h1>
                 <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">
-                  Your FinFlow AI account is ready. You now have access to our full suite of financial calculators —
+                  Your Calculyx AI account is ready. You now have access to our full suite of financial calculators —
                   Home Loan, SIP, Mortgage, Property, Currency and more — plus an AI assistant tuned for personal finance.
                 </p>
                 <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#334155;">
@@ -91,7 +91,7 @@ function renderWelcomeHtml(name: string) {
             </tr>
             <tr>
               <td style="padding:16px 32px 28px;font-size:12px;color:#94a3b8;">
-                © FinFlow AI · You are receiving this because you signed up.
+                © Calculyx AI · You are receiving this because you signed up.
               </td>
             </tr>
           </table>
@@ -106,9 +106,9 @@ function renderWelcomeText(name: string) {
   return [
     `Welcome, ${name}!`,
     "",
-    "Your FinFlow AI account is ready. Explore Home Loan, SIP, Mortgage, Property and Currency calculators, plus an AI assistant for personal finance.",
+    "Your Calculyx AI account is ready. Explore Home Loan, SIP, Mortgage, Property and Currency calculators, plus an AI assistant for personal finance.",
     "",
-    "Open FinFlow AI: https://id-preview--0ec82f2f-0a13-4559-b6a5-8c1e8bf0c043.lovable.app/calculators",
+    "Open Calculyx AI: https://id-preview--0ec82f2f-0a13-4559-b6a5-8c1e8bf0c043.lovable.app/calculators",
     "",
     "Questions? Just reply to this email.",
   ].join("\n");

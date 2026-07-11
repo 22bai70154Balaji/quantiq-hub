@@ -70,7 +70,7 @@ export function AiInsightsPanel({
 
       {!insights && !loading && !error && (
         <div className="mt-6 text-sm text-muted-foreground">
-          Click <span className="text-foreground font-medium">Generate</span> to have FinFlow AI review your inputs and produce recommendations.
+          Click <span className="text-foreground font-medium">Generate</span> to have Calculyx AI review your inputs and produce recommendations.
         </div>
       )}
     </div>

@@ -6,9 +6,9 @@ import { AlertTriangle } from "lucide-react";
 export const Route = createFileRoute("/disclaimer")({
   head: () => ({
     meta: [
-      { title: "Disclaimer — FinFlow AI" },
-      { name: "description", content: "FinFlow AI calculators, AI responses, and news summaries are informational only — not financial advice." },
-      { property: "og:title", content: "Disclaimer — FinFlow AI" },
+      { title: "Disclaimer — Calculyx AI" },
+      { name: "description", content: "Calculyx AI calculators, AI responses, and news summaries are informational only — not financial advice." },
+      { property: "og:title", content: "Disclaimer — Calculyx AI" },
       { property: "og:description", content: "Informational only — not financial, tax, legal, or investment advice." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -32,7 +32,7 @@ function DisclaimerPage() {
           <div className="mt-8 flex items-start gap-3 rounded-2xl border border-sheen glass p-5 text-sm">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
             <p>
-              All calculators, AI-generated responses, news summaries, and reports on FinFlow AI are provided
+              All calculators, AI-generated responses, news summaries, and reports on Calculyx AI are provided
               for <strong>informational and educational purposes only</strong>. They are estimates — not
               financial, tax, legal, or investment advice.
             </p>
@@ -63,13 +63,13 @@ function DisclaimerPage() {
 
             <h2>AI outputs are not advice</h2>
             <p>
-              The FinFlow AI assistant uses large language models. Its answers can be incomplete, outdated, or
+              The Calculyx AI assistant uses large language models. Its answers can be incomplete, outdated, or
               factually wrong. Treat them as a starting point for research, not as a final answer.
             </p>
 
             <h2>No fiduciary relationship</h2>
             <p>
-              Using FinFlow AI does not create a client, fiduciary, or advisory relationship between you and
+              Using Calculyx AI does not create a client, fiduciary, or advisory relationship between you and
               us. We are not a bank, broker, RIA, IFA, tax preparer, or law firm.
             </p>
 
