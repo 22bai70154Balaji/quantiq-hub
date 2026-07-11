@@ -1,5 +1,7 @@
 import * as React from 'react'
 
+import { LogoHeader } from './logo-header'
+
 import {
   Body,
   Button,
@@ -28,6 +30,7 @@ export const InviteEmail = ({
     <Preview>You've been invited to join {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
+        <LogoHeader />
         <Heading style={h1}>You've been invited</Heading>
         <Text style={text}>
           You've been invited to join{' '}
