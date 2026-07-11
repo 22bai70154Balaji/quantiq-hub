@@ -3,11 +3,9 @@ import { motion } from "framer-motion";
 import { Bookmark, Download, Share2, Sparkles, Printer, FileText, FileSpreadsheet, FileType2, Loader2, Link2, Check, X, Globe } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
 import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
 import type { AnalysisInsights } from "@/lib/finflow/analysis/insights.functions";
-import { saveCalculation, toggleCalculationShare } from "@/lib/finflow/analysis/calculations.functions";
-import { analyzeCalculation } from "@/lib/finflow/analysis/insights.functions";
+import { toggleCalculationShare } from "@/lib/finflow/analysis/calculations.functions";
 import { exportCsv, exportXlsx } from "@/lib/finflow/analysis/export-data";
 import { exportPdf } from "@/lib/finflow/analysis/export-pdf";
 
@@ -21,110 +19,51 @@ export type SavedState = {
 export function AnalysisActions({
   payload,
   chartNodeIds,
-  onInsights,
   insights,
   saved,
   onSaved,
   signedIn,
+  saving,
+  aiLoading,
+  onRunAi,
+  onEnsureSaved,
 }: {
   payload: AnalysisPayload;
   chartNodeIds: string[];
-  onInsights: (i: AnalysisInsights | null) => void;
   insights: AnalysisInsights | null;
   saved: SavedState | null;
   onSaved: (s: SavedState) => void;
   signedIn: boolean | null;
+  saving: boolean;
+  aiLoading: boolean;
+  onRunAi: () => void;
+  onEnsureSaved: () => Promise<SavedState | null>;
 }) {
-  const [saving, setSaving] = useState(false);
-  const [running, setRunning] = useState(false);
+  void signedIn;
   const [exporting, setExporting] = useState<null | "pdf" | "csv" | "xlsx">(null);
   const [copied, setCopied] = useState(false);
   const [togglingShare, setTogglingShare] = useState(false);
   const [openExport, setOpenExport] = useState(false);
   const [openShare, setOpenShare] = useState(false);
-  const save = useServerFn(saveCalculation);
-  const analyze = useServerFn(analyzeCalculation);
   const toggleShare = useServerFn(toggleCalculationShare);
-  const navigate = useNavigate();
 
   const shareUrl = saved?.shareSlug ? `${typeof window !== "undefined" ? window.location.origin : ""}/r/${saved.shareSlug}` : null;
-
-  async function ensureSaved(): Promise<SavedState | null> {
-    if (saved) return saved;
-    if (signedIn === false) {
-      toast.error("Sign in to save this report");
-      navigate({ to: "/auth" });
-      return null;
-    }
-    setSaving(true);
-    try {
-      const row = await save({
-        data: {
-          calculatorType: payload.slug,
-          name: payload.title,
-          country: payload.country,
-          inputs: payload.raw.inputs,
-          results: payload.raw.results,
-          summary: {
-            kpis: payload.kpis.map((k) => ({ label: k.label, value: k.value })),
-            country: payload.country,
-          },
-        },
-      });
-      const s: SavedState = { id: row.id, reportId: row.report_id ?? "", shareSlug: row.share_slug ?? null, isPublic: !!row.is_public };
-      onSaved(s);
-      toast.success("Saved to your dashboard");
-      return s;
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Save failed");
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function runAi() {
-    if (running) return;
-    if (signedIn === false) {
-      toast.error("Sign in to use AI Insights");
-      navigate({ to: "/auth" });
-      return;
-    }
-    setRunning(true);
-    try {
-      const s = await ensureSaved();
-      const res = await analyze({
-        data: {
-          calculatorType: payload.slug,
-          country: payload.country,
-          brief: payload.aiBrief,
-          saveToId: s?.id,
-        },
-      });
-      onInsights(res);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "AI failed");
-    } finally {
-      setRunning(false);
-    }
-  }
 
   async function doExport(kind: "pdf" | "csv" | "xlsx") {
     if (exporting) return;
     setExporting(kind);
     setOpenExport(false);
     try {
-      // Only require save/share for PDF so QR is meaningful; CSV/XLSX are pure client-side.
       let s = saved;
       let url: string | undefined;
-      if (kind === "pdf" && signedIn) {
-        s = await ensureSaved();
+      if (kind === "pdf") {
+        s = await onEnsureSaved();
         if (s && !s.shareSlug) {
           try {
             const updated = await toggleShare({ data: { id: s.id, makePublic: true } });
             s = { ...s, isPublic: !!updated.is_public, shareSlug: updated.share_slug ?? null };
             onSaved(s);
-          } catch { /* fall through — PDF still works without QR */ }
+          } catch { /* PDF still works without QR */ }
         }
         url = s?.shareSlug ? `${window.location.origin}/r/${s.shareSlug}` : undefined;
       }
@@ -141,7 +80,7 @@ export function AnalysisActions({
   }
 
   async function copyShare() {
-    const s = await ensureSaved();
+    const s = await onEnsureSaved();
     if (!s) return;
     let publicSlug = s.shareSlug;
     if (!publicSlug || !s.isPublic) {
@@ -196,7 +135,7 @@ export function AnalysisActions({
       className="flex flex-wrap items-center justify-end gap-2 print:hidden"
     >
       <button
-        onClick={ensureSaved}
+        onClick={onEnsureSaved}
         disabled={saving}
         className="inline-flex items-center gap-1.5 rounded-full border border-sheen glass px-4 py-1.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
       >
@@ -205,11 +144,12 @@ export function AnalysisActions({
       </button>
 
       <button
-        onClick={runAi}
-        disabled={running}
+        data-ai-run
+        onClick={onRunAi}
+        disabled={aiLoading}
         className="inline-flex items-center gap-1.5 rounded-full bg-gradient-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow-elegant hover:opacity-90 disabled:opacity-60"
       >
-        {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+        {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
         AI Insights
       </button>
 
