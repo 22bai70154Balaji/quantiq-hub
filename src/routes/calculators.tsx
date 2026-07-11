@@ -11,17 +11,21 @@ export const Route = createFileRoute("/calculators")({
     ],
   }),
   component: () => (
-    <>
+    <div className="bg-page-gradient min-h-screen">
       <Navbar />
-      <main className="pt-16">
-        <div className="mx-auto max-w-7xl px-6 pt-16 text-center">
+      <main className="pt-24">
+        <div className="mx-auto max-w-7xl px-6 pt-12 text-center">
           <div className="text-sm font-medium text-primary">Full library</div>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl">All calculators</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Pick a calculator to run precise, country-aware financial math.</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl">
+            All <span className="font-serif italic text-gold">calculators</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            Pick a calculator to run precise, country-aware financial math. Every result is an estimate — verify with your bank before deciding.
+          </p>
         </div>
         <CalculatorsGrid />
       </main>
       <Footer />
-    </>
+    </div>
   ),
 });
