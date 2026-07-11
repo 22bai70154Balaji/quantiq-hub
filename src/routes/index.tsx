@@ -37,6 +37,7 @@ function Index() {
         <TrustAndTestimonials />
       </main>
       <Footer />
+      <StatusBar />
     </div>
   );
 }
