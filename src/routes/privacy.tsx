@@ -5,13 +5,17 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Calculyx AI" },
-      { name: "description", content: "How Calculyx AI collects, uses, and protects your data across our financial calculators and AI tools." },
-      { property: "og:title", content: "Privacy Policy — Calculyx AI" },
-      { property: "og:description", content: "How Calculyx AI collects, uses, and protects your data." },
+      { title: "Privacy Policy — Calculyxai" },
+      { name: "description", content: "How Calculyxai collects, uses, and protects your data across our financial calculators and AI tools." },
+      { property: "og:title", content: "Privacy Policy — Calculyxai" },
+      { property: "og:description", content: "How Calculyxai collects, uses, and protects your data." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/privacy" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/privacy" }],
   }),
   component: PrivacyPage,
 });

@@ -6,13 +6,17 @@ import { Sparkles, Calculator, Newspaper, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Calculyx AI" },
-      { name: "description", content: "Calculyx AI is a premium suite of financial calculators and AI insights built for India, USA, and UAE." },
-      { property: "og:title", content: "About — Calculyx AI" },
-      { property: "og:description", content: "Premium financial calculators and AI insights for India, USA, and UAE." },
+      { title: "About Calculyxai — Premium Financial Tools for India, USA & UAE" },
+      { name: "description", content: "Calculyxai is a premium suite of financial calculators and AI-powered insights built for India, the USA, and the UAE." },
+      { property: "og:title", content: "About Calculyxai" },
+      { property: "og:description", content: "A premium suite of financial calculators and AI insights for India, the USA, and the UAE." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/about" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/about" }],
   }),
   component: AboutPage,
 });

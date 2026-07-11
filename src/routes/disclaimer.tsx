@@ -6,13 +6,17 @@ import { AlertTriangle } from "lucide-react";
 export const Route = createFileRoute("/disclaimer")({
   head: () => ({
     meta: [
-      { title: "Disclaimer — Calculyx AI" },
-      { name: "description", content: "Calculyx AI calculators, AI responses, and news summaries are informational only — not financial advice." },
-      { property: "og:title", content: "Disclaimer — Calculyx AI" },
+      { title: "Financial Disclaimer — Calculyxai" },
+      { name: "description", content: "Calculyxai calculators, AI responses, and news summaries are informational only — not financial, tax, legal, or investment advice." },
+      { property: "og:title", content: "Financial Disclaimer — Calculyxai" },
       { property: "og:description", content: "Informational only — not financial, tax, legal, or investment advice." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/disclaimer" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/disclaimer" }],
   }),
   component: DisclaimerPage,
 });

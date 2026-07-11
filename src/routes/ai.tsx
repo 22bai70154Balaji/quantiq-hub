@@ -11,7 +11,19 @@ import { askFinFlowAi } from "@/lib/finflow/ai.functions";
 import { useCountry } from "@/lib/finflow/country-store";
 
 export const Route = createFileRoute("/ai")({
-  head: () => ({ meta: [{ title: "AI Assistant — Calculyx AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "AI Financial Assistant — Calculyxai" },
+      { name: "description", content: "Ask Calculyxai's AI assistant to compare mortgages, SIPs, taxes, and investment scenarios in plain English." },
+      { property: "og:title", content: "AI Financial Assistant — Calculyxai" },
+      { property: "og:description", content: "Chat with an AI tuned for personal finance across India, the USA, and the UAE." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://calculyxai.online/ai" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
+    ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/ai" }],
+  }),
   component: AiPage,
 });
 

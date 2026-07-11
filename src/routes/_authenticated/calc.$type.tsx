@@ -17,11 +17,23 @@ export const Route = createFileRoute("/_authenticated/calc/$type")({
   },
   head: ({ params }) => {
     const meta = CALC_BY_SLUG[params.type as CalcSlug];
+    const name = meta?.name ?? "Calculator";
+    const tagline = meta?.tagline ?? "Precision financial calculator with country-aware math and AI insights.";
+    const title = `${name} Calculator — Calculyxai`;
+    const url = `https://calculyxai.online/calc/${params.type}`;
     return {
       meta: [
-        { title: `${meta?.name ?? "Calculator"} — Calculyx AI` },
-        { name: "description", content: meta?.tagline ?? "Financial calculator" },
+        { title },
+        { name: "description", content: `${tagline} Free ${name.toLowerCase()} calculator by Calculyxai — for India, USA, and UAE.` },
+        { property: "og:title", content: title },
+        { property: "og:description", content: tagline },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   component: CalcPage,

@@ -10,7 +10,20 @@ import { toast } from "sonner";
 import { sendWelcomeEmail } from "@/lib/finflow/welcome-email.functions";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in — Calculyx AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in to Calculyxai" },
+      { name: "description", content: "Sign in or create a free Calculyxai account to save calculations, share reports, and chat with the AI assistant." },
+      { property: "og:title", content: "Sign in to Calculyxai" },
+      { property: "og:description", content: "Access your saved calculations, shared reports, and AI assistant." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://calculyxai.online/auth" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/auth" }],
+  }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (data.user) throw redirect({ to: "/dashboard" });

@@ -5,13 +5,17 @@ import { Footer } from "@/components/finflow/footer";
 export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
-      { title: "Cookie Policy — Calculyx AI" },
-      { name: "description", content: "How Calculyx AI uses cookies and local storage to keep you signed in and remember your preferences." },
-      { property: "og:title", content: "Cookie Policy — Calculyx AI" },
+      { title: "Cookie Policy — Calculyxai" },
+      { name: "description", content: "How Calculyxai uses cookies and local storage to keep you signed in and remember your preferences." },
+      { property: "og:title", content: "Cookie Policy — Calculyxai" },
       { property: "og:description", content: "Strictly necessary cookies only — no ad trackers." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/cookies" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/cookies" }],
   }),
   component: CookiesPage,
 });

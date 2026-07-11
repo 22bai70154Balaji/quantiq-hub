@@ -8,9 +8,16 @@ import { useCountry } from "@/lib/finflow/country-store";
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "Financial News — Calculyx AI" },
-      { name: "description", content: "AI-summarised daily financial news for India, USA, and UAE." },
+      { title: "Financial News & AI Market Digest — Calculyxai" },
+      { name: "description", content: "AI-summarised daily financial news for India, USA, UAE, and global markets — refreshed every 10 minutes." },
+      { property: "og:title", content: "Financial News & AI Market Digest — Calculyxai" },
+      { property: "og:description", content: "Region-filtered market summaries refreshed every 10 minutes." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://calculyxai.online/news" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/news" }],
   }),
   component: NewsPage,
 });
