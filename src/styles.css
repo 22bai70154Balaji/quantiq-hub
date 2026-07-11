@@ -12,8 +12,9 @@
 
 @theme inline {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk Variable", "Inter Variable", sans-serif;
-  --font-serif: "Instrument Serif", "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-display: "Fraunces Variable", "Instrument Serif", ui-serif, Georgia, serif;
+  --font-serif: "Instrument Serif", "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-grotesk: "Space Grotesk Variable", "Inter Variable", sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
