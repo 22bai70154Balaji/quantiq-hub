@@ -30,8 +30,8 @@ export function HeroConverter() {
     <div
       className="relative mx-auto mt-12 w-full max-w-2xl"
     >
-      <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-20 blur-2xl" />
-      <div className="relative overflow-hidden rounded-3xl border bg-card/80 p-6 shadow-elegant backdrop-blur-xl sm:p-8">
+      <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-30 blur-2xl" />
+      <div className="border-sheen relative overflow-hidden rounded-3xl bg-card/70 p-6 shadow-elegant backdrop-blur-xl sm:p-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <span className="relative flex h-2 w-2">
@@ -109,31 +109,53 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden pb-24 pt-32 sm:pt-40">
       <div className="pointer-events-none absolute inset-0 bg-hero" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-mesh opacity-30" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[600px] bg-mesh opacity-40" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grain opacity-40 mix-blend-overlay" />
       <div className="relative mx-auto max-w-5xl px-6 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3 py-1 text-xs backdrop-blur-md">
-          <Sparkles className="h-3 w-3 text-primary" />
-          <span className="font-medium">AI-powered financial insights</span>
+        <div className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3.5 py-1.5 text-xs backdrop-blur-md shadow-soft">
+          <Sparkles className="h-3 w-3" style={{ color: "oklch(0.82 0.13 82)" }} />
+          <span className="font-medium tracking-wide uppercase text-[10.5px]">AI-powered financial insights</span>
           <span className="h-3 w-px bg-border" />
           <span className="text-muted-foreground">India · USA · UAE</span>
         </div>
 
-        <h1 className="mt-6 font-display text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
+        <h1 className="mt-8 font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl">
           Money math,
           <br />
-          <span className="text-gradient">made effortless.</span>
+          <span
+            className="italic font-normal"
+            style={{ fontFamily: "var(--font-serif)" }}
+          >
+            <span className="text-gradient">made</span>{" "}
+            <span className="text-gold">effortless.</span>
+          </span>
         </h1>
+
+        <div className="mx-auto mt-6 flex items-center justify-center gap-3">
+          <span className="h-px w-8 bg-gradient-to-r from-transparent to-border" />
+          <span className="text-[10.5px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            Premium · Precise · Trusted
+          </span>
+          <span className="h-px w-8 bg-gradient-to-l from-transparent to-border" />
+        </div>
 
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
           12 professional calculators, live exchange rates, and an AI assistant that explains every number.
           Built for professionals in India, USA, and UAE.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link to="/calculators" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-elegant transition hover:opacity-95">
-            Explore calculators <ArrowRight className="h-4 w-4" />
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/calculators"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elegant"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              Explore calculators <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+            <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </Link>
-          <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
+          <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
             <TrendingUp className="h-4 w-4" /> Ask FinFlow AI
           </Link>
         </div>
