@@ -21,6 +21,7 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RSlugRouteImport } from './routes/r.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalcTypeRouteImport } from './routes/_authenticated/calc.$type'
 
@@ -83,6 +84,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RSlugRoute = RSlugRouteImport.update({
+  id: '/r/$slug',
+  path: '/r/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/r/$slug': typeof RSlugRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRoutesByTo {
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/r/$slug': typeof RSlugRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRoutesById {
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/r/$slug': typeof RSlugRoute
   '/_authenticated/calc/$type': typeof AuthenticatedCalcTypeRoute
 }
 export interface FileRouteTypes {
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/dashboard'
+    | '/r/$slug'
     | '/calc/$type'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/dashboard'
+    | '/r/$slug'
     | '/calc/$type'
   id:
     | '__root__'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/_authenticated/dashboard'
+    | '/r/$slug'
     | '/_authenticated/calc/$type'
   fileRoutesById: FileRoutesById
 }
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  RSlugRoute: typeof RSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -291,6 +304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/r/$slug': {
+      id: '/r/$slug'
+      path: '/r/$slug'
+      fullPath: '/r/$slug'
+      preLoaderRoute: typeof RSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -334,6 +354,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  RSlugRoute: RSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

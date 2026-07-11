@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Users as UsersIcon, Mail, Phone } from "lucide-react";
+import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Users as UsersIcon, Mail, Phone, Link2, Check, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CALC_BY_SLUG, type CalcSlug } from "@/lib/finflow/registry";
 import { useCountry } from "@/lib/finflow/country-store";
-import { COUNTRIES } from "@/lib/finflow/countries";
+import { COUNTRIES, type Country } from "@/lib/finflow/countries";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — FinFlow AI" }] }),
@@ -83,11 +83,14 @@ function Dashboard() {
 
 function SavedList() {
   const qc = useQueryClient();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["saved_calculations"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("saved_calculations")
-        .select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("saved_calculations")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -95,7 +98,18 @@ function SavedList() {
 
   const del = async (id: string) => {
     const { error } = await supabase.from("saved_calculations").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["saved_calculations"] }); }
+    if (error) toast.error(error.message);
+    else { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["saved_calculations"] }); }
+  };
+
+  const copyLink = async (slug: string, id: string) => {
+    const url = `${window.location.origin}/r/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      toast.success("Share link copied");
+      setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1800);
+    } catch { toast.error("Could not copy link"); }
   };
 
   if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
@@ -109,23 +123,56 @@ function SavedList() {
       {data.map((s) => {
         const meta = CALC_BY_SLUG[s.calculator_type as CalcSlug];
         const Icon = meta?.icon ?? Bookmark;
+        const summary = (s.summary as { kpis?: { label: string; value: string }[] } | null) ?? {};
+        const kpis = summary.kpis ?? [];
+        const country = s.country ? COUNTRIES[s.country as Country] : null;
         return (
           <motion.div key={s.id} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-            className="rounded-2xl border bg-card p-5 shadow-soft">
+            className="rounded-2xl border border-sheen glass p-5 shadow-soft flex flex-col">
             <div className="flex items-start justify-between">
               <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${meta?.accent ?? "from-primary to-primary"} text-white`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <button onClick={() => del(s.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+              <div className="flex items-center gap-1">
+                {s.is_public && s.share_slug && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-2 py-0.5 text-[10px] font-medium">
+                    <Globe className="h-3 w-3" /> Public
+                  </span>
+                )}
+                <button onClick={() => del(s.id)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="h-4 w-4" /></button>
+              </div>
             </div>
-            <div className="mt-3 font-display text-lg font-semibold tracking-tight">{s.name}</div>
-            <div className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleString()}</div>
-            {meta && (
-              <Link to="/calc/$type" params={{ type: meta.slug }}
-                className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-                Open <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+            <div className="mt-3 font-display text-lg font-semibold tracking-tight leading-tight">{s.name}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              {country && <span>{country.flag} {country.name}</span>}
+              {s.report_id && <span className="font-mono">{s.report_id}</span>}
+              <span>{new Date(s.created_at).toLocaleDateString()}</span>
+            </div>
+            {kpis.length > 0 && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {kpis.slice(0, 4).map((k, i) => (
+                  <div key={i} className="rounded-xl border bg-card/60 px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground truncate">{k.label}</div>
+                    <div className="mt-0.5 font-mono text-sm font-semibold tabular-nums truncate">{k.value}</div>
+                  </div>
+                ))}
+              </div>
             )}
+            <div className="mt-auto pt-4 flex items-center justify-between">
+              {meta && (
+                <Link to="/calc/$type" params={{ type: meta.slug }}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+                  Re-run <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+              {s.is_public && s.share_slug && (
+                <button onClick={() => copyLink(s.share_slug!, s.id)}
+                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-muted">
+                  {copiedId === s.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
+                  {copiedId === s.id ? "Copied" : "Share"}
+                </button>
+              )}
+            </div>
           </motion.div>
         );
       })}

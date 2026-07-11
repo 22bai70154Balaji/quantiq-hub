@@ -1,14 +1,27 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
+import type { AnalysisInsights } from "@/lib/finflow/analysis/insights.functions";
+import { analyzeCalculation } from "@/lib/finflow/analysis/insights.functions";
+import { saveCalculation } from "@/lib/finflow/analysis/calculations.functions";
+import { AnalysisActions, type SavedState } from "./analysis/AnalysisActions";
+import { KpiGrid } from "./analysis/KpiGrid";
+import { BreakdownTableView } from "./analysis/BreakdownTableView";
+import { ComparisonTable } from "./analysis/ComparisonTable";
+import { AiInsightsPanel } from "./analysis/AiInsightsPanel";
+import { AssumptionsPanel } from "./analysis/AssumptionsPanel";
+import { DisclaimerBanner } from "./analysis/DisclaimerBanner";
 
 export function CalcShell({
   title, tagline, children, accent, icon: Icon,
   saveType, saveInputs, saveResults, saveName,
+  analysisPayload, chartNodeIds,
 }: {
   title: string; tagline: string; children: ReactNode; accent: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -16,9 +29,26 @@ export function CalcShell({
   saveInputs?: Record<string, unknown>;
   saveResults?: Record<string, unknown>;
   saveName?: string;
+  /** When provided, replaces the simple Save button with the full analysis actions bar
+   *  AND renders KPI hero + breakdown + comparison + AI + assumptions + disclaimer below children. */
+  analysisPayload?: AnalysisPayload;
+  chartNodeIds?: string[];
 }) {
-  const canSave = !!saveType;
-  const onSave = async () => {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [saved, setSaved] = useState<SavedState | null>(null);
+  const [insights, setInsights] = useState<AnalysisInsights | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const analyze = useServerFn(analyzeCalculation);
+  const saveFn = useServerFn(saveCalculation);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+  }, []);
+
+  async function legacySave() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error("Sign in to save calculations"); return; }
     const { error } = await supabase.from("saved_calculations").insert({
@@ -31,34 +61,159 @@ export function CalcShell({
       results: (saveResults ?? {}) as any,
     });
     if (error) toast.error(error.message); else toast.success("Saved to dashboard");
-  };
+  }
+
+  async function ensureSaved(): Promise<SavedState | null> {
+    if (!analysisPayload) return null;
+    if (saved) return saved;
+    if (signedIn === false) {
+      toast.error("Sign in to save this report");
+      navigate({ to: "/auth" });
+      return null;
+    }
+    setSaving(true);
+    try {
+      const row = await saveFn({
+        data: {
+          calculatorType: analysisPayload.slug,
+          name: analysisPayload.title,
+          country: analysisPayload.country,
+          inputs: analysisPayload.raw.inputs,
+          results: analysisPayload.raw.results,
+          summary: {
+            kpis: analysisPayload.kpis.map((k) => ({ label: k.label, value: k.value, tone: k.tone })),
+            country: analysisPayload.country,
+            subtitle: analysisPayload.subtitle,
+          },
+        },
+      });
+      const s: SavedState = {
+        id: row.id,
+        reportId: row.report_id ?? "",
+        shareSlug: row.share_slug ?? null,
+        isPublic: !!row.is_public,
+      };
+      setSaved(s);
+      toast.success("Saved to your dashboard");
+      return s;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function runAi() {
+    if (!analysisPayload || aiLoading) return;
+    if (signedIn === false) {
+      toast.error("Sign in to use AI Insights");
+      navigate({ to: "/auth" });
+      return;
+    }
+    setAiError(null);
+    setAiLoading(true);
+    try {
+      const s = await ensureSaved();
+      const res = await analyze({
+        data: {
+          calculatorType: analysisPayload.slug,
+          country: analysisPayload.country,
+          brief: analysisPayload.aiBrief,
+          saveToId: s?.id,
+        },
+      });
+      setInsights(res);
+    } catch (e) {
+      setAiError(e instanceof Error ? e.message : "AI failed");
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pb-24 pt-28">
-      <Link to="/calculators" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-3.5 w-3.5" /> All calculators
-      </Link>
-      <motion.div
-        initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
-      >
-        <div className="flex items-start gap-4">
-          <div className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${accent} text-white shadow-elegant`}>
-            <Icon className="h-6 w-6" />
+    <div className={analysisPayload ? "bg-page-gradient min-h-screen" : ""}>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pb-24 pt-28">
+        <Link to="/calculators" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground print:hidden">
+          <ArrowLeft className="h-3.5 w-3.5" /> All calculators
+        </Link>
+        <motion.div
+          initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div className="flex items-start gap-4">
+            <div className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${accent} text-white shadow-elegant`}>
+              <Icon className="h-6 w-6" />
+            </div>
+            <div>
+              {saved?.reportId && (
+                <div className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted-foreground">Report {saved.reportId}</div>
+              )}
+              <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
+              <p className="mt-1 max-w-xl text-muted-foreground">{tagline}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
-            <p className="mt-1 max-w-xl text-muted-foreground">{tagline}</p>
-          </div>
-        </div>
-        {canSave && (
-          <Button variant="outline" size="sm" onClick={onSave} className="rounded-full">
-            <Bookmark className="mr-1 h-3.5 w-3.5" /> Save
-          </Button>
+          {analysisPayload ? (
+            <AnalysisActions
+              payload={analysisPayload}
+              chartNodeIds={chartNodeIds ?? []}
+              insights={insights}
+              saved={saved}
+              onSaved={setSaved}
+              signedIn={signedIn}
+              saving={saving}
+              aiLoading={aiLoading}
+              onRunAi={runAi}
+              onEnsureSaved={ensureSaved}
+            />
+          ) : saveType ? (
+            <Button variant="outline" size="sm" onClick={legacySave} className="rounded-full">
+              <Bookmark className="mr-1 h-3.5 w-3.5" /> Save
+            </Button>
+          ) : null}
+        </motion.div>
+
+        {analysisPayload && (
+          <section className="mt-8">
+            <KpiGrid kpis={analysisPayload.kpis} />
+          </section>
         )}
-      </motion.div>
-      <div className="mt-10">{children}</div>
+
+        <div className="mt-6">{children}</div>
+
+        {analysisPayload && (
+          <>
+            {analysisPayload.comparison && (
+              <section className="mt-8">
+                <ComparisonTable block={analysisPayload.comparison} />
+              </section>
+            )}
+            {analysisPayload.breakdown && (
+              <section className="mt-8">
+                <BreakdownTableView table={analysisPayload.breakdown} />
+              </section>
+            )}
+            <section className="mt-8">
+              <AiInsightsPanel
+                insights={insights}
+                loading={aiLoading}
+                error={aiError}
+                hasRun={!!insights}
+                onRun={runAi}
+              />
+            </section>
+            {analysisPayload.assumptions?.length ? (
+              <section className="mt-6">
+                <AssumptionsPanel items={analysisPayload.assumptions} />
+              </section>
+            ) : null}
+            <section className="mt-6">
+              <DisclaimerBanner />
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }
