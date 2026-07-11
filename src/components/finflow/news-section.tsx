@@ -5,21 +5,29 @@ import { Link } from "@tanstack/react-router";
 import { getFinanceNews } from "@/lib/finflow/news.functions";
 
 export function NewsSection({ region = "Global" as "Global" | "India" | "USA" | "UAE", limit }: { region?: "Global" | "India" | "USA" | "UAE"; limit?: number }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, dataUpdatedAt } = useQuery({
     queryKey: ["news", region],
     queryFn: () => getFinanceNews({ data: { region } }),
-    staleTime: 15 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
 
   const items = (data?.items ?? []).slice(0, limit ?? 6);
+  const updated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 sm:py-24">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <div className="text-sm font-medium text-primary">Live insights</div>
+          <div className="flex items-center gap-2 text-sm font-medium text-primary">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-primary" /></span>
+            Live insights
+            {updated && <span className="text-xs font-normal text-muted-foreground">· refreshed {updated} · auto every 10 min</span>}
+          </div>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-            Markets today,<br />summarised by AI.
+            Markets today, <span className="font-serif italic text-gold">summarised</span> by AI.
           </h2>
         </div>
         <Link to="/news" className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">

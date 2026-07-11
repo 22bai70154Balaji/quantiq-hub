@@ -12,7 +12,7 @@ export type NewsItem = {
 
 type Cached = { at: number; region: string; items: NewsItem[] };
 let cache: Cached | null = null;
-const TTL = 30 * 60 * 1000;
+const TTL = 10 * 60 * 1000;
 
 const FALLBACK: NewsItem[] = [
   { title: "Fed signals patient stance as inflation cools", summary: "US Federal Reserve holds rates steady, citing moderating inflation trends and healthy labor markets.", category: "Rates", region: "USA", impact: "positive" },
