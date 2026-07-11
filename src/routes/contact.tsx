@@ -14,13 +14,17 @@ import { sendContactEmail } from "@/lib/finflow/contact-email.functions";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Calculyx AI" },
-      { name: "description", content: "Get in touch with the Calculyx AI team. Send us a message and we'll get back to you." },
-      { property: "og:title", content: "Contact — Calculyx AI" },
-      { property: "og:description", content: "Get in touch with the Calculyx AI team." },
+      { title: "Contact Calculyxai — Support, Feedback & Feature Requests" },
+      { name: "description", content: "Get in touch with the Calculyxai team. Send feedback, report a bug, or request a new financial calculator." },
+      { property: "og:title", content: "Contact Calculyxai" },
+      { property: "og:description", content: "Support, feedback, and feature requests for Calculyxai." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://calculyxai.online/contact" },
+      { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://calculyxai.online/og-image.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://calculyxai.online/contact" }],
   }),
   component: ContactPage,
 });
