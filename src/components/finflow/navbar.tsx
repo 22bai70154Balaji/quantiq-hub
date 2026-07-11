@@ -110,10 +110,10 @@ function CountryPill({ country, onChange }: { country: Country; onChange: (c: Co
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition hover:bg-muted"
+        className="flex items-center gap-1.5 rounded-full h-8 px-2.5 text-[12.5px] text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
       >
         <span aria-hidden>{c.flag}</span>
-        <span className="hidden sm:inline">{c.currency}</span>
+        <span className="hidden sm:inline font-mono tracking-wider">{c.currency}</span>
       </button>
       {open && (
         <>
