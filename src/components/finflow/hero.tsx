@@ -178,16 +178,15 @@ export function Hero() {
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/calculators"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition hover:shadow-elegant"
-            style={{ background: "var(--gradient-primary)" }}
+            className="cta-glow group inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.24em]"
           >
-            <span className="relative z-10 flex items-center gap-2">
-              Explore calculators <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-            <span aria-hidden className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            Start Calculating <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
-          <Link to="/ai" className="inline-flex items-center gap-2 rounded-full border bg-card/60 px-6 py-3 text-sm font-medium backdrop-blur-md transition hover:bg-muted">
-            <TrendingUp className="h-4 w-4" /> Ask Calculyx AI
+          <Link
+            to="/ai"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-white/[0.06] hover:text-foreground"
+          >
+            <TrendingUp className="h-3.5 w-3.5" /> Explore Features
           </Link>
         </div>
 
