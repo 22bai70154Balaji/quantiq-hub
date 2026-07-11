@@ -478,7 +478,7 @@ function BankComparison({ rows, country, bestEmi, bestRate, bestValue }: {
           <div className="text-xs text-muted-foreground">Rates updated {RATES_LAST_UPDATED}. Illustrative — confirm with the bank.</div>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {rows.map((row) => {
           const badges: { icon: React.ReactNode; label: string; tone: string }[] = [];
           if (bestRate && row.bank.id === bestRate.bank.id) badges.push({ icon: <Zap className="h-3 w-3" />, label: "Lowest rate", tone: "bg-emerald-500/15 text-emerald-500" });
