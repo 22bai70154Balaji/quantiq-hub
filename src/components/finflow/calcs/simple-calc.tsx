@@ -1,9 +1,13 @@
-import { useState } from "react";
-import { calcFd, compoundInterest, inflationAdjusted, retirementCorpus, gstBreakdown, indiaTaxNewRegime, usaFederalTax, uaeTax, salaryBreakdown } from "@/lib/finflow/calculators";
-import { formatMoney } from "@/lib/finflow/countries";
+import { useMemo, useState } from "react";
+import {
+  calcFd, compoundInterest, inflationAdjusted, retirementCorpus, gstBreakdown,
+  indiaTaxNewRegime, usaFederalTax, uaeTax, salaryBreakdown,
+} from "@/lib/finflow/calculators";
+import { formatMoney, COUNTRIES } from "@/lib/finflow/countries";
 import { useCountry } from "@/lib/finflow/country-store";
 import { CalcShell, InputRow, NumberInput, StatCard } from "../calc-shell";
 import { CALC_BY_SLUG, type CalcSlug } from "@/lib/finflow/registry";
+import type { AnalysisPayload, Kpi, LabelledValue } from "@/lib/finflow/analysis/types";
 
 export function SimpleCalc({ slug }: { slug: CalcSlug }) {
   const meta = CALC_BY_SLUG[slug];
@@ -37,6 +41,190 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
   // Salary
   const [gross, setGross] = useState(1200000);
 
+  const money = (n: number) => formatMoney(n, country);
+  const cName = COUNTRIES[country].name;
+
+  const payload: AnalysisPayload = useMemo(() => {
+    const base = (inputs: LabelledValue[], kpis: Kpi[], extras: Partial<AnalysisPayload> = {}): AnalysisPayload => ({
+      slug,
+      country,
+      title: `${meta.name} analysis`,
+      subtitle: meta.tagline,
+      inputs,
+      kpis,
+      raw: extras.raw ?? { inputs: {}, results: {} },
+      aiBrief: extras.aiBrief ?? `${meta.name} for ${cName}.`,
+      assumptions: extras.assumptions,
+      breakdown: extras.breakdown,
+      comparison: extras.comparison,
+    });
+
+    if (slug === "fd") {
+      const r = calcFd({ principal: p, annualRate: rate, years, compounding: 4 });
+      return base(
+        [
+          { label: "Principal", value: money(p) },
+          { label: "Interest rate", value: `${rate}% p.a.` },
+          { label: "Tenure", value: `${years} years` },
+        ],
+        [
+          { label: "Principal", value: money(p), tone: "neutral" },
+          { label: "Interest earned", value: money(r.interest), tone: "success" },
+          { label: "Maturity value", value: money(r.maturity), tone: "primary" },
+        ],
+        {
+          assumptions: [
+            `Quarterly compounding at ${rate}% p.a. over ${years} years.`,
+            "Interest may be taxed as per country and tax bracket (e.g. TDS in India, ordinary income in USA).",
+            "Early withdrawal penalties, if any, are not modelled.",
+          ],
+          raw: { inputs: { principal: p, rate, years }, results: { interest: r.interest, maturity: r.maturity } },
+          aiBrief: `FD of ${money(p)} at ${rate}% for ${years} years (quarterly). Interest ${money(r.interest)}, maturity ${money(r.maturity)}.`,
+        }
+      );
+    }
+
+    if (slug === "compound-interest") {
+      const r = compoundInterest({ principal: p, annualRate: rate, years, compounding: 1 });
+      return base(
+        [
+          { label: "Principal", value: money(p) },
+          { label: "Rate", value: `${rate}%` },
+          { label: "Years", value: `${years}` },
+        ],
+        [
+          { label: "Principal", value: money(p), tone: "neutral" },
+          { label: "Compound interest", value: money(r.interest), tone: "success" },
+          { label: "Final amount", value: money(r.amount), tone: "primary" },
+        ],
+        {
+          assumptions: [`Annual compounding at ${rate}% over ${years} years.`, "No additional contributions or withdrawals."],
+          raw: { inputs: { principal: p, rate, years }, results: { interest: r.interest, amount: r.amount } },
+          aiBrief: `Compound interest on ${money(p)} at ${rate}% for ${years}y = ${money(r.amount)}.`,
+        }
+      );
+    }
+
+    if (slug === "inflation") {
+      const r = inflationAdjusted({ amount: inflAmount, annualInflation: inflRate, years: inflYears });
+      return base(
+        [
+          { label: "Today's amount", value: money(inflAmount) },
+          { label: "Inflation rate", value: `${inflRate}% p.a.` },
+          { label: "Years ahead", value: `${inflYears}` },
+        ],
+        [
+          { label: "Future nominal cost", value: money(r.future), tone: "warning" },
+          { label: "Real value of today's money", value: money(r.realValue), tone: "neutral" },
+          { label: "Purchasing power lost", value: money(r.lostPurchasingPower), tone: "destructive" },
+        ],
+        {
+          assumptions: [`Constant inflation at ${inflRate}% p.a. over ${inflYears} years.`, "Excludes wage growth, tax drag, and asset-class returns."],
+          raw: { inputs: { amount: inflAmount, inflation: inflRate, years: inflYears }, results: r },
+          aiBrief: `${money(inflAmount)} today ≈ ${money(r.realValue)} in ${inflYears} years at ${inflRate}% inflation.`,
+        }
+      );
+    }
+
+    if (slug === "retirement") {
+      const r = retirementCorpus({ currentAge: age, retireAge: rAge, monthlyExpense: monthlyExp, inflation: inflR, postReturn: postR, lifeExpectancy: life });
+      return base(
+        [
+          { label: "Current age", value: `${age}` },
+          { label: "Retirement age", value: `${rAge}` },
+          { label: "Life expectancy", value: `${life}` },
+          { label: "Monthly expense today", value: money(monthlyExp) },
+          { label: "Inflation", value: `${inflR}%` },
+          { label: "Post-retirement return", value: `${postR}%` },
+        ],
+        [
+          { label: "Corpus needed", value: money(r.corpus), tone: "primary" },
+          { label: "Future monthly expense", value: money(r.futureMonthly), tone: "warning" },
+          { label: "Years in retirement", value: `${r.yearsInRetirement}`, sub: `${r.yearsToRetire} yrs to prepare` },
+        ],
+        {
+          assumptions: [
+            `Inflation constant at ${inflR}% pre and during retirement.`,
+            `Post-retirement portfolio compounds at ${postR}% net of taxes.`,
+            "Excludes healthcare shocks, pension income, or lump-sum needs.",
+          ],
+          raw: { inputs: { age, rAge, life, monthlyExp, inflR, postR }, results: r },
+          aiBrief: `Retire at ${rAge} from ${age} in ${cName}. Corpus needed ~${money(r.corpus)} for spend ${money(monthlyExp)}/mo today.`,
+        }
+      );
+    }
+
+    if (slug === "gst") {
+      const r = gstBreakdown({ amount: gstAmt, rate: gstRate, inclusive: gstIncl });
+      return base(
+        [
+          { label: "Amount", value: money(gstAmt) },
+          { label: "GST rate", value: `${gstRate}%` },
+          { label: "Type", value: gstIncl ? "Inclusive" : "Exclusive" },
+        ],
+        [
+          { label: "Base amount", value: money(r.base), tone: "neutral" },
+          { label: "GST", value: money(r.gst), tone: "warning", sub: `CGST ${money(r.cgst)} + SGST ${money(r.sgst)}` },
+          { label: "Total", value: money(r.total), tone: "primary" },
+        ],
+        {
+          assumptions: ["Split CGST/SGST assumes intra-state supply; use IGST for inter-state.", "Excludes cess and reverse charge scenarios."],
+          raw: { inputs: { amount: gstAmt, rate: gstRate, inclusive: gstIncl }, results: r },
+          aiBrief: `GST at ${gstRate}% on ${money(gstAmt)} (${gstIncl ? "incl." : "excl."}). Total ${money(r.total)}.`,
+        }
+      );
+    }
+
+    if (slug === "income-tax") {
+      const r = country === "IN" ? indiaTaxNewRegime(income) : country === "US" ? usaFederalTax(income) : uaeTax(income);
+      const total = "total" in r ? r.total : "tax" in r ? r.tax : 0;
+      const rulesLabel = country === "IN" ? "India — New Regime FY24-25" : country === "US" ? "USA — Federal (Single, 2024)" : "UAE (no personal income tax)";
+      return base(
+        [
+          { label: "Annual income", value: money(income) },
+          { label: "Rules", value: rulesLabel },
+        ],
+        [
+          { label: "Estimated tax", value: money(total), tone: "destructive" },
+          { label: "Effective rate", value: `${r.effectiveRate.toFixed(2)}%`, tone: "warning" },
+          { label: "Take home", value: money(income - total), tone: "primary" },
+        ],
+        {
+          assumptions: [
+            `${rulesLabel}. Does not include state/local, surcharge tiers beyond default, or 4% cess.`,
+            "Assumes no deductions or exemptions beyond the standard for the regime.",
+          ],
+          raw: { inputs: { income, country }, results: { tax: total, effectiveRate: r.effectiveRate } },
+          aiBrief: `${rulesLabel}. Income ${money(income)} → tax ~${money(total)} (${r.effectiveRate.toFixed(2)}%).`,
+        }
+      );
+    }
+
+    if (slug === "salary") {
+      const r = salaryBreakdown({ gross, country });
+      const kpis: Kpi[] = [
+        { label: "Gross", value: money(r.gross), tone: "neutral" },
+        { label: "Total deductions", value: money(r.tax + r.deductions), tone: "destructive" },
+        { label: "Net take-home", value: money(r.net), tone: "primary" },
+      ];
+      const inputs: LabelledValue[] = [
+        { label: "Annual gross salary", value: money(gross) },
+        { label: "Country", value: cName },
+      ];
+      Object.entries(r.breakdown).forEach(([k, v]) => inputs.push({ label: k, value: money(v) }));
+      return base(inputs, kpis, {
+        assumptions: [
+          "Uses country-specific statutory deductions and simplified tax rules.",
+          "Excludes voluntary contributions, HRA specifics, benefits-in-kind, and one-time bonuses.",
+        ],
+        raw: { inputs: { gross, country }, results: r },
+        aiBrief: `Salary ${money(gross)} in ${cName}. Net ${money(r.net)} after deductions ${money(r.tax + r.deductions)}.`,
+      });
+    }
+
+    return base([], []);
+  }, [slug, country, cName, meta.name, meta.tagline, p, rate, years, inflAmount, inflRate, inflYears, age, rAge, monthlyExp, inflR, postR, life, gstAmt, gstRate, gstIncl, income, gross]);
+
   const renderBody = () => {
     if (slug === "fd") {
       const r = calcFd({ principal: p, annualRate: rate, years, compounding: 4 });
@@ -49,9 +237,9 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Principal" value={formatMoney(p, country)} />
-            <StatCard label="Interest earned" value={formatMoney(r.interest, country)} tone="success" />
-            <StatCard label="Maturity" value={formatMoney(r.maturity, country)} tone="primary" />
+            <StatCard label="Principal" value={money(p)} />
+            <StatCard label="Interest earned" value={money(r.interest)} tone="success" />
+            <StatCard label="Maturity" value={money(r.maturity)} tone="primary" />
           </>
         } />
       );
@@ -67,9 +255,9 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Principal" value={formatMoney(p, country)} />
-            <StatCard label="Compound interest" value={formatMoney(r.interest, country)} tone="success" />
-            <StatCard label="Final amount" value={formatMoney(r.amount, country)} tone="primary" />
+            <StatCard label="Principal" value={money(p)} />
+            <StatCard label="Compound interest" value={money(r.interest)} tone="success" />
+            <StatCard label="Final amount" value={money(r.amount)} tone="primary" />
           </>
         } />
       );
@@ -85,9 +273,9 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Future cost of today's purchase" value={formatMoney(r.future, country)} tone="warning" />
-            <StatCard label="Today's money is worth (in future terms)" value={formatMoney(r.realValue, country)} />
-            <StatCard label="Purchasing power lost" value={formatMoney(r.lostPurchasingPower, country)} tone="destructive" />
+            <StatCard label="Future cost of today's purchase" value={money(r.future)} tone="warning" />
+            <StatCard label="Today's money is worth (in future terms)" value={money(r.realValue)} />
+            <StatCard label="Purchasing power lost" value={money(r.lostPurchasingPower)} tone="destructive" />
           </>
         } />
       );
@@ -106,8 +294,8 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Corpus needed at retirement" value={formatMoney(r.corpus, country)} tone="primary" />
-            <StatCard label="Future monthly expense" value={formatMoney(r.futureMonthly, country)} />
+            <StatCard label="Corpus needed at retirement" value={money(r.corpus)} tone="primary" />
+            <StatCard label="Future monthly expense" value={money(r.futureMonthly)} />
             <StatCard label="Years in retirement" value={`${r.yearsInRetirement}`} sub={`${r.yearsToRetire} yrs to prepare`} />
           </>
         } />
@@ -133,9 +321,9 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Base amount" value={formatMoney(r.base, country)} />
-            <StatCard label="GST" value={formatMoney(r.gst, country)} tone="warning" sub={`CGST ${formatMoney(r.cgst, country)} + SGST ${formatMoney(r.sgst, country)}`} />
-            <StatCard label="Total" value={formatMoney(r.total, country)} tone="primary" />
+            <StatCard label="Base amount" value={money(r.base)} />
+            <StatCard label="GST" value={money(r.gst)} tone="warning" sub={`CGST ${money(r.cgst)} + SGST ${money(r.sgst)}`} />
+            <StatCard label="Total" value={money(r.total)} tone="primary" />
           </>
         } />
       );
@@ -151,9 +339,9 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Estimated tax" value={formatMoney(total, country)} tone="destructive" />
+            <StatCard label="Estimated tax" value={money(total)} tone="destructive" />
             <StatCard label="Effective rate" value={`${r.effectiveRate.toFixed(2)}%`} />
-            <StatCard label="Take home" value={formatMoney(income - total, country)} tone="primary" />
+            <StatCard label="Take home" value={money(income - total)} tone="primary" />
           </>
         } />
       );
@@ -168,11 +356,11 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
           </>
         } stats={
           <>
-            <StatCard label="Gross" value={formatMoney(r.gross, country)} />
-            <StatCard label="Total deductions" value={formatMoney(r.tax + r.deductions, country)} tone="destructive" />
-            <StatCard label="Net take-home" value={formatMoney(r.net, country)} tone="primary" />
+            <StatCard label="Gross" value={money(r.gross)} />
+            <StatCard label="Total deductions" value={money(r.tax + r.deductions)} tone="destructive" />
+            <StatCard label="Net take-home" value={money(r.net)} tone="primary" />
             {Object.entries(r.breakdown).map(([k, v]) => (
-              <StatCard key={k} label={k} value={formatMoney(v, country)} />
+              <StatCard key={k} label={k} value={money(v)} />
             ))}
           </>
         } />
@@ -182,7 +370,8 @@ export function SimpleCalc({ slug }: { slug: CalcSlug }) {
   };
 
   return (
-    <CalcShell title={meta.name} tagline={meta.tagline} accent={meta.accent} icon={meta.icon} saveType={slug}>
+    <CalcShell title={meta.name} tagline={meta.tagline} accent={meta.accent} icon={meta.icon}
+      saveType={slug} analysisPayload={payload}>
       {renderBody()}
     </CalcShell>
   );
