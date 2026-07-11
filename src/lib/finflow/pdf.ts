@@ -104,9 +104,9 @@ export function pdfHeader(ctx: PdfCtx, subtitle: string, meta?: string, logoPng?
   doc.setFillColor(17, 24, 39).rect(0, 0, w, 90, "F");
   doc.setTextColor(255, 255, 255);
   if (logoPng) {
-    // Draw logo at native aspect ratio (247:55). Height ~28pt.
-    const logoH = 28;
-    const logoW = logoH * (247 / 55);
+    // Draw logo at native aspect (199.5:58). Height ~30pt.
+    const logoH = 30;
+    const logoW = logoH * LOGO_ASPECT;
     try {
       doc.addImage(logoPng, "PNG", 40, 24, logoW, logoH);
     } catch {
