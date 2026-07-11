@@ -51,7 +51,7 @@ export type PdfExportOptions = {
   insights?: AnalysisInsights | null;
 };
 
-export async function exportPdf({ payload, reportId, shareUrl, chartNodeIds, insights }: PdfExportOptions): Promise<void> {
+export async function buildPdf({ payload, reportId, shareUrl, chartNodeIds, insights }: PdfExportOptions): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const ctx = createPdfCtx(doc, 40);
   const logo = await loadFinflowLogoPng();
@@ -253,5 +253,19 @@ export async function exportPdf({ payload, reportId, shareUrl, chartNodeIds, ins
     "Calculyx AI · Estimates only, not financial advice. Verify with your bank or advisor.",
   );
 
-  doc.save(`${reportId}.pdf`);
+  return doc;
+}
+
+/** Build the PDF and immediately trigger download. */
+export async function exportPdf(opts: PdfExportOptions): Promise<void> {
+  const doc = await buildPdf(opts);
+  doc.save(`${opts.reportId}.pdf`);
+}
+
+/** Build the PDF and return a blob URL suitable for an <iframe> preview. */
+export async function buildPdfPreviewUrl(opts: PdfExportOptions): Promise<{ url: string; doc: jsPDF }> {
+  const doc = await buildPdf(opts);
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  return { url, doc };
 }

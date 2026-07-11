@@ -7,7 +7,8 @@ import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
 import type { AnalysisInsights } from "@/lib/finflow/analysis/insights.functions";
 import { toggleCalculationShare } from "@/lib/finflow/analysis/calculations.functions";
 import { exportCsv, exportXlsx } from "@/lib/finflow/analysis/export-data";
-import { exportPdf } from "@/lib/finflow/analysis/export-pdf";
+import { type PdfExportOptions } from "@/lib/finflow/analysis/export-pdf";
+import { PdfPreviewModal } from "@/lib/finflow/analysis/pdf-preview";
 
 export type SavedState = {
   id: string;
@@ -45,6 +46,7 @@ export function AnalysisActions({
   const [togglingShare, setTogglingShare] = useState(false);
   const [openExport, setOpenExport] = useState(false);
   const [openShare, setOpenShare] = useState(false);
+  const [pdfPreview, setPdfPreview] = useState<PdfExportOptions | null>(null);
   const toggleShare = useServerFn(toggleCalculationShare);
 
   const shareUrl = saved?.shareSlug ? `${typeof window !== "undefined" ? window.location.origin : ""}/r/${saved.shareSlug}` : null;
@@ -71,7 +73,10 @@ export function AnalysisActions({
 
       if (kind === "csv") exportCsv(payload, reportId);
       else if (kind === "xlsx") exportXlsx(payload, reportId);
-      else await exportPdf({ payload, reportId, shareUrl: url, chartNodeIds, insights });
+      else {
+        // Open preview instead of downloading immediately
+        setPdfPreview({ payload, reportId, shareUrl: url, chartNodeIds, insights });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Export failed");
     } finally {
@@ -129,6 +134,8 @@ export function AnalysisActions({
   }
 
   return (
+    <>
+    <PdfPreviewModal open={!!pdfPreview} onClose={() => setPdfPreview(null)} options={pdfPreview} />
     <motion.div
       initial={{ y: 6, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -218,8 +225,10 @@ export function AnalysisActions({
         )}
       </div>
     </motion.div>
+    </>
   );
 }
+
 
 function ExportItem({ icon: Icon, label, hint, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; hint: string; onClick: () => void }) {
   return (

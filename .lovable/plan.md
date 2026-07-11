@@ -1,126 +1,52 @@
-# FinFlow AI — Calculators → Financial Analysis Modules
+## What you'll get
 
-This is a large, multi-phase build. Rather than half-shipping 12 modules at once, I'll roll out a shared "analysis platform" first, then upgrade calculators in waves — starting with the highest-value ones (Mortgage, SIP, EMI, Property, Tax, Currency). The rest inherit the shared shell so they get every feature (charts, AI, save, export, share, PDF) automatically.
+### 1. PDF preview step (all calculators)
+Before the PDF downloads, a full-screen preview modal opens showing exactly what will be in the report:
+- Header with Calculyx branding, Report ID, timestamp
+- Inputs, KPI cards, charts (screenshotted from the live page), AI recommendations in the boxed card, assumptions
+- Footer with "Download PDF" and "Cancel" buttons
 
-## Scope guardrails
-- Keep the current premium Apple × Stripe × Linear look, dark/light theme, glass navbar, gradient wash, serif-italic accents — extend, don't replace.
-- Reuse shadcn/ui + framer-motion + recharts (already installed). Add `qrcode` + `xlsx` only.
-- AI: Lovable AI Gateway (default) with Groq fallback (already wired). No new keys required.
-- Everything stays server-safe: PDFs and Excel render client-side; AI + save go through `createServerFn`.
+Implementation: reuse the existing `exportPdf` renderer, but split it into a *build* step (returns a `jsPDF` doc) and a *save* step. The preview modal embeds the built PDF via a blob URL in an `<iframe>` — this shows the real, final PDF pixel-for-pixel, not a mockup. Download button calls `doc.save()`. This replaces the current "Export → PDF" flow in `AnalysisActions`.
 
----
+### 2. Currency Converter upgrades
+- **Historical chart** — 30 / 90 / 365-day line chart of the from→to rate. Fetched from a public FX history endpoint via a server function so we don't ship an API key.
+- **Trend indicator** — % change over the selected window, sparkline in the result card, "strengthening/weakening" tag.
+- **Favorites** — star icon on the currency pickers, favorites row pinned to the top of both selectors. Stored in `localStorage` (`calculyx.fav.currencies`).
+- **PDF report** picks up the historical chart as an additional visualisation.
 
-## Phase 1 — Shared "Analysis Module" platform
+### 3. Tax Calculator upgrades
+- **Country-specific rule cards** — a collapsible "Rules applied" panel showing the exact slabs / brackets used (India new regime, USA federal single, UAE nil), pulled from a small `tax-rules.ts` catalog.
+- **Tax-saving suggestions** — a rules-based helper (`taxSavingTips.ts`) that inspects income + country and surfaces country-specific ideas (India: 80C/NPS/HRA, USA: 401k/HSA/IRA, UAE: N/A note). Rendered in a boxed card on-page and flowed into the AI Insights section of the payload as `recommendations` seeds.
 
-New shared building blocks every calculator plugs into.
+### 4. SIP & FD upgrades
+- **Interactive growth chart** — SIP already has one; upgrade both to a toggleable Area/Bar view with invested-vs-value stacking, hover tooltips, and year-scrubber. Add the same style to FD.
+- **Goal-based planning** — new "Goal mode" toggle: user enters a target amount and target year; the calculator solves for monthly SIP or FD principal needed. Result panel shows required contribution, shortfall/surplus vs current inputs, and a "How to close the gap" tip.
 
-**UI kit (src/components/finflow/analysis/)**
-- `AnalysisShell` — page frame: sticky KPI header, tabbed sections (Inputs · Results · Breakdown · AI Insights · Compare · Export), print stylesheet, mobile responsive.
-- `KpiCard` — animated counter (framer-motion), delta chip, glass surface, semantic tokens only.
-- `MultiStepForm` — 2–3 step wizard, progress bar, Zod validation per step, real-time recompute on change.
-- `ChartCard` — wraps Recharts (Area/Bar/Pie/Line) with legend, tooltip, theme-aware colors.
-- `BreakdownTable` — expandable monthly ↔ yearly rows, virtualized when >120 rows.
-- `AssumptionsPanel` — collapsible list of the exact assumptions used + country rule chips.
-- `DisclaimerBanner` — reusable "estimates only, verify with your bank" strip.
-- `AiInsights` — streams recommendations, uses existing `askFinFlowAi` with a structured prompt.
-- `CompareDrawer` — side-by-side comparison of up to 3 scenarios / banks / regimes.
-- `ShareBar` — copy shareable link, WhatsApp / X / LinkedIn / email, native `navigator.share` on mobile.
+## Technical notes
 
-**Data + server**
-- `calculations.functions.ts`: `saveCalculation`, `listCalculations`, `getCalculation`, `deleteCalculation` (uses existing `saved_calculations` table + `requireSupabaseAuth`).
-- `calc-share.functions.ts`: public read-only `getSharedCalculation({ id })` for shareable links (new column: `is_public boolean default false`).
-- `calc-ai.functions.ts`: `explainCalculation({ type, inputs, results, country })` — returns `{ summary, recommendations[], risks[], nextSteps[] }` via Lovable AI Gateway with strict prompt + Groq fallback (reuses `groq.server.ts`).
+Files touched (approx.):
 
-**Migrations (single migration in Phase 1)**
-- Add `is_public boolean not null default false`, `share_slug text unique`, `report_id text` to `saved_calculations`.
-- Add owner + public-slug SELECT policies; keep write policies scoped to `auth.uid()`.
+```
+src/lib/finflow/analysis/export-pdf.ts     split build/save
+src/lib/finflow/analysis/pdf-preview.tsx   NEW  iframe modal
+src/components/finflow/analysis/AnalysisActions.tsx   hook preview in
+src/lib/finflow/fx-history.functions.ts    NEW  server fn, cached
+src/components/finflow/calcs/currency-calc.tsx        history + favorites + trend
+src/lib/finflow/tax-rules.ts               NEW  slabs catalog
+src/lib/finflow/tax-tips.ts                NEW  suggestion engine
+src/components/finflow/calcs/simple-calc.tsx          rules panel + tips for income-tax slug
+src/components/finflow/calcs/sip-calc.tsx             goal mode + upgraded chart
+src/components/finflow/calcs/fd-*                     new dedicated fd-calc.tsx with chart + goal mode; SimpleCalc "fd" slug delegates to it
+```
 
-**Export engine (src/lib/finflow/export/)**
-- `pdf.ts` — extend existing `pdf.ts` (jsPDF) into a premium report renderer:
-  branded header (logo + gradient bar), report ID + timestamp, inputs table, KPI summary, chart images (rasterize Recharts SVG → PNG via `html-to-image`), step-by-step breakdown, AI recommendations block, QR code (new `qrcode` dep) linking to `/r/{share_slug}`, page numbers + disclaimer footer on every page.
-- `csv.ts` — inputs + full amortization/projection rows.
-- `xlsx.ts` — multi-sheet workbook (Summary, Inputs, Breakdown, Assumptions) using `xlsx` lib.
-- `print.css` — clean print layout piggybacking `AnalysisShell`.
+Data / infra:
+- Historical FX uses `https://api.frankfurter.dev/v1/{from}..{to}?...` (no key, CORS-open) inside a `createServerFn` with a 1-hour in-memory cache to reduce calls.
+- Favorites and goal-mode inputs persist in `localStorage` only — no schema changes.
+- No new secrets or backend tables.
 
-**Public shareable page**
-- New route `src/routes/r.$slug.tsx` (SSR-safe, public server fn, meaningful OG image derived from calc type) — renders a read-only `AnalysisShell` snapshot.
+Out of scope unless you ask:
+- Multi-currency baskets, cross-rate matrices, alerts.
+- Federal-plus-state US tax, India old regime, GCC corporate tax.
+- Server-persisted goals (currently local).
 
-**Dashboard integration**
-- Extend `_authenticated/dashboard.tsx` with a "Saved analyses" grid: type badge, KPIs, updated date, resume / share / delete actions.
-
----
-
-## Phase 2 — Flagship calculators upgraded first
-
-Each is rebuilt on `AnalysisShell` with its own domain logic, charts, breakdown, comparison, and AI prompt.
-
-1. **Mortgage / Home Loan** (`calcs/home-loan-engine.tsx`)
-   - Multi-step: property + loan + borrower.
-   - Charts: principal-vs-interest area, balance-over-time, monthly payment pie.
-   - Breakdown: full amortization (monthly, foldable to yearly).
-   - Compare: up to 3 banks (uses `banks.ts`), fixed vs floating, tenure sensitivity.
-   - Country rules: IN (stamp duty, PMAY hint), US (PMI, property tax escrow), AE (down-payment min).
-
-2. **SIP / Investment**
-   - Steps: goal + horizon + risk.
-   - Charts: wealth curve, invested vs gains stacked area, year-wise bar.
-   - Compare: SIP vs Lump-sum vs SWP; FD vs Equity vs Hybrid.
-   - Country: IN (LTCG 10%), US (LTCG brackets), AE (0%).
-
-3. **EMI (personal / auto / any-loan)**
-   - Steps: loan + rate + tenure + prepayment.
-   - Prepayment simulator with savings delta KPI.
-   - Charts: outstanding balance line, interest paid bar.
-
-4. **Property Cost / Buy-vs-Rent**
-   - Steps: property + ownership horizon + rent alternative.
-   - Charts: net-worth-over-time line for Buy vs Rent.
-   - Compare: 5 / 10 / 20-year horizons.
-
-5. **Tax (IN old vs new; US federal + state hint; AE 9% corp)**
-   - Steps: income + deductions + regime.
-   - Compare drawer: old vs new regime side-by-side with savings KPI.
-   - Country rules chips per jurisdiction.
-
-6. **Currency Converter**
-   - Upgraded to a mini-dashboard: history line chart (30 / 90 / 365 d) via existing exchange fn, favorite pairs from `favorite_currencies`, cost-of-transfer note.
-
----
-
-## Phase 3 — Remaining 6 calculators
-
-Retirement, FD, RD, Credit-card payoff, Freelance take-home, Business loan (or the current set — I'll match `registry.ts`). Each ships on `AnalysisShell` with the same feature set. Lighter domain logic, same export/share/AI pipeline.
-
----
-
-## Phase 4 — Polish + SEO
-
-- Per-calculator route metadata: unique title/description/OG (dynamic from inputs on share pages).
-- JSON-LD `FinancialProduct` / `HowTo` on calculator pages.
-- A11y sweep: labels, focus-visible rings, ARIA on tabs/wizard, keyboard nav on breakdown table, `prefers-reduced-motion` guard on KPI counters.
-- Mobile: bottom action bar (Save · Share · Export) on <sm screens.
-- Playwright screenshot QA per calculator (desktop + mobile, light + dark).
-- Update `/disclaimer` link surfacing inside every module footer.
-
----
-
-## Technical details (for the record)
-
-- Charts render to PNG for PDF via `html-to-image` (offscreen `ChartCard` in a hidden container during export — avoids server-side chart deps).
-- `xlsx` and `qrcode` are pure JS, safe in Worker/edge and in the browser.
-- No hardcoded colors anywhere — all through `--primary`, `--gold`, `--gradient-*` tokens already in `styles.css`.
-- Server functions stay in `src/lib/finflow/*.functions.ts`; helpers in `*.server.ts`.
-- `saved_calculations.inputs` / `results` are `jsonb` already — no shape migration needed; each calculator writes its own strongly-typed payload.
-- Share slugs are 10-char nanoid, unique; only public rows exposed via anon SELECT policy filtered on `is_public = true`.
-
----
-
-## Suggested rollout order (one message per bullet, so previews stay stable)
-
-1. Phase 1 platform + migration + export engine + `/r/$slug` + dashboard grid.
-2. Mortgage + SIP upgraded (Phase 2 wave A).
-3. EMI + Property + Tax + Currency (Phase 2 wave B).
-4. Remaining 6 calculators (Phase 3).
-5. SEO + a11y + QA polish (Phase 4).
-
-Approve this plan and I'll start with Phase 1 — the shared platform, DB migration, PDF/CSV/Excel engine, shareable public route, and dashboard integration — in the next message.
+Ship order: (1) PDF preview → (2) Currency history + favorites → (3) Tax rules + tips → (4) SIP/FD goal mode + charts.

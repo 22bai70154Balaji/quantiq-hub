@@ -37,6 +37,23 @@ export function calcSip({ monthly, annualRate, years }: { monthly: number; annua
   return { futureValue: fv, invested, gains: fv - invested };
 }
 
+/** Solve for the monthly SIP needed to reach a target future value. */
+export function sipRequired({ target, annualRate, years }: { target: number; annualRate: number; years: number }) {
+  const n = Math.max(1, years * 12);
+  const r = annualRate / 12 / 100;
+  const monthly = r === 0 ? target / n : target / (((Math.pow(1 + r, n) - 1) / r) * (1 + r));
+  return { monthly: Math.max(0, monthly), months: n };
+}
+
+/** Solve for the lump-sum FD principal needed to mature to a target amount. */
+export function fdPrincipalRequired({ target, annualRate, years, compounding = 4 }: { target: number; annualRate: number; years: number; compounding?: number }) {
+  const r = annualRate / 100 / compounding;
+  const n = compounding * years;
+  const principal = r === 0 ? target : target / Math.pow(1 + r, n);
+  return { principal: Math.max(0, principal) };
+}
+
+
 export function calcFd({ principal, annualRate, years, compounding = 4 }: { principal: number; annualRate: number; years: number; compounding?: number }) {
   const r = annualRate / 100;
   const maturity = principal * Math.pow(1 + r / compounding, compounding * years);
