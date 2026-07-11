@@ -172,11 +172,19 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-feature-settings: "ss01", "ss02", "onum";
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-weight: 400;
   }
 
-  .font-mono, code, pre, kbd {
+  .font-grotesk {
+    font-family: var(--font-grotesk);
+  }
+
+  .font-mono, code, pre, kbd, .tabular-nums {
     font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   ::selection {
