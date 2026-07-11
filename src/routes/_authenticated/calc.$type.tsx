@@ -51,8 +51,9 @@ function CalcPage() {
         {slug === "mortgage" && <EmiCalc slug="mortgage" defaultRate={6.8} defaultYears={30} defaultPrincipal={400000} />}
         {slug === "home-loan" && <HomeLoanEngine />}
         {slug === "sip" && <SipCalc />}
+        {slug === "fd" && <FdCalc />}
         {slug === "property" && <PropertyCalc />}
-        {["fd", "compound-interest", "inflation", "retirement", "gst", "income-tax", "salary"].includes(slug) && <SimpleCalc slug={slug} />}
+        {["compound-interest", "inflation", "retirement", "gst", "income-tax", "salary"].includes(slug) && <SimpleCalc slug={slug} />}
       </main>
       <Footer />
     </>
