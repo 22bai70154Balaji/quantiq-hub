@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
 @import "@fontsource-variable/space-grotesk";
 @import "@fontsource-variable/jetbrains-mono";
 @import "@fontsource/instrument-serif/400.css";
@@ -11,8 +12,9 @@
 
 @theme inline {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk Variable", "Inter Variable", sans-serif;
-  --font-serif: "Instrument Serif", "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-display: "Fraunces Variable", "Instrument Serif", ui-serif, Georgia, serif;
+  --font-serif: "Instrument Serif", "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-grotesk: "Space Grotesk Variable", "Inter Variable", sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -170,11 +172,19 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    font-feature-settings: "ss01", "ss02", "onum";
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-weight: 400;
   }
 
-  .font-mono, code, pre, kbd {
+  .font-grotesk {
+    font-family: var(--font-grotesk);
+  }
+
+  .font-mono, code, pre, kbd, .tabular-nums {
     font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   ::selection {
