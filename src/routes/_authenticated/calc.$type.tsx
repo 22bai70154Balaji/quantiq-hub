@@ -5,6 +5,7 @@ import { CALC_BY_SLUG, type CalcSlug } from "@/lib/finflow/registry";
 import { CurrencyCalc } from "@/components/finflow/calcs/currency-calc";
 import { EmiCalc } from "@/components/finflow/calcs/emi-calc";
 import { SipCalc } from "@/components/finflow/calcs/sip-calc";
+import { FdCalc } from "@/components/finflow/calcs/fd-calc";
 import { SimpleCalc } from "@/components/finflow/calcs/simple-calc";
 import { PropertyCalc } from "@/components/finflow/calcs/property-calc";
 import { HomeLoanEngine } from "@/components/finflow/calcs/home-loan-engine";
