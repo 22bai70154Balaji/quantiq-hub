@@ -251,16 +251,49 @@ export function NumberInput({
 }: {
   value: number; onChange: (n: number) => void; prefix?: string; suffix?: string; step?: number; min?: number; max?: number;
 }) {
+  const [text, setText] = useState<string>(Number.isFinite(value) ? String(value) : "");
+  const focused = useRef(false);
+
+  // Sync from parent when not actively editing.
+  useEffect(() => {
+    if (!focused.current) {
+      setText(Number.isFinite(value) ? String(value) : "");
+    }
+  }, [value]);
+
   return (
     <div className="flex items-center rounded-xl border bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30">
       {prefix && <span className="pl-3 text-sm text-muted-foreground">{prefix}</span>}
       <input
-        type="number"
-        value={Number.isFinite(value) ? value : 0}
+        type="text"
+        inputMode="decimal"
+        value={text}
         step={step}
-        min={min}
-        max={max}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onFocus={(e) => {
+          focused.current = true;
+          e.currentTarget.select();
+        }}
+        onBlur={() => {
+          focused.current = false;
+          if (text.trim() === "" || text === "-" || text === ".") {
+            setText("0");
+            onChange(0);
+          }
+        }}
+        onChange={(e) => {
+          const raw = e.target.value;
+          // Allow empty, minus, and partial decimals during typing.
+          if (raw === "" || raw === "-" || raw === "." || /^-?\d*\.?\d*$/.test(raw)) {
+            setText(raw);
+            const n = raw === "" || raw === "-" || raw === "." ? NaN : Number(raw);
+            if (Number.isFinite(n)) {
+              let clamped = n;
+              if (typeof min === "number" && clamped < min) clamped = min;
+              if (typeof max === "number" && clamped > max) clamped = max;
+              onChange(clamped);
+            }
+          }
+        }}
         className="w-full bg-transparent px-3 py-2.5 text-base font-medium focus:outline-none"
       />
       {suffix && <span className="pr-3 text-sm text-muted-foreground">{suffix}</span>}
