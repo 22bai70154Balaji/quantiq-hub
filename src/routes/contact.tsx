@@ -68,7 +68,9 @@ function ContactPage() {
       <main className="pt-24">
         <div className="mx-auto max-w-3xl px-6 py-12">
           <div className="text-sm font-medium text-primary">Get in touch</div>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">Contact us</h1>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            Contact <span className="font-serif italic text-gold">us</span>
+          </h1>
           <p className="mt-4 max-w-xl text-muted-foreground">
             Feedback, feature ideas, partnerships, or a bug you found — send a message and it will land in my inbox.
           </p>

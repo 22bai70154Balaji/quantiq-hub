@@ -21,14 +21,16 @@ function NewsPage() {
   const [region, setRegion] = useState<"India" | "USA" | "UAE" | "Global">(initial as "India" | "USA" | "UAE" | "Global");
 
   return (
-    <>
+    <div className="bg-page-gradient min-h-screen">
       <Navbar />
       <main className="pt-24">
         <div className="mx-auto max-w-7xl px-6 pt-8">
           <div className="text-sm font-medium text-primary">Daily digest</div>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl">Financial news</h1>
-          <p className="mt-4 max-w-2xl text-muted-foreground">AI-summarised, region-filtered, refreshed regularly.</p>
-          <div className="mt-6 inline-flex rounded-full border bg-card p-1">
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl">
+            Financial <span className="font-serif italic text-gold">news</span>
+          </h1>
+          <p className="mt-4 max-w-2xl text-muted-foreground">AI-summarised, region-filtered, auto-refreshed every 10 minutes.</p>
+          <div className="mt-6 inline-flex rounded-full border bg-card/70 backdrop-blur p-1 shadow-soft">
             {(["Global", "India", "USA", "UAE"] as const).map((r) => (
               <button key={r} onClick={() => setRegion(r)}
                 className={`rounded-full px-4 py-1.5 text-sm transition ${region === r ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}>
@@ -40,6 +42,6 @@ function NewsPage() {
         <NewsSection region={region} />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

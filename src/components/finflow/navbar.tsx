@@ -40,10 +40,10 @@ export function Navbar() {
   }, []);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 glass transition-shadow ${scrolled ? "shadow-soft" : ""}`}
-    >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="fixed inset-x-0 top-3 z-50 px-3 sm:px-6">
+      <div
+        className={`mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 rounded-full border border-sheen glass pl-3 pr-2 sm:pl-5 sm:pr-3 transition-shadow ${scrolled ? "shadow-elegant" : "shadow-soft"}`}
+      >
         <Link to="/" className="flex items-center" aria-label="FinFlow AI home">
           <FinFlowLogo className="h-8 w-auto text-foreground" />
         </Link>
@@ -86,10 +86,10 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="glass border-t md:hidden">
-          <div className="mx-auto max-w-7xl px-6 py-3 flex flex-col gap-1">
+        <div className="mt-2 rounded-3xl glass border-sheen md:hidden">
+          <div className="px-4 py-3 flex flex-col gap-1">
             {NAV.map((n) => (
-              <Link key={n.to} to={n.to} className="rounded-lg px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link key={n.to} to={n.to} className="rounded-xl px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
                 {n.label}
               </Link>
             ))}

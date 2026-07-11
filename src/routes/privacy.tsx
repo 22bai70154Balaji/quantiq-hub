@@ -23,7 +23,9 @@ function PrivacyPage() {
       <main className="pt-24">
         <article className="mx-auto max-w-3xl px-6 py-12">
           <div className="text-sm font-medium text-primary">Legal</div>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">Privacy Policy</h1>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            Privacy <span className="font-serif italic text-gold">Policy</span>
+          </h1>
           <p className="mt-3 text-sm text-muted-foreground">Last updated: July 10, 2026</p>
 
           <div className="prose prose-slate mt-8 max-w-none text-[15px] leading-7 text-foreground/90 [&>h2]:mt-10 [&>h2]:font-display [&>h2]:text-2xl [&>h2]:font-semibold [&>p]:mt-3 [&>ul]:mt-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul>li]:mt-1">

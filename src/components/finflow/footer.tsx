@@ -1,10 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import { FinFlowLogo } from "@/components/finflow/logo";
+import { AlertTriangle } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="border-t bg-muted/30">
       <div className="mx-auto max-w-7xl px-6 py-12">
+        <div className="mb-10 flex items-start gap-3 rounded-2xl border border-sheen glass p-4 text-xs text-muted-foreground sm:text-sm">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />
+          <p>
+            <strong className="text-foreground">Disclaimer:</strong> All calculators, AI responses, and news
+            summaries on FinFlow AI are informational estimates only — not financial, tax, or legal advice.
+            Rates and rules change; always verify details with the relevant bank or authority before making a
+            financial decision.{" "}
+            <Link to="/disclaimer" className="text-primary underline underline-offset-4">Read full disclaimer</Link>.
+          </p>
+        </div>
+
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <FinFlowLogo className="h-9 w-auto text-foreground" />
@@ -18,18 +30,16 @@ export function Footer() {
             { to: "/news", label: "News" },
             { to: "/dashboard", label: "Dashboard" },
           ]} />
-          <FooterCol title="Calculators" links={[
-            { to: "/calc/currency", label: "Currency" },
-            { to: "/calc/mortgage", label: "Mortgage" },
-            { to: "/calc/sip", label: "SIP" },
-            { to: "/calc/property", label: "Property" },
-          ]} />
           <FooterCol title="Company" links={[
-            { to: "/privacy", label: "Privacy" },
-            { to: "/terms", label: "Terms" },
+            { to: "/about", label: "About Us" },
             { to: "/contact", label: "Contact" },
           ]} />
-
+          <FooterCol title="Legal" links={[
+            { to: "/privacy", label: "Privacy Policy" },
+            { to: "/terms", label: "Terms & Conditions" },
+            { to: "/disclaimer", label: "Disclaimer" },
+            { to: "/cookies", label: "Cookie Policy" },
+          ]} />
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 border-t pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} FinFlow AI. All figures are estimates, not financial advice.</p>

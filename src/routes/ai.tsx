@@ -59,7 +59,7 @@ function AiPage() {
   };
 
   return (
-    <>
+    <div className="bg-page-gradient min-h-screen">
       <Navbar />
       <main className="pt-20 pb-8">
         <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col px-4">
@@ -68,8 +68,8 @@ function AiPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-display text-xl font-semibold tracking-tight">FinFlow AI</div>
-              <div className="text-xs text-muted-foreground">Finance questions · calculation help · comparisons</div>
+              <div className="font-display text-xl font-semibold tracking-tight">FinFlow <span className="font-serif italic text-gold">AI</span></div>
+              <div className="text-xs text-muted-foreground">Informational only · not financial advice</div>
             </div>
           </div>
 
@@ -140,10 +140,13 @@ function AiPage() {
             </Button>
           </form>
           <div className="mt-2 text-center text-xs text-muted-foreground">
+            AI responses are informational only — not financial, legal, or tax advice. Verify with your bank or a qualified advisor.
+          </div>
+          <div className="mt-1 text-center text-xs text-muted-foreground">
             <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground"><ArrowLeft className="h-3 w-3" /> Back to home</Link>
           </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }
