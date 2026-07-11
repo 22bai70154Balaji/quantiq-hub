@@ -183,7 +183,7 @@ export function Hero() {
           </Link>
           <Link
             to="/ai"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-white/[0.06] hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-card/60 hover:text-foreground"
           >
             <TrendingUp className="h-3.5 w-3.5" /> Explore Features
           </Link>
