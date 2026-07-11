@@ -203,7 +203,7 @@ export function PdfPreviewModal({ open, onClose, options }: Props) {
             )}
 
             {/* Assumptions */}
-            {payload.assumptions?.length > 0 && (
+            {payload.assumptions && payload.assumptions.length > 0 && (
               <section className="mt-6">
                 <SectionHeading>Assumptions & notes</SectionHeading>
                 <ul className="mt-3 space-y-1.5">
