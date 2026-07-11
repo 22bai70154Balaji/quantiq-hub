@@ -114,16 +114,18 @@ export function Hero() {
       <div className="relative mx-auto max-w-5xl px-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3.5 py-1.5 text-xs backdrop-blur-md shadow-soft">
           <Sparkles className="h-3 w-3" style={{ color: "oklch(0.82 0.13 82)" }} />
-          <span className="font-medium tracking-wide uppercase text-[10.5px]">AI-powered financial insights</span>
+          <span className="font-grotesk font-medium tracking-[0.18em] uppercase text-[10.5px]">AI-powered financial insights</span>
           <span className="h-3 w-px bg-border" />
-          <span className="text-muted-foreground">India · USA · UAE</span>
+          <span className="text-muted-foreground font-grotesk tracking-[0.14em] uppercase text-[10.5px]">India · USA · UAE</span>
         </div>
 
-        <h1 className="mt-8 font-display text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl md:text-7xl">
-          Money math,
-          <br />
+        <h1
+          className="mt-10 font-display text-6xl leading-[0.95] tracking-[-0.035em] sm:text-7xl md:text-[6.5rem]"
+          style={{ fontVariationSettings: '"opsz" 144, "SOFT" 40, "WONK" 0' }}
+        >
+          <span className="block font-normal">Money math,</span>
           <span
-            className="italic font-normal"
+            className="block italic font-normal"
             style={{ fontFamily: "var(--font-serif)" }}
           >
             <span className="text-gradient">made</span>{" "}
@@ -131,18 +133,19 @@ export function Hero() {
           </span>
         </h1>
 
-        <div className="mx-auto mt-6 flex items-center justify-center gap-3">
-          <span className="h-px w-8 bg-gradient-to-r from-transparent to-border" />
-          <span className="text-[10.5px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+        <div className="mx-auto mt-7 flex items-center justify-center gap-3">
+          <span className="h-px w-10 bg-gradient-to-r from-transparent to-border" />
+          <span className="font-grotesk text-[10.5px] font-medium uppercase tracking-[0.32em] text-muted-foreground">
             Premium · Precise · Trusted
           </span>
-          <span className="h-px w-8 bg-gradient-to-l from-transparent to-border" />
+          <span className="h-px w-10 bg-gradient-to-l from-transparent to-border" />
         </div>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+        <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
           12 professional calculators, live exchange rates, and an AI assistant that explains every number.
           Built for professionals in India, USA, and UAE.
         </p>
+
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
