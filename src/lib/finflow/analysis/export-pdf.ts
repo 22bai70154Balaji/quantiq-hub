@@ -153,39 +153,70 @@ export async function exportPdf({ payload, reportId, shareUrl, chartNodeIds, ins
     );
   }
 
-  // AI Insights
+  // AI Insights — rendered inside a bordered card
   if (insights) {
-    pdfSection(ctx, "AI Insights");
-    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30);
-    const wrappedSummary = doc.splitTextToSize(pdfSafe(insights.summary), ctx.w - ctx.margin * 2);
-    ensureRoom(ctx, wrappedSummary.length * 14 + 8);
-    doc.text(wrappedSummary, ctx.margin, ctx.y);
-    ctx.y += wrappedSummary.length * 14 + 4;
+    const pad = 16;
+    const contentW = ctx.w - ctx.margin * 2 - pad * 2;
+    const summaryLines = doc.splitTextToSize(pdfSafe(insights.summary), contentW);
 
-    const list = (title: string, items: string[]) => {
-      if (!items.length) return;
-      ensureRoom(ctx, 22);
+    type Block = { title: string; items: string[] };
+    const blocks: Block[] = [
+      { title: "Recommendations", items: insights.recommendations ?? [] },
+      { title: "Risks to watch", items: insights.risks ?? [] },
+      { title: "Next steps", items: insights.nextSteps ?? [] },
+    ].filter((b) => b.items.length > 0);
+
+    const wrappedBlocks = blocks.map((b) => ({
+      title: b.title,
+      lines: b.items.map((it) => doc.splitTextToSize(`• ${pdfSafe(it)}`, contentW - 8) as string[]),
+    }));
+
+    // Measure total inner height
+    const titleH = 22;
+    const summaryH = summaryLines.length * 14 + 6;
+    let blocksH = 0;
+    wrappedBlocks.forEach((b) => {
+      blocksH += 16; // block heading
+      b.lines.forEach((ls) => { blocksH += ls.length * 13; });
+      blocksH += 8;  // spacing after block
+    });
+    const confH = 18;
+    const innerH = titleH + summaryH + blocksH + confH;
+    const boxH = innerH + pad * 2;
+
+    ensureRoom(ctx, boxH + 8);
+    const boxX = ctx.margin;
+    const boxY = ctx.y;
+    const boxW = ctx.w - ctx.margin * 2;
+    doc.setFillColor(246, 248, 252).setDrawColor(210, 216, 230).roundedRect(boxX, boxY, boxW, boxH, 10, 10, "FD");
+    // Left accent bar
+    doc.setFillColor(90, 96, 220).roundedRect(boxX, boxY, 4, boxH, 2, 2, "F");
+
+    let iy = boxY + pad;
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(30, 30, 60);
+    doc.text("AI Insights", boxX + pad, iy + 10);
+    iy += titleH;
+
+    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(35, 35, 45);
+    doc.text(summaryLines, boxX + pad, iy);
+    iy += summaryH;
+
+    wrappedBlocks.forEach((b) => {
       doc.setFont("helvetica", "bold").setFontSize(10.5).setTextColor(20, 22, 34);
-      doc.text(pdfSafe(title), ctx.margin, ctx.y);
-      ctx.y += 14;
-      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30);
-      items.forEach((it) => {
-        const wrapped = doc.splitTextToSize(`• ${pdfSafe(it)}`, ctx.w - ctx.margin * 2 - 8);
-        ensureRoom(ctx, wrapped.length * 13 + 2);
-        doc.text(wrapped, ctx.margin + 8, ctx.y);
-        ctx.y += wrapped.length * 13;
+      doc.text(pdfSafe(b.title), boxX + pad, iy);
+      iy += 14;
+      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(35, 35, 45);
+      b.lines.forEach((ls) => {
+        doc.text(ls, boxX + pad + 8, iy);
+        iy += ls.length * 13;
       });
-      ctx.y += 6;
-    };
-
-    list("Recommendations", insights.recommendations);
-    list("Risks to watch", insights.risks);
-    list("Next steps", insights.nextSteps);
+      iy += 8;
+    });
 
     doc.setFont("helvetica", "italic").setFontSize(9).setTextColor(120);
-    ensureRoom(ctx, 14);
-    doc.text(`Confidence: ${insights.confidence}`, ctx.margin, ctx.y);
-    ctx.y += 14;
+    doc.text(`Confidence: ${insights.confidence}`, boxX + pad, iy + 4);
+
+    ctx.y = boxY + boxH + 14;
   }
 
   // Assumptions
