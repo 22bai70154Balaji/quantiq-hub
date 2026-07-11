@@ -10,6 +10,7 @@ import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfFooter, pdfMoney, loadFinflowLogoPng } from "@/lib/finflow/pdf";
+import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
 
 const CITIES: Record<string, string[]> = {
   IN: ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai", "Kolkata"],
@@ -82,9 +83,58 @@ export function PropertyCalc() {
     }
   };
 
+  const payload: AnalysisPayload = useMemo(() => ({
+    slug: "property",
+    country,
+    title: "Property cost analysis",
+    subtitle: `${city}, ${COUNTRIES[country].name}`,
+    inputs: [
+      { label: "Location", value: `${city}, ${COUNTRIES[country].name}` },
+      { label: "Property price", value: formatMoney(price, country) },
+      { label: "Down payment", value: formatMoney(down, country) },
+      { label: "Loan amount", value: formatMoney(r.loan, country) },
+      { label: "Interest rate", value: `${rate}% p.a.` },
+      { label: "Tenure", value: `${years} years` },
+    ],
+    kpis: [
+      { label: "Monthly EMI", value: formatMoney(r.emi, country), tone: "primary" },
+      { label: "Total interest", value: formatMoney(r.totalInterest, country), tone: "warning" },
+      { label: "Charges & taxes", value: formatMoney(r.stampDuty + r.registration + r.gst + r.insurance + r.propertyTax, country), tone: "neutral" },
+      { label: "Total ownership cost", value: formatMoney(r.totalCost, country), tone: "destructive" },
+    ],
+    breakdown: {
+      columns: [
+        { key: "item", label: "Item" },
+        { key: "amount", label: "Amount", align: "right" },
+      ],
+      rows: [
+        { item: "Loan principal", amount: formatMoney(r.loan, country) },
+        { item: "Down payment", amount: formatMoney(down, country) },
+        { item: "Stamp duty", amount: formatMoney(r.stampDuty, country) },
+        { item: "Registration", amount: formatMoney(r.registration, country) },
+        { item: "GST / VAT", amount: formatMoney(r.gst, country) },
+        { item: `Insurance (${years}y)`, amount: formatMoney(r.insurance, country) },
+        { item: `Property tax (${years}y)`, amount: formatMoney(r.propertyTax, country) },
+        { item: "Total loan payments", amount: formatMoney(r.totalPayments, country) },
+        { item: "Total ownership cost", amount: formatMoney(r.totalCost, country) },
+      ],
+    },
+    assumptions: [
+      `Fixed ${rate}% interest rate across the ${years}-year tenure.`,
+      "Stamp duty, registration and GST/VAT modeled per country baseline; actual rates vary by state/emirate and project.",
+      "Insurance and property tax approximated as flat annual charges.",
+      "Excludes maintenance, brokerage, HOA/community fees, and resale value.",
+    ],
+    raw: {
+      inputs: { price, down, rate, years, city, country },
+      results: { emi: r.emi, totalCost: r.totalCost, totalInterest: r.totalInterest, loan: r.loan },
+    },
+    aiBrief: `Property ${formatMoney(price, country)} in ${city} (${COUNTRIES[country].name}), ${formatMoney(down, country)} down, ${formatMoney(r.loan, country)} loan @ ${rate}% for ${years}y. EMI ${formatMoney(r.emi, country)}, total cost ${formatMoney(r.totalCost, country)}.`,
+  }), [country, city, price, down, rate, years, r]);
+
   return (
     <CalcShell title={meta.name} tagline={meta.tagline} accent={meta.accent} icon={meta.icon}
-      saveType="property" saveInputs={{ price, down, rate, years, city, country }} saveResults={{ emi: r.emi, totalCost: r.totalCost }}>
+      saveType="property" analysisPayload={payload}>
       <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
         <div className="space-y-5 rounded-2xl border bg-card p-6 shadow-soft">
           <InputRow label={`Property price (${COUNTRIES[country].symbol})`}><NumberInput value={price} onChange={setPrice} step={10000} /></InputRow>
