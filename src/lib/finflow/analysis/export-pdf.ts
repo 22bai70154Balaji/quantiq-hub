@@ -15,7 +15,7 @@ import {
 import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
 import type { AnalysisInsights } from "@/lib/finflow/analysis/insights.functions";
 
-async function chartsAsImages(nodeIds: string[]): Promise<string[]> {
+export async function chartsAsImages(nodeIds: string[]): Promise<string[]> {
   const out: string[] = [];
   for (const id of nodeIds) {
     const el = document.getElementById(id);
