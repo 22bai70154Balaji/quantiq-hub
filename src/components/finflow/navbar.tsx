@@ -86,10 +86,10 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="glass border-t md:hidden">
-          <div className="mx-auto max-w-7xl px-6 py-3 flex flex-col gap-1">
+        <div className="mt-2 rounded-3xl glass border-sheen md:hidden">
+          <div className="px-4 py-3 flex flex-col gap-1">
             {NAV.map((n) => (
-              <Link key={n.to} to={n.to} className="rounded-lg px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link key={n.to} to={n.to} className="rounded-xl px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
                 {n.label}
               </Link>
             ))}
