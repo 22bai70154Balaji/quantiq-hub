@@ -228,7 +228,7 @@ export function StatCard({ label, value, sub, tone }: { label: string; value: st
   return (
     <div className="min-w-0 rounded-2xl border bg-card p-5 shadow-soft">
       <div className="truncate text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-display text-xl font-semibold leading-tight tracking-tight tabular-nums break-words sm:text-2xl ${tone ? tones[tone] : ""}`}>
+      <div className={`mt-1 font-mono text-xl font-semibold leading-tight tracking-tight tabular-nums break-words sm:text-2xl ${tone ? tones[tone] : ""}`}>
         {value}
       </div>
       {sub && <div className="mt-1 truncate text-xs text-muted-foreground">{sub}</div>}

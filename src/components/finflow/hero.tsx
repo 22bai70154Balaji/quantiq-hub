@@ -66,13 +66,13 @@ export function HeroConverter() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3.5">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Live rate</div>
                   <div className="mt-1 font-mono text-lg tabular-nums text-primary">
                     {isLoading ? "—" : rate.toFixed(4)}
                   </div>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3.5">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Inverse</div>
                   <div className="mt-1 font-mono text-lg tabular-nums" style={{ color: "oklch(0.82 0.13 82)" }}>
                     {rate ? (1 / rate).toFixed(4) : "—"}
@@ -82,7 +82,7 @@ export function HeroConverter() {
             </div>
 
             {/* right: result panel */}
-            <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.05] p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/[0.06] p-6">
               <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/20 blur-3xl" aria-hidden />
               <div className="relative flex h-full flex-col justify-between gap-6">
                 <div className="space-y-2">
@@ -92,7 +92,7 @@ export function HeroConverter() {
                     </label>
                     <button
                       onClick={() => { const t = from; setFrom(to); setTo(t); }}
-                      className="grid h-7 w-7 place-items-center rounded-full border border-white/10 text-muted-foreground transition hover:rotate-180 hover:bg-white/5"
+                      className="grid h-7 w-7 place-items-center rounded-full border border-border/60 text-muted-foreground transition hover:rotate-180 hover:bg-foreground/5"
                       aria-label="Swap"
                     >
                       <ArrowLeftRight className="h-3 w-3" />
@@ -103,9 +103,8 @@ export function HeroConverter() {
                       {converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                     </span>
                     <select value={to} onChange={(e) => setTo(e.target.value)}
-                      className="shrink-0 bg-transparent font-display text-xl italic text-muted-foreground focus:outline-none"
-                      style={{ fontFamily: "var(--font-serif)" }}>
-                      {POPULAR.map((c) => <option key={c} value={c} className="bg-background not-italic">{c}</option>)}
+                      className="shrink-0 bg-transparent font-mono text-lg font-medium text-muted-foreground focus:outline-none">
+                      {POPULAR.map((c) => <option key={c} value={c} className="bg-background">{c}</option>)}
                     </select>
                   </div>
                 </div>
@@ -184,7 +183,7 @@ export function Hero() {
           </Link>
           <Link
             to="/ai"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-white/[0.06] hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.24em] text-foreground/80 backdrop-blur-md transition hover:bg-card/60 hover:text-foreground"
           >
             <TrendingUp className="h-3.5 w-3.5" /> Explore Features
           </Link>

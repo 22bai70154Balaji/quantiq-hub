@@ -216,9 +216,13 @@
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, #000 60%, transparent);
+  background: color-mix(in oklab, var(--color-card) 78%, transparent);
   backdrop-filter: blur(40px) saturate(160%);
-  border: 1px solid color-mix(in oklab, var(--color-foreground) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 8%, transparent);
+}
+.dark .glass-strong {
+  background: color-mix(in oklab, #000 60%, transparent);
+  border-color: color-mix(in oklab, #fff 6%, transparent);
 }
 
 @utility cta-glow {

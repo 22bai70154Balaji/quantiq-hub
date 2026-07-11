@@ -21,7 +21,7 @@ export function KpiGrid({ kpis }: { kpis: Kpi[] }) {
           className="min-w-0 rounded-2xl border border-sheen glass p-5 shadow-soft"
         >
           <div className="truncate text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{k.label}</div>
-          <div className={`mt-1.5 font-display text-2xl font-semibold leading-tight tracking-tight tabular-nums break-words sm:text-3xl ${k.tone ? toneClass[k.tone] : ""}`}>
+          <div className={`mt-1.5 font-mono text-2xl font-semibold leading-tight tracking-tight tabular-nums break-words sm:text-3xl ${k.tone ? toneClass[k.tone] : ""}`}>
             {k.value}
           </div>
           {k.sub && <div className="mt-1 truncate text-xs text-muted-foreground">{k.sub}</div>}
