@@ -51,7 +51,7 @@ export function CurrencyCalc() {
         <div className="space-y-4">
           <div className="rounded-2xl border bg-gradient-to-br from-primary/10 to-transparent p-6">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Converted amount</div>
-            <div className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            <div className="mt-2 font-mono text-4xl font-semibold tabular-nums tracking-tight sm:text-5xl">
               {result.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-muted-foreground text-xl font-normal">{to}</span>
             </div>
             <div className="mt-2 text-sm text-muted-foreground">1 {from} = {rate.toFixed(4)} {to}</div>
