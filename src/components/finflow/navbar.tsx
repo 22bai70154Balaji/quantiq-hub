@@ -40,56 +40,59 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-3 z-50 px-3 sm:px-6">
-      <div
-        className={`mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 rounded-full border border-sheen glass pl-3 pr-2 sm:pl-5 sm:pr-3 transition-shadow ${scrolled ? "shadow-elegant" : "shadow-soft"}`}
+    <header className="fixed inset-x-0 top-4 z-50 px-3 sm:px-6">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+        className={`mx-auto flex h-13 max-w-5xl items-center justify-between gap-2 rounded-full border border-white/10 glass pl-4 pr-2 sm:pl-5 sm:pr-3 transition-all duration-500 ${scrolled ? "shadow-elegant py-1.5" : "py-2"}`}
       >
-        <Link to="/" className="flex items-center" aria-label="Calculyx AI home">
-          <FinFlowLogo className="h-8 w-auto text-foreground" />
+        <Link to="/" className="flex items-center gap-2.5" aria-label="Calculyx AI home">
+          <FinFlowLogo className="h-7 w-auto text-foreground" />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-7 md:flex">
           {NAV.map((n) => (
             <Link
               key={n.to}
               to={n.to}
-              className="rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "rounded-full px-3.5 py-1.5 text-sm text-foreground bg-muted" }}
+              className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "text-[13px] font-medium text-foreground" }}
             >
               {n.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <CountryPill country={country} onChange={setCountry} />
           <button
             aria-label="Toggle theme"
             onClick={toggle}
-            className="grid h-9 w-9 place-items-center rounded-full border transition hover:bg-muted"
+            className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
           </button>
           {user ? (
             <Link to="/dashboard">
-              <Button size="sm" variant="default" className="rounded-full">Dashboard</Button>
+              <Button size="sm" className="h-8 rounded-full px-4 text-[13px] font-semibold bg-foreground text-background hover:bg-foreground/90">Dashboard</Button>
             </Link>
           ) : (
             <Link to="/auth">
-              <Button size="sm" variant="default" className="rounded-full">Sign in</Button>
+              <Button size="sm" className="h-8 rounded-full px-4 text-[13px] font-semibold bg-foreground text-background hover:bg-foreground/90">Get Started</Button>
             </Link>
           )}
-          <button className="md:hidden grid h-9 w-9 place-items-center rounded-full border" onClick={() => setOpen((o) => !o)} aria-label="Menu">
+          <button className="md:hidden grid h-8 w-8 place-items-center rounded-full border border-white/10" onClick={() => setOpen((o) => !o)} aria-label="Menu">
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {open && (
-        <div className="mt-2 rounded-3xl glass border-sheen md:hidden">
+        <div className="mt-2 rounded-3xl glass md:hidden">
           <div className="px-4 py-3 flex flex-col gap-1">
             {NAV.map((n) => (
-              <Link key={n.to} to={n.to} className="rounded-xl px-3 py-2 text-sm hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link key={n.to} to={n.to} className="rounded-xl px-3 py-2 text-sm hover:bg-white/5" onClick={() => setOpen(false)}>
                 {n.label}
               </Link>
             ))}
