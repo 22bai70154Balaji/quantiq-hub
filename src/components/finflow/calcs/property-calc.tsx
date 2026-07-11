@@ -10,6 +10,7 @@ import { CALC_BY_SLUG } from "@/lib/finflow/registry";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { createPdfCtx, pdfHeader, pdfSection, pdfKv, pdfFooter, pdfMoney, loadFinflowLogoPng } from "@/lib/finflow/pdf";
+import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
 
 const CITIES: Record<string, string[]> = {
   IN: ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai", "Kolkata"],
