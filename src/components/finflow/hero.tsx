@@ -30,8 +30,8 @@ export function HeroConverter() {
     <div
       className="relative mx-auto mt-12 w-full max-w-2xl"
     >
-      <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-20 blur-2xl" />
-      <div className="relative overflow-hidden rounded-3xl border bg-card/80 p-6 shadow-elegant backdrop-blur-xl sm:p-8">
+      <div className="absolute -inset-1 rounded-3xl bg-gradient-primary opacity-30 blur-2xl" />
+      <div className="border-sheen relative overflow-hidden rounded-3xl bg-card/70 p-6 shadow-elegant backdrop-blur-xl sm:p-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <span className="relative flex h-2 w-2">
