@@ -48,12 +48,12 @@ export function CalculatorsGrid({ compact = false }: { compact?: boolean }) {
               <Link to="/calc/$type" params={{ type: c.slug }} className="group block">
                 <div className="relative h-full overflow-hidden rounded-2xl border bg-card p-6 shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-elegant">
                   <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-br ${c.accent} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20`} />
-                  <div className={`relative grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${c.accent} text-white shadow-elegant`}>
-                    <Icon className="h-5 w-5" />
+                  <div className={`relative grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${c.accent} text-white shadow-elegant ring-1 ring-white/15 transition-transform duration-500 group-hover:scale-[1.06] group-hover:rotate-[-2deg]`}>
+                    <Icon className="h-6 w-6" />
                   </div>
-                  <div className="relative mt-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">{c.category}</div>
-                  <h3 className="relative mt-1 font-display text-lg font-semibold tracking-tight">{c.name}</h3>
-                  <p className="relative mt-1.5 text-sm text-muted-foreground line-clamp-2">{c.tagline}</p>
+                  <div className="relative mt-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{c.category}</div>
+                  <h3 className="relative mt-1.5 font-display text-[1.35rem] font-semibold leading-tight tracking-[-0.02em]">{c.name}</h3>
+                  <p className="relative mt-2 text-[13.5px] leading-relaxed text-muted-foreground line-clamp-2">{c.tagline}</p>
                   <div className="relative mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition group-hover:opacity-100">
                     Open <ArrowRight className="h-3.5 w-3.5" />
                   </div>
