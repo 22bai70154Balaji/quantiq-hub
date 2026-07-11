@@ -66,13 +66,13 @@ export function HeroConverter() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3.5">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Live rate</div>
                   <div className="mt-1 font-mono text-lg tabular-nums text-primary">
                     {isLoading ? "—" : rate.toFixed(4)}
                   </div>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3.5">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3.5">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Inverse</div>
                   <div className="mt-1 font-mono text-lg tabular-nums" style={{ color: "oklch(0.82 0.13 82)" }}>
                     {rate ? (1 / rate).toFixed(4) : "—"}
