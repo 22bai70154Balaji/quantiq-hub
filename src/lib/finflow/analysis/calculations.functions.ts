@@ -24,9 +24,9 @@ export const saveCalculation = createServerFn({ method: "POST" })
         calculator_type: data.calculatorType,
         name: data.name,
         country: data.country ?? null,
-        inputs: data.inputs,
-        results: data.results,
-        summary: data.summary,
+        inputs: data.inputs as never,
+        results: data.results as never,
+        summary: data.summary as never,
         report_id,
       })
       .select("id, report_id, share_slug, is_public, created_at, updated_at")

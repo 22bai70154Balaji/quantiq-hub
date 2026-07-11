@@ -62,7 +62,7 @@ export const analyzeCalculation = createServerFn({ method: "POST" })
       if (data.saveToId) {
         await context.supabase
           .from("saved_calculations")
-          .update({ ai_insights: insights })
+          .update({ ai_insights: insights as never })
           .eq("id", data.saveToId);
       }
       return insights;
@@ -90,7 +90,7 @@ Rules: numerate, plain-spoken, cite jurisdiction (${jurisdiction}), no legal/tax
       if (data.saveToId) {
         await context.supabase
           .from("saved_calculations")
-          .update({ ai_insights: parsed })
+          .update({ ai_insights: parsed as never })
           .eq("id", data.saveToId);
       }
       return parsed;
