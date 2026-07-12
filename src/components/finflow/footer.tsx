@@ -43,7 +43,7 @@ export function Footer() {
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 border-t pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} Calculyx AI. All figures are estimates, not financial advice.</p>
-          <p>Made with precision.</p>
+          <p>Made By Sai Balaji{"\n"}.</p>
         </div>
       </div>
     </footer>
