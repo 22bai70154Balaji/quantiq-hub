@@ -11,10 +11,10 @@ import { StatusBar } from "@/components/finflow/status-bar";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Calculyxai — Financial Calculators & AI Insights for India, USA & UAE" },
-      { name: "description", content: "12 precision financial calculators for currency, mortgage, SIP, tax, and property — with an AI assistant tuned for India, the USA, and the UAE." },
-      { property: "og:title", content: "Calculyxai — Financial Calculators & AI Insights" },
-      { property: "og:description", content: "Precision calculators plus an AI assistant for India, the USA, and the UAE." },
+      { title: "Calculyx AI | AI Financial Intelligence Platform" },
+      { name: "description", content: "AI-powered financial platform offering currency conversion, home loan calculators, tax calculators, investment planning, retirement planning, and AI-powered financial insights." },
+      { property: "og:title", content: "Calculyx AI | AI Financial Intelligence Platform" },
+      { property: "og:description", content: "AI-powered financial calculators and insights — currency, mortgage, tax, SIP, FD, retirement — for India, USA, and UAE." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://calculyxai.online/" },
       { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
