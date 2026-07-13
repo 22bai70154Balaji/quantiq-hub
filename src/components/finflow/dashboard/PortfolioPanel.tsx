@@ -42,6 +42,17 @@ const CLASS_COLORS: Record<AssetClass, string> = {
   nps: "#a855f7",
 };
 
+type HoldingSavePayload = {
+  id?: string;
+  asset_class: AssetClass;
+  symbol?: string | null;
+  name: string;
+  quantity: number;
+  avg_cost: number;
+  currency: string;
+  manual_price?: number | null;
+};
+
 export function PortfolioPanel() {
   const [country] = useCountry();
   const qc = useQueryClient();
@@ -55,7 +66,7 @@ export function PortfolioPanel() {
     queryFn: () => list(),
   });
 
-  async function handleSave(payload: Parameters<typeof upsert>[0]["data"]) {
+  async function handleSave(payload: HoldingSavePayload) {
     try {
       await upsert({ data: payload });
       await qc.invalidateQueries({ queryKey: ["holdings"] });

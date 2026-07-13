@@ -29,6 +29,17 @@ const CATEGORY_META: Record<NwCategory, { label: string; kind: NwKind; icon: Rea
 const ASSET_CATS: NwCategory[] = ["cash", "investments", "real_estate", "other_asset"];
 const LIAB_CATS: NwCategory[] = ["loan", "credit_card", "other_liability"];
 
+type NwSavePayload = {
+  id?: string;
+  kind: NwKind;
+  category: NwCategory;
+  label: string;
+  amount: number;
+  currency: string;
+  as_of?: string;
+  notes?: string | null;
+};
+
 export function NetWorthPanel() {
   const [country] = useCountry();
   const qc = useQueryClient();
