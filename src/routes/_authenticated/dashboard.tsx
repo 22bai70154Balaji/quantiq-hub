@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Users as UsersIcon, Mail, Phone, Link2, Check, Globe } from "lucide-react";
+import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Users as UsersIcon, Mail, Phone, Link2, Check, Globe, Wallet, PieChart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
@@ -11,6 +11,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CALC_BY_SLUG, type CalcSlug } from "@/lib/finflow/registry";
 import { useCountry } from "@/lib/finflow/country-store";
 import { COUNTRIES, type Country } from "@/lib/finflow/countries";
+import { NetWorthPanel } from "@/components/finflow/dashboard/NetWorthPanel";
+import { PortfolioPanel } from "@/components/finflow/dashboard/PortfolioPanel";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -23,10 +25,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "saved" | "favorites" | "profile" | "users";
+type Tab = "networth" | "portfolio" | "saved" | "favorites" | "profile" | "users";
 
 function Dashboard() {
-  const [tab, setTab] = useState<Tab>("saved");
+  const [tab, setTab] = useState<Tab>("networth");
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -66,15 +68,26 @@ function Dashboard() {
           </div>
 
           <div className="mt-8 inline-flex flex-wrap rounded-full border bg-card p-1">
-            {((["saved", "favorites", "profile", ...(isAdmin ? ["users" as const] : [])]) as Tab[]).map((t) => (
-              <button key={t} onClick={() => setTab(t)}
-                className={`rounded-full px-4 py-1.5 text-sm capitalize transition ${tab === t ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}>
-                {t === "saved" ? "Saved calculations" : t === "users" ? "Users" : t}
-              </button>
-            ))}
+            {((["networth", "portfolio", "saved", "favorites", "profile", ...(isAdmin ? ["users" as const] : [])]) as Tab[]).map((t) => {
+              const label =
+                t === "networth" ? "Net Worth" :
+                t === "portfolio" ? "Portfolio" :
+                t === "saved" ? "Saved calculations" :
+                t === "users" ? "Users" : t;
+              const Icon = t === "networth" ? Wallet : t === "portfolio" ? PieChart : null;
+              return (
+                <button key={t} onClick={() => setTab(t)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm capitalize transition ${tab === t ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}>
+                  {Icon && <Icon className="h-3.5 w-3.5" />}
+                  {label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 pb-24">
+            {tab === "networth" && <NetWorthPanel />}
+            {tab === "portfolio" && <PortfolioPanel />}
             {tab === "saved" && <SavedList />}
             {tab === "favorites" && <FavoritesList />}
             {tab === "profile" && <Profile />}
