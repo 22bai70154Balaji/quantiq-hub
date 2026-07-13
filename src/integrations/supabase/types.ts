@@ -97,6 +97,120 @@ export type Database = {
         }
         Relationships: []
       }
+      holding_prices: {
+        Row: {
+          asset_class: Database["public"]["Enums"]["asset_class"]
+          currency: string
+          fetched_at: string
+          price: number
+          symbol: string
+        }
+        Insert: {
+          asset_class: Database["public"]["Enums"]["asset_class"]
+          currency?: string
+          fetched_at?: string
+          price: number
+          symbol: string
+        }
+        Update: {
+          asset_class?: Database["public"]["Enums"]["asset_class"]
+          currency?: string
+          fetched_at?: string
+          price?: number
+          symbol?: string
+        }
+        Relationships: []
+      }
+      holdings: {
+        Row: {
+          asset_class: Database["public"]["Enums"]["asset_class"]
+          avg_cost: number
+          created_at: string
+          currency: string
+          id: string
+          manual_price: number | null
+          name: string
+          notes: string | null
+          purchase_date: string | null
+          quantity: number
+          symbol: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_class: Database["public"]["Enums"]["asset_class"]
+          avg_cost?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          manual_price?: number | null
+          name: string
+          notes?: string | null
+          purchase_date?: string | null
+          quantity?: number
+          symbol?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_class?: Database["public"]["Enums"]["asset_class"]
+          avg_cost?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          manual_price?: number | null
+          name?: string
+          notes?: string | null
+          purchase_date?: string | null
+          quantity?: number
+          symbol?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      net_worth_entries: {
+        Row: {
+          amount: number
+          as_of: string
+          category: Database["public"]["Enums"]["nw_category"]
+          created_at: string
+          currency: string
+          id: string
+          kind: Database["public"]["Enums"]["nw_kind"]
+          label: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          as_of?: string
+          category: Database["public"]["Enums"]["nw_category"]
+          created_at?: string
+          currency?: string
+          id?: string
+          kind: Database["public"]["Enums"]["nw_kind"]
+          label: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          as_of?: string
+          category?: Database["public"]["Enums"]["nw_category"]
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["nw_kind"]
+          label?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -220,6 +334,26 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      asset_class:
+        | "stock"
+        | "etf"
+        | "mutual_fund"
+        | "crypto"
+        | "gold"
+        | "fd"
+        | "bond"
+        | "epf"
+        | "ppf"
+        | "nps"
+      nw_category:
+        | "cash"
+        | "investments"
+        | "real_estate"
+        | "other_asset"
+        | "loan"
+        | "credit_card"
+        | "other_liability"
+      nw_kind: "asset" | "liability"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -348,6 +482,28 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      asset_class: [
+        "stock",
+        "etf",
+        "mutual_fund",
+        "crypto",
+        "gold",
+        "fd",
+        "bond",
+        "epf",
+        "ppf",
+        "nps",
+      ],
+      nw_category: [
+        "cash",
+        "investments",
+        "real_estate",
+        "other_asset",
+        "loan",
+        "credit_card",
+        "other_liability",
+      ],
+      nw_kind: ["asset", "liability"],
     },
   },
 } as const
