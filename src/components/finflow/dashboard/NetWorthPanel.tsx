@@ -66,7 +66,7 @@ export function NetWorthPanel() {
     return { assets, liab, net: assets - liab, byCat, deltaPct };
   }, [entries]);
 
-  async function handleSave(payload: Parameters<typeof upsert>[0]["data"]) {
+  async function handleSave(payload: NwSavePayload) {
     try {
       await upsert({ data: payload });
       await qc.invalidateQueries({ queryKey: ["net_worth_entries"] });
