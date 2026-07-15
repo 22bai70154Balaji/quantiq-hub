@@ -28,9 +28,12 @@ export function TrustAndTestimonials() {
         </div>
 
         <div className="mt-16 text-center">
-          <div className="text-sm font-medium text-primary">Testimonials</div>
+          <div className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-primary" /></span>
+            Testimonials
+          </div>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-            Loved by professionals<br />across three continents.
+            <span className="font-serif italic text-gold">Loved</span> by professionals<br />across three continents.
           </h2>
         </div>
 
