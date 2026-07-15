@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { calcSip, sipRequired } from "@/lib/finflow/calculators";
 import { formatMoney, COUNTRIES } from "@/lib/finflow/countries";
 import { useCountry } from "@/lib/finflow/country-store";
@@ -8,7 +8,7 @@ import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
 } from "recharts";
 import type { AnalysisPayload } from "@/lib/finflow/analysis/types";
-import { Target, TrendingUp } from "lucide-react";
+import { Target, TrendingUp, Link2 } from "lucide-react";
 
 type Mode = "invest" | "goal";
 type ChartKind = "area" | "bar";
@@ -18,11 +18,22 @@ export function SipCalc() {
   const [country] = useCountry();
   const [mode, setMode] = useState<Mode>("invest");
   const [chartKind, setChartKind] = useState<ChartKind>("area");
+  const [linkedSymbol, setLinkedSymbol] = useState<string | null>(null);
 
   // Invest mode
   const [monthly, setMonthly] = useState(25000);
   const [rate, setRate] = useState(12);
   const [years, setYears] = useState(15);
+
+  // Read query params (?symbol=AAPL&rate=15) on mount to prefill from Stocks page.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams(window.location.search);
+    const sym = p.get("symbol");
+    const r = Number(p.get("rate"));
+    if (sym) setLinkedSymbol(sym);
+    if (Number.isFinite(r) && r > 0 && r < 100) setRate(r);
+  }, []);
 
   // Goal mode
   const [goalAmount, setGoalAmount] = useState(10000000);
