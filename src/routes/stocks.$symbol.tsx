@@ -2,15 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap, Brain } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Cell } from "recharts";
+import { toast } from "sonner";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { getStockDetail, getStockCandles, getStockNews, getAnalystRatings, getEarnings } from "@/lib/finflow/stock-detail.functions";
 import { getStockAiInsights } from "@/lib/finflow/stock-ai.functions";
+import { getStockPrediction } from "@/lib/finflow/stock-prediction.functions";
 import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
 import { sip, lumpsum, profitLoss, dividend, stockAverage, positionSize, calcBrokerage, BROKERS_IN, BROKERS_US, type BrokerId } from "@/lib/finflow/investing-calcs";
-import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx } from "@/lib/finflow/stock-exports";
+import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx, exportPredictionPdf } from "@/lib/finflow/stock-exports";
 
 export const Route = createFileRoute("/stocks/$symbol")({
   head: ({ params }) => {
