@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as InvestingCalculatorsRouteImport } from './routes/investing-calculators'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -48,6 +49,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestingCalculatorsRoute = InvestingCalculatorsRouteImport.update({
+  id: '/investing-calculators',
+  path: '/investing-calculators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisclaimerRoute = DisclaimerRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
   '/stocks': typeof StocksRouteWithChildren
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
   '/stocks': typeof StocksRouteWithChildren
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
   '/stocks': typeof StocksRouteWithChildren
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
@@ -273,6 +285,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  InvestingCalculatorsRoute: typeof InvestingCalculatorsRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
   StocksRoute: typeof StocksRouteWithChildren
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investing-calculators': {
+      id: '/investing-calculators'
+      path: '/investing-calculators'
+      fullPath: '/investing-calculators'
+      preLoaderRoute: typeof InvestingCalculatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disclaimer': {
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   DisclaimerRoute: DisclaimerRoute,
+  InvestingCalculatorsRoute: InvestingCalculatorsRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
   StocksRoute: StocksRouteWithChildren,
