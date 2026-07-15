@@ -10,7 +10,7 @@ export type PriceQuote = {
   symbol: string;
   price: number;
   currency: string; // ISO currency of the price
-  source: "finnhub" | "coingecko" | "manual" | "cache";
+  source: "finnhub" | "coingecko" | "indianapi" | "manual" | "cache";
 };
 
 const CG_MAP: Record<string, string> = {
