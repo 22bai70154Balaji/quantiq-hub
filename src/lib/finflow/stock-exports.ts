@@ -12,11 +12,19 @@ import {
   portfolioAllocation, rebalance, swp, dca,
 } from "@/lib/finflow/investing-calcs";
 import type { StockDetail, Candle, NewsItem, AnalystRating, EarningsRow } from "@/lib/finflow/stock-detail.functions";
+import type { StockPrediction } from "@/lib/finflow/stock-prediction.functions";
+import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
+import calculyxLogoUrl from "@/assets/calculyx-logo.png";
 
 function fmtMoney(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
   if (currency === "INR") return `₹${Math.round(v).toLocaleString("en-IN")}`;
   return `$${Math.round(v).toLocaleString("en-US")}`;
+}
+function fmtMoney2(v: number, currency: string): string {
+  if (!Number.isFinite(v)) return "—";
+  const sym = currency === "INR" ? "₹" : "$";
+  return `${sym}${v.toLocaleString(currency === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 2 })}`;
 }
 
 function download(blob: Blob, filename: string) {
@@ -26,6 +34,92 @@ function download(blob: Blob, filename: string) {
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 500);
 }
+
+// -------- Image helpers (browser-only) --------
+// jsPDF's addImage needs a data URL; logo.dev + our own asset both fetch fine.
+async function urlToDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onerror = () => reject(new Error("read failed"));
+      r.onload = () => resolve(String(r.result ?? ""));
+      r.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
+
+const LOGO_DEV_TOKEN = (import.meta.env.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY ?? "") as string;
+
+function tickerLogoUrl(symbol: string): string | null {
+  const cat = getCatalogEntry(symbol.toUpperCase());
+  const upper = symbol.toUpperCase();
+  const ticker = upper.replace(/\.(NS|BO)$/i, "");
+  if (cat?.logoDomain) {
+    return `https://img.logo.dev/${cat.logoDomain}?token=${LOGO_DEV_TOKEN}&size=80&format=png&fallback=404`;
+  }
+  return `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${LOGO_DEV_TOKEN}&size=80&format=png&fallback=404`;
+}
+
+// -------- Branded header / footer --------
+
+async function drawBrandedHeader(doc: jsPDF, subtitle: string): Promise<number> {
+  const W = doc.internal.pageSize.getWidth();
+  const margin = 40;
+  // Deep navy header strip
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, W, 78, "F");
+  // Calculyx logo (fetched once)
+  const logo = await urlToDataUrl(calculyxLogoUrl);
+  if (logo) {
+    try { doc.addImage(logo, "PNG", margin, 18, 42, 42); } catch { /* ignore */ }
+  }
+  doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(255, 255, 255);
+  doc.text("Calculyx AI", margin + 54, 42);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(180, 200, 230);
+  doc.text(subtitle, margin + 54, 58);
+  // Timestamp on the right
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(180, 200, 230);
+  const ts = new Date().toLocaleString();
+  doc.text(ts, W - margin, 42, { align: "right" });
+  doc.setFontSize(7);
+  doc.text("calculyxai.online", W - margin, 58, { align: "right" });
+  return 100; // Y position where body should start
+}
+
+function drawFooter(doc: jsPDF, note = "Estimates only · Not financial advice · Data may be delayed") {
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(230).line(margin, H - 34, W - margin, H - 34);
+    doc.setFont("helvetica", "italic").setFontSize(8).setTextColor(140);
+    doc.text(`Calculyx AI · ${note}`, margin, H - 20);
+    doc.text(`Page ${i} / ${pages}`, W - margin, H - 20, { align: "right" });
+  }
+}
+
+// Reusable "labelled card" box for numeric grids.
+function drawStatCard(doc: jsPDF, x: number, y: number, w: number, h: number, label: string, value: string) {
+  doc.setDrawColor(226, 232, 240).setFillColor(248, 250, 252);
+  doc.roundedRect(x, y, w, h, 6, 6, "FD");
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(100, 116, 139);
+  doc.text(label.toUpperCase(), x + 10, y + 14);
+  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(15, 23, 42);
+  // Truncate value if wider than box
+  const maxTextWidth = w - 20;
+  let text = value;
+  while (doc.getTextWidth(text) > maxTextWidth && text.length > 3) {
+    text = text.slice(0, -2) + "…";
+  }
+  doc.text(text, x + 10, y + h - 12);
+}
+
+
 
 // ============================= STOCK DATA EXPORTS =============================
 
