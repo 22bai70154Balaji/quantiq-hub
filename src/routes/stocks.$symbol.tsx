@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Cell } from "recharts";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
@@ -10,6 +10,7 @@ import { getStockDetail, getStockCandles, getStockNews, getAnalystRatings, getEa
 import { getStockAiInsights } from "@/lib/finflow/stock-ai.functions";
 import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
 import { sip, lumpsum, profitLoss, dividend, stockAverage, positionSize, calcBrokerage, BROKERS_IN, BROKERS_US, type BrokerId } from "@/lib/finflow/investing-calcs";
+import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx } from "@/lib/finflow/stock-exports";
 
 export const Route = createFileRoute("/stocks/$symbol")({
   head: ({ params }) => {
@@ -133,6 +134,29 @@ function StockDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* ACTION TOOLBAR */}
+          <StockActions
+            disabled={!d}
+            onExportPdf={() => d && exportStockPdf({ detail: d, candles: candles.data?.candles, news: news.data, analyst: analyst.data, earnings: earnings.data })}
+            onExportXlsx={() => d && exportStockXlsx({ detail: d, candles: candles.data?.candles, news: news.data, analyst: analyst.data, earnings: earnings.data })}
+            onAnalyzeAll={() => {
+              if (!d) return;
+              const meta = {
+                symbol: upperSymbol,
+                name: d.name,
+                currency: d.currency,
+                price: d.price,
+                assumedReturn: getCatalogEntry(upperSymbol)?.assumedReturn ?? 12,
+                divYield: d.divYield,
+                isIndian: d.region === "IN",
+              };
+              const bundle = runAll15(meta);
+              exportAll15Pdf(bundle);
+              exportAll15Xlsx(bundle);
+            }}
+            calculatorLink={{ pathname: "/investing-calculators", search: { c: "sip", symbol: upperSymbol } }}
+          />
 
           {/* QUICK STATS */}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
@@ -383,16 +407,58 @@ function RatingsChart({ data }: { data: Array<{ buy: number; hold: number; sell:
 
 function LogoBox({ symbol, name, domain }: { symbol: string; name: string; domain?: string }) {
   const token = import.meta.env.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY as string | undefined;
-  const [errored, setErrored] = useState(false);
+  const [stage, setStage] = useState<"primary" | "fallback" | "initials">("primary");
   const ticker = symbol.replace(/\.(NS|BO)$/i, "");
-  const src = domain
-    ? `https://img.logo.dev/${domain}?token=${token}&size=128&format=png&fallback=404`
+  const catDomain = getCatalogEntry(symbol)?.logoDomain;
+  const useDomain = domain || catDomain;
+  const primary = useDomain
+    ? `https://img.logo.dev/${useDomain}?token=${token}&size=128&format=png&fallback=404`
     : `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=128&format=png&fallback=404`;
+  const fallback = useDomain
+    ? `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=128&format=png&fallback=404`
+    : null;
   const initials = name.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
-  if (!token || errored) {
+  if (!token || stage === "initials") {
     return <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-lg font-semibold">{initials || ticker.slice(0, 2)}</div>;
   }
-  return <img src={src} alt={`${name} logo`} width={64} height={64} onError={() => setErrored(true)} className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 bg-white object-contain p-1.5" />;
+  const src = stage === "primary" ? primary : (fallback ?? primary);
+  return <img key={src} src={src} alt={`${name} logo`} width={64} height={64}
+    onError={() => setStage((s) => (s === "primary" && fallback ? "fallback" : "initials"))}
+    className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 bg-white object-contain p-1.5" />;
+}
+
+function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, calculatorLink }: {
+  disabled: boolean;
+  onExportPdf: () => void;
+  onExportXlsx: () => void;
+  onAnalyzeAll: () => void;
+  calculatorLink: { pathname: string; search: Record<string, string> };
+}) {
+  const [busy, setBusy] = useState(false);
+  const handle = async (fn: () => void) => {
+    setBusy(true);
+    try { fn(); } finally { setTimeout(() => setBusy(false), 400); }
+  };
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-2">
+      <button disabled={disabled || busy} onClick={() => handle(onAnalyzeAll)}
+        className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 disabled:opacity-40">
+        <Zap className="h-3.5 w-3.5" /> Analyze all 15 calculators
+      </button>
+      <button disabled={disabled || busy} onClick={() => handle(onExportPdf)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-medium hover:bg-white/[0.06] disabled:opacity-40">
+        <FileDown className="h-3.5 w-3.5" /> Export stock (PDF)
+      </button>
+      <button disabled={disabled || busy} onClick={() => handle(onExportXlsx)}
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-medium hover:bg-white/[0.06] disabled:opacity-40">
+        <FileSpreadsheet className="h-3.5 w-3.5" /> Export stock (Excel)
+      </button>
+      <Link to={calculatorLink.pathname} search={calculatorLink.search as never}
+        className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20">
+        <Calculator className="h-3.5 w-3.5" /> Open in 15 calculators
+      </Link>
+    </div>
+  );
 }
 
 // -------- stock-page embedded calculators --------

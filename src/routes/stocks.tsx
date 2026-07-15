@@ -6,6 +6,7 @@ import { useState, useMemo } from "react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { listTopStocks, type StockQuote, META_BY_SYMBOL } from "@/lib/finflow/stocks.functions";
+import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
@@ -198,40 +199,28 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
 
 
 
-// Domain map — Logo.dev's /ticker/ index skips most .NS/.BO listings, so we
-// fall back to the company's primary domain for Indian tickers.
-const LOGO_DOMAIN_BY_SYMBOL: Record<string, string> = {
-  "RELIANCE.NS": "ril.com",
-  "TCS.NS": "tcs.com",
-  "INFY.NS": "infosys.com",
-  "HDFCBANK.NS": "hdfcbank.com",
-  "ICICIBANK.NS": "icicibank.com",
-  "BHARTIARTL.NS": "airtel.in",
-  "SBIN.NS": "sbi.co.in",
-  "TATAMOTORS.NS": "tatamotors.com",
-};
-
+// Logo.dev's /ticker/ index skips most .NS/.BO listings, so we use the
+// company's primary domain from the curated catalog whenever available.
 function StockLogo({ symbol, name }: { symbol: string; name: string }) {
   const token = import.meta.env.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY as string | undefined;
   const [stage, setStage] = useState<"primary" | "fallback" | "initials">("primary");
-  const ticker = symbol.replace(/\.(NS|BO)$/i, "");
-  const isIndian = /\.(NS|BO)$/i.test(symbol);
-  const domain = LOGO_DOMAIN_BY_SYMBOL[symbol.toUpperCase()];
+  const upper = symbol.toUpperCase();
+  const ticker = upper.replace(/\.(NS|BO)$/i, "");
+  const domain = getCatalogEntry(upper)?.logoDomain;
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
 
-  // For Indian tickers, try domain first, then ticker. For US, ticker first, then domain (none).
-  const primary = isIndian && domain
+  // Domain-first for every ticker (works for both US and Indian symbols);
+  // fall back to Logo.dev's ticker index, then to initials.
+  const primary = domain
     ? `https://img.logo.dev/${domain}?token=${token}&size=80&format=png&fallback=404`
     : `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`;
-  const fallback = isIndian && domain
+  const fallback = domain
     ? `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`
-    : domain
-      ? `https://img.logo.dev/${domain}?token=${token}&size=80&format=png&fallback=404`
-      : null;
+    : null;
 
   if (!token || stage === "initials") {
     return (
