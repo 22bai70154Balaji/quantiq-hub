@@ -368,6 +368,64 @@ export async function exportStockPdf(b: StockExportBundle): Promise<void> {
     });
   }
 
+  // -------- Investment calculator snapshot (15-calc summary) --------
+  if (d.price > 0) {
+    const bundle = runAll15({
+      symbol: d.symbol,
+      name: d.name,
+      currency: d.currency,
+      price: d.price,
+      assumedReturn: 12,
+      divYield: d.divYield,
+      isIndian: d.region === "IN",
+    });
+    ensure(40);
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+    doc.text("Investment calculator snapshot", margin, y); y += 6;
+    doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(120, 130, 148);
+    doc.text("Based on this ticker's live price and assumed 12% p.a. return.", margin, y + 8); y += 20;
+
+    const fm = (v: number) => fmtMoney(v, d.currency);
+    const calcRows: Array<[string, string]> = [
+      ["SIP — 10 yrs future value", fm(bundle.sip.futureValue)],
+      ["Lumpsum — 10 yrs FV", fm(bundle.lumpsum.futureValue)],
+      ["CAGR (5y sample)", `${bundle.cagr.cagr.toFixed(2)}%`],
+      ["Dividend income (100 sh)", `${fm(bundle.dividend.annual)} / yr`],
+      ["Brokerage (50 qty round-trip)", fm(bundle.brokerage.totalCharges)],
+      ["Stock average", fm(bundle.average.avg)],
+      ["Position size (2% risk)", `${bundle.position.qty} shares`],
+      ["Profit / Loss net", fm(bundle.pl.net)],
+      ["Compare (10y stock)", fm(bundle.compare.stock)],
+      ["FIRE number", fm(bundle.fire.fireNumber)],
+      ["Goal — SIP needed / mo", fm(bundle.goal.sipMonthly)],
+      ["SWP duration", bundle.swp.exhausted ? `${bundle.swp.years.toFixed(1)} yrs` : "Never exhausts"],
+      ["DCA average", fm(bundle.dca.avg)],
+      ["Allocation IN / US / Gold", `${bundle.allocator.india}% / ${bundle.allocator.us}% / ${bundle.allocator.gold}%`],
+    ];
+    const rowH = 18;
+    const labelW = bodyW * 0.55;
+    const valueW = bodyW - labelW;
+    doc.setFillColor(241, 245, 249).rect(margin, y, bodyW, rowH, "F");
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(71, 85, 105);
+    doc.text("Calculator", margin + 10, y + 12);
+    doc.text("Result", margin + bodyW - 10, y + 12, { align: "right" });
+    y += rowH;
+    doc.setFont("helvetica", "normal").setFontSize(9);
+    calcRows.forEach((r, i) => {
+      ensure(rowH);
+      if (i % 2 === 1) { doc.setFillColor(249, 250, 252).rect(margin, y, bodyW, rowH, "F"); }
+      doc.setTextColor(30, 41, 59);
+      const label = doc.splitTextToSize(r[0], labelW - 20)[0] as string;
+      doc.text(label, margin + 10, y + 12);
+      doc.setFont("helvetica", "bold").setTextColor(15, 23, 42);
+      const val = doc.splitTextToSize(r[1], valueW - 20)[0] as string;
+      doc.text(val, margin + bodyW - 10, y + 12, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      y += rowH;
+    });
+    y += 6;
+  }
+
   drawFooter(doc);
   doc.save(`${d.symbol}_stock_report.pdf`);
 }
