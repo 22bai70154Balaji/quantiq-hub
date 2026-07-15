@@ -88,6 +88,28 @@ function StocksPage() {
               <RefreshCw className={`h-3.5 w-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
               Refresh
             </button>
+            <button
+              onClick={() => {
+                if (!stocks.length) { toast.error("No stocks loaded yet"); return; }
+                exportTopStocksPdf(stocks, market === "IN" ? "India" : market === "US" ? "US" : "Global");
+                toast.success("PDF downloaded");
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/15"
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              Export PDF
+            </button>
+            <button
+              onClick={() => {
+                if (!stocks.length) { toast.error("No stocks loaded yet"); return; }
+                exportTopStocksXlsx(stocks, market === "IN" ? "India" : market === "US" ? "US" : "Global");
+                toast.success("Excel downloaded");
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-500 hover:bg-emerald-500/15"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Export Excel
+            </button>
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
               Auto-refresh · 60s
             </span>
