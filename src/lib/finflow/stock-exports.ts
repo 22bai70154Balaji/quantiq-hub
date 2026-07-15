@@ -212,6 +212,34 @@ export function exportStockXlsx(b: StockExportBundle): void {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Earnings");
   }
 
+  if (d.price > 0) {
+    const bundle = runAll15({
+      symbol: d.symbol, name: d.name, currency: d.currency, price: d.price,
+      assumedReturn: 12, divYield: d.divYield, isIndian: d.region === "IN",
+    });
+    const fm = (v: number) => fmtMoney(v, d.currency);
+    const calcRows: (string | number)[][] = [
+      ["Calculator", "Result"],
+      ["SIP (10y future value)", fm(bundle.sip.futureValue)],
+      ["Lumpsum (10y FV)", fm(bundle.lumpsum.futureValue)],
+      ["CAGR (5y sample) %", bundle.cagr.cagr.toFixed(2)],
+      ["Dividend annual (100 sh)", fm(bundle.dividend.annual)],
+      ["Brokerage total charges", fm(bundle.brokerage.totalCharges)],
+      ["Stock average", fm(bundle.average.avg)],
+      ["Position size (shares)", bundle.position.qty],
+      ["Profit/Loss net", fm(bundle.pl.net)],
+      ["Compare — stock 10y", fm(bundle.compare.stock)],
+      ["FIRE number", fm(bundle.fire.fireNumber)],
+      ["Goal SIP/mo", fm(bundle.goal.sipMonthly)],
+      ["SWP", bundle.swp.exhausted ? `${bundle.swp.years.toFixed(1)} yrs` : "Never exhausts"],
+      ["DCA average", fm(bundle.dca.avg)],
+      ["Allocator IN/US/Gold %", `${bundle.allocator.india}/${bundle.allocator.us}/${bundle.allocator.gold}`],
+    ];
+    const s = XLSX.utils.aoa_to_sheet(calcRows);
+    s["!cols"] = [{ wch: 32 }, { wch: 28 }];
+    XLSX.utils.book_append_sheet(wb, s, "Calculators");
+  }
+
   const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
   download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${d.symbol}_stock_report.xlsx`);
 }
