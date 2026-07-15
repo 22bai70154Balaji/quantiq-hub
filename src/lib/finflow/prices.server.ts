@@ -10,8 +10,10 @@ export type PriceQuote = {
   symbol: string;
   price: number;
   currency: string; // ISO currency of the price
-  source: "finnhub" | "coingecko" | "indianapi" | "manual" | "cache";
+  source: "finnhub" | "coingecko" | "indianapi" | "yahoo" | "manual" | "cache";
 };
+
+import { fetchYahooQuote } from "./stock-market.server";
 
 const CG_MAP: Record<string, string> = {
   BTC: "bitcoin",
@@ -38,20 +40,30 @@ const CG_MAP: Record<string, string> = {
 
 export async function fetchIndianApiQuote(symbolOrName: string): Promise<PriceQuote | null> {
   const key = process.env.INDIAN_STOCK_API_KEY;
-  if (!key) return null;
+  if (!key) {
+    const yahoo = await fetchYahooQuote(symbolOrName);
+    return yahoo ? { symbol: symbolOrName, price: yahoo.price, currency: yahoo.currency, source: "yahoo" } : null;
+  }
   // Strip .NS / .BO suffix for the indianapi.in name/ticker lookup
   const q = symbolOrName.replace(/\.(NS|BO)$/i, "");
   try {
     const res = await fetch(`https://stock.indianapi.in/stock?name=${encodeURIComponent(q)}`, {
       headers: { "x-api-key": key },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const yahoo = await fetchYahooQuote(symbolOrName);
+      return yahoo ? { symbol: symbolOrName, price: yahoo.price, currency: yahoo.currency, source: "yahoo" } : null;
+    }
     const j = (await res.json()) as { currentPrice?: { NSE?: string | number; BSE?: string | number } };
     const price = Number(j?.currentPrice?.NSE ?? j?.currentPrice?.BSE ?? 0);
-    if (!Number.isFinite(price) || price <= 0) return null;
+    if (!Number.isFinite(price) || price <= 0) {
+      const yahoo = await fetchYahooQuote(symbolOrName);
+      return yahoo ? { symbol: symbolOrName, price: yahoo.price, currency: yahoo.currency, source: "yahoo" } : null;
+    }
     return { symbol: symbolOrName, price, currency: "INR", source: "indianapi" };
   } catch {
-    return null;
+    const yahoo = await fetchYahooQuote(symbolOrName);
+    return yahoo ? { symbol: symbolOrName, price: yahoo.price, currency: yahoo.currency, source: "yahoo" } : null;
   }
 }
 

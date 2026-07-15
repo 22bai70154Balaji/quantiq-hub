@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getCatalogEntry } from "./stocks-catalog";
+import { fetchIndianStockSnapshot, fetchYahooCandles, fetchYahooQuote, parseMarketNumber } from "./stock-market.server";
 
 export type Candle = { t: number; c: number; h?: number; l?: number; o?: number };
 export type StockDetail = {
@@ -83,6 +84,10 @@ async function fetchIndian(symbol: string) {
   }
 }
 
+function readRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
+}
+
 function scoreHealth(m: {
   roe?: number;
   roce?: number;
@@ -130,25 +135,23 @@ export const getStockDetail = createServerFn({ method: "POST" })
     const isIndian = symbol.endsWith(".NS") || symbol.endsWith(".BO");
 
     if (isIndian) {
-      const j = await fetchIndian(symbol);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const price = Number(j?.currentPrice?.NSE ?? j?.currentPrice?.BSE ?? 0) || 0;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pct = Number(j?.percentChange ?? 0);
-      const prevClose = pct !== 0 && price > 0 ? price / (1 + pct / 100) : price;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const km = j?.keyMetrics ?? {};
-      const roe = Number(km?.roe ?? km?.returnOnEquity ?? NaN);
-      const de = Number(km?.debtToEquity ?? NaN);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pe = Number(j?.stockDetailsReusableData?.priceToEarnings ?? km?.peRatio ?? NaN);
+      const snapshot = await fetchIndianStockSnapshot(cat?.name ?? symbol);
+      const yahooQuote = snapshot ? null : await fetchYahooQuote(symbol);
+      const quote = snapshot?.quote ?? yahooQuote;
+      const j = snapshot?.raw ?? await fetchIndian(symbol);
+      const km = readRecord(readRecord(j).keyMetrics);
+      const reusable = readRecord(readRecord(j).stockDetailsReusableData);
+      const price = quote?.price ?? 0;
+      const pct = quote?.changePercent ?? parseMarketNumber(readRecord(j).percentChange) ?? 0;
+      const prevClose = quote?.prevClose ?? (pct !== 0 && price > 0 ? price / (1 + pct / 100) : price);
+      const roe = parseMarketNumber(km.roe) ?? parseMarketNumber(km.returnOnEquity);
+      const de = parseMarketNumber(km.debtToEquity);
+      const pe = parseMarketNumber(reusable.priceToEarnings) ?? parseMarketNumber(km.peRatio);
       const metrics = {
-        roe: Number.isFinite(roe) ? roe : undefined,
-        debtToEquity: Number.isFinite(de) ? de : undefined,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        profitGrowth: Number(j?.growth?.profitGrowth ?? NaN) || undefined,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        revenueGrowth: Number(j?.growth?.revenueGrowth ?? NaN) || undefined,
+        roe,
+        debtToEquity: de,
+        profitGrowth: parseMarketNumber(readRecord(readRecord(j).growth).profitGrowth),
+        revenueGrowth: parseMarketNumber(readRecord(readRecord(j).growth).revenueGrowth),
       };
       const health = scoreHealth(metrics);
       return {
@@ -161,14 +164,14 @@ export const getStockDetail = createServerFn({ method: "POST" })
         price,
         change: price - prevClose,
         changePercent: pct,
-        high: Number(j?.yearHigh ?? price),
-        low: Number(j?.yearLow ?? price),
-        open: prevClose,
+        high: quote?.high ?? parseMarketNumber(readRecord(j).dayHigh) ?? parseMarketNumber(readRecord(j).yearHigh) ?? price,
+        low: quote?.low ?? parseMarketNumber(readRecord(j).dayLow) ?? parseMarketNumber(readRecord(j).yearLow) ?? price,
+        open: quote?.open ?? prevClose,
         prevClose,
-        pe: Number.isFinite(pe) ? pe : undefined,
-        marketCap: Number(j?.marketCap ?? NaN) || undefined,
-        weekHigh52: Number(j?.yearHigh ?? NaN) || undefined,
-        weekLow52: Number(j?.yearLow ?? NaN) || undefined,
+        pe,
+        marketCap: quote?.marketCap ?? parseMarketNumber(readRecord(j).marketCap),
+        weekHigh52: quote?.weekHigh52 ?? parseMarketNumber(readRecord(j).yearHigh),
+        weekLow52: quote?.weekLow52 ?? parseMarketNumber(readRecord(j).yearLow),
         roe: metrics.roe,
         debtToEquity: metrics.debtToEquity,
         profitGrowth: metrics.profitGrowth,
@@ -229,14 +232,20 @@ export const getStockCandles = createServerFn({ method: "POST" })
 
     if (isIndian) {
       const key = process.env.INDIAN_STOCK_API_KEY;
-      if (!key) return { candles: [], source: "none" };
+      if (!key) {
+        const fallback = await fetchYahooCandles(symbol, data.range);
+        return { candles: fallback, source: fallback.length ? "yahoo" : "none" };
+      }
       const q = symbol.replace(/\.(NS|BO)$/i, "");
       const period = data.range === "1M" ? "1m" : data.range === "6M" ? "6m" : data.range === "1Y" ? "1yr" : "5yr";
       try {
         const res = await fetch(`https://stock.indianapi.in/historical_data?stock_name=${encodeURIComponent(q)}&period=${period}&filter=price`, {
           headers: { "x-api-key": key },
         });
-        if (!res.ok) return { candles: [], source: "indianapi" };
+        if (!res.ok) {
+          const fallback = await fetchYahooCandles(symbol, data.range);
+          return { candles: fallback, source: fallback.length ? "yahoo" : "indianapi" };
+        }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const j = (await res.json()) as any;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -245,15 +254,20 @@ export const getStockCandles = createServerFn({ method: "POST" })
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((row: any) => {
             const t = new Date(row[0] ?? row.date ?? 0).getTime();
-            const c = Number(row[1] ?? row.close ?? row.price ?? 0);
-            return { t, c };
+            const c = parseMarketNumber(row[1] ?? row.close ?? row.price ?? row.value) ?? 0;
+            const h = parseMarketNumber(row[2] ?? row.high);
+            const l = parseMarketNumber(row[3] ?? row.low);
+            const o = parseMarketNumber(row[4] ?? row.open);
+            return { t, c, h, l, o };
           })
           .filter((r) => r.t > 0 && Number.isFinite(r.c) && r.c > 0)
           .sort((a, b) => a.t - b.t);
-        return { candles, source: "indianapi" };
+        if (candles.length) return { candles, source: "indianapi" };
       } catch {
-        return { candles: [], source: "indianapi" };
+        // Fall through to Yahoo, which has reliable NSE/BSE historical candles.
       }
+      const fallback = await fetchYahooCandles(symbol, data.range);
+      return { candles: fallback, source: fallback.length ? "yahoo" : "indianapi" };
     }
 
     const key = process.env.FINNHUB_API_KEY;
