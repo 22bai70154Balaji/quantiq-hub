@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CATALOG, US_TOP_50, IN_TOP_50, getCatalogEntry } from "./stocks-catalog";
+import { fetchIndianStockSnapshot, fetchYahooQuote as fetchYahooMarketQuote } from "./stock-market.server";
 
 export type StockQuote = {
   symbol: string;
@@ -23,71 +24,8 @@ export const META_BY_SYMBOL: Record<string, { symbol: string; name: string; regi
 );
 
 async function fetchIndianQuote(name: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
-  const key = process.env.INDIAN_STOCK_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch(`https://stock.indianapi.in/stock?name=${encodeURIComponent(name)}`, {
-      headers: { "x-api-key": key },
-    });
-    if (!res.ok) return null;
-    const j = (await res.json()) as {
-      currentPrice?: { NSE?: string | number; BSE?: string | number };
-      percentChange?: string | number;
-      yearHigh?: string | number;
-      yearLow?: string | number;
-    };
-    const price = Number(j?.currentPrice?.NSE ?? j?.currentPrice?.BSE ?? 0);
-    if (!Number.isFinite(price) || price <= 0) return null;
-    const pct = Number(j?.percentChange ?? 0);
-    const prevClose = pct !== 0 ? price / (1 + pct / 100) : price;
-    const change = price - prevClose;
-    return {
-      symbol: "",
-      price,
-      change,
-      changePercent: pct,
-      high: Number(j?.yearHigh ?? price),
-      low: Number(j?.yearLow ?? price),
-      open: prevClose,
-      prevClose,
-      currency: "INR",
-    };
-  } catch {
-    return null;
-  }
-}
-
-async function fetchYahooQuote(symbol: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
-  try {
-    const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`,
-      { headers: { "User-Agent": "Mozilla/5.0" } },
-    );
-    if (!res.ok) return null;
-    const j = (await res.json()) as {
-      chart?: { result?: Array<{ meta?: Record<string, number | string> }> };
-    };
-    const m = j?.chart?.result?.[0]?.meta as Record<string, number | string> | undefined;
-    if (!m) return null;
-    const price = Number(m.regularMarketPrice ?? 0);
-    if (!Number.isFinite(price) || price <= 0) return null;
-    const prevClose = Number(m.chartPreviousClose ?? m.previousClose ?? price);
-    const change = price - prevClose;
-    const pct = prevClose > 0 ? (change / prevClose) * 100 : 0;
-    return {
-      symbol,
-      price,
-      change,
-      changePercent: pct,
-      high: Number(m.regularMarketDayHigh ?? price),
-      low: Number(m.regularMarketDayLow ?? price),
-      open: Number(m.regularMarketOpen ?? prevClose),
-      prevClose,
-      currency: String(m.currency ?? (symbol.endsWith(".NS") || symbol.endsWith(".BO") ? "INR" : "USD")),
-    };
-  } catch {
-    return null;
-  }
+  const snapshot = await fetchIndianStockSnapshot(name);
+  return snapshot ? { ...snapshot.quote, symbol: "" } : null;
 }
 
 async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
@@ -121,7 +59,7 @@ async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<St
     } catch { /* fall through to Yahoo */ }
   }
   // Yahoo Finance fallback — free, no key, supports .NS/.BO listings and global tickers.
-  return await fetchYahooQuote(symbol);
+  return await fetchYahooMarketQuote(symbol);
 }
 
 
