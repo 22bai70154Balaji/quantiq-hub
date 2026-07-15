@@ -132,8 +132,7 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
       transition={{ duration: 0.4, delay: Math.min(index * 0.02, 0.4) }}
       className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
     >
-      <Link to="/stocks/$symbol" params={{ symbol: stock.symbol }} className="absolute inset-0 z-0" aria-label={`Open ${stock.name} details`} />
-      <div className="relative z-10 pointer-events-none">
+      <div>
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-3">
             <StockLogo symbol={stock.symbol} name={stock.name} />
