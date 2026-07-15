@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
@@ -31,6 +32,11 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StocksRoute = StocksRouteImport.update({
+  id: '/stocks',
+  path: '/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
+  '/stocks': typeof StocksRoute
   '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/news'
     | '/privacy'
+    | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/news'
     | '/privacy'
+    | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/news'
     | '/privacy'
+    | '/stocks'
     | '/terms'
     | '/_authenticated/dashboard'
     | '/r/$slug'
@@ -251,6 +263,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
+  StocksRoute: typeof StocksRoute
   TermsRoute: typeof TermsRoute
   RSlugRoute: typeof RSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stocks': {
+      id: '/stocks'
+      path: '/stocks'
+      fullPath: '/stocks'
+      preLoaderRoute: typeof StocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -414,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
+  StocksRoute: StocksRoute,
   TermsRoute: TermsRoute,
   RSlugRoute: RSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
@@ -423,13 +444,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

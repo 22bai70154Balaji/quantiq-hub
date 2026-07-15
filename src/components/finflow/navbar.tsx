@@ -13,6 +13,7 @@ import { FinFlowLogo } from "@/components/finflow/logo";
 const NAV = [
   { to: "/", label: "Home" },
   { to: "/calculators", label: "Calculators" },
+  { to: "/stocks", label: "Stocks" },
   { to: "/news", label: "News" },
   { to: "/ai", label: "AI Assistant" },
 ];
