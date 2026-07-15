@@ -18,12 +18,12 @@ const calculyxLogoUrl = "/__l5e/assets-v1/eb2f4b7e-9a8a-4b5a-aee3-39f5dfd505be/c
 
 function fmtMoney(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  if (currency === "INR") return `INR ${Math.round(v).toLocaleString("en-IN")}`;
+  if (currency === "INR") return `Rs. ${Math.round(v).toLocaleString("en-IN")}`;
   return `$${Math.round(v).toLocaleString("en-US")}`;
 }
 function fmtMoney2(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  if (currency === "INR") return `INR ${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  if (currency === "INR") return `Rs. ${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
   return `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
