@@ -36,6 +36,25 @@ const CG_MAP: Record<string, string> = {
   APT: "aptos",
 };
 
+export async function fetchIndianApiQuote(symbolOrName: string): Promise<PriceQuote | null> {
+  const key = process.env.INDIAN_STOCK_API_KEY;
+  if (!key) return null;
+  // Strip .NS / .BO suffix for the indianapi.in name/ticker lookup
+  const q = symbolOrName.replace(/\.(NS|BO)$/i, "");
+  try {
+    const res = await fetch(`https://stock.indianapi.in/stock?name=${encodeURIComponent(q)}`, {
+      headers: { "x-api-key": key },
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as { currentPrice?: { NSE?: string | number; BSE?: string | number } };
+    const price = Number(j?.currentPrice?.NSE ?? j?.currentPrice?.BSE ?? 0);
+    if (!Number.isFinite(price) || price <= 0) return null;
+    return { symbol: symbolOrName, price, currency: "INR", source: "indianapi" };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchFinnhubQuote(symbol: string): Promise<PriceQuote | null> {
   const key = process.env.FINNHUB_API_KEY;
   if (!key) return null;
@@ -49,6 +68,7 @@ export async function fetchFinnhubQuote(symbol: string): Promise<PriceQuote | nu
   const currency = symbol.endsWith(".NS") || symbol.endsWith(".BO") ? "INR" : "USD";
   return { symbol, price, currency, source: "finnhub" };
 }
+
 
 export async function fetchCoinGeckoQuote(
   symbol: string,
