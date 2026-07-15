@@ -204,105 +204,162 @@ export function exportStockXlsx(b: StockExportBundle): void {
   download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${d.symbol}_stock_report.xlsx`);
 }
 
-export function exportStockPdf(b: StockExportBundle): void {
+export async function exportStockPdf(b: StockExportBundle): Promise<void> {
   const d = b.detail;
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const margin = 40;
-  let y = margin;
-  const ensure = (need: number) => { if (y + need > H - margin) { doc.addPage(); y = margin; } };
-  const line = (h = 14) => { y += h; };
+  const bodyW = W - margin * 2;
 
-  // Header
-  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(120);
-  doc.text("CALCULYX AI · STOCK REPORT", margin, y); line(6);
-  doc.setDrawColor(220).line(margin, y, W - margin, y); line(18);
-  doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(20);
-  doc.text(d.name, margin, y); line(24);
-  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(90);
-  doc.text(`${d.symbol}  ·  ${d.region === "IN" ? "🇮🇳 NSE" : "🇺🇸 US"}  ·  ${d.sector}`.replace(/🇮🇳|🇺🇸/g, ""), margin, y); line(16);
-  doc.setFont("helvetica", "bold").setFontSize(24).setTextColor(20);
-  doc.text(fmtMoney(d.price, d.currency), margin, y);
-  doc.setFontSize(11).setTextColor(d.change >= 0 ? 32 : 200, d.change >= 0 ? 140 : 40, 60);
-  doc.text(`  ${d.change >= 0 ? "▲" : "▼"} ${d.changePercent.toFixed(2)}%`, margin + 120, y);
-  line(24);
+  let y = await drawBrandedHeader(doc, `Stock report · ${d.symbol}`);
+  const ensure = (need: number) => { if (y + need > H - 50) { doc.addPage(); y = 50; } };
 
-  // Quick stats grid
-  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(20); doc.text("Quick stats", margin, y); line(14);
+  // -------- Hero card with company logo, name, price, change --------
+  const heroH = 90;
+  doc.setDrawColor(226, 232, 240).setFillColor(255, 255, 255);
+  doc.roundedRect(margin, y, bodyW, heroH, 10, 10, "FD");
+
+  const logoData = await urlToDataUrl(tickerLogoUrl(d.symbol) ?? "");
+  if (logoData) {
+    try { doc.addImage(logoData, "PNG", margin + 16, y + 16, 58, 58); } catch { /* ignore */ }
+  } else {
+    // Initials tile
+    doc.setFillColor(15, 23, 42).roundedRect(margin + 16, y + 16, 58, 58, 8, 8, "F");
+    doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(255, 255, 255);
+    doc.text(d.symbol.slice(0, 2).toUpperCase(), margin + 45, y + 52, { align: "center" });
+  }
+  doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(15, 23, 42);
+  doc.text(d.name, margin + 90, y + 34);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(100, 116, 139);
+  doc.text(`${d.symbol}  ·  ${d.region === "IN" ? "NSE / BSE" : "US Market"}  ·  ${d.sector || "—"}`, margin + 90, y + 52);
+  // Price block on the right
+  doc.setFont("helvetica", "bold").setFontSize(22).setTextColor(15, 23, 42);
+  doc.text(fmtMoney2(d.price, d.currency), margin + bodyW - 16, y + 38, { align: "right" });
+  const up = d.change >= 0;
+  doc.setFillColor(up ? 220 : 254, up ? 252 : 226, up ? 231 : 226);
+  doc.roundedRect(margin + bodyW - 116, y + 50, 100, 20, 10, 10, "F");
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(up ? 20 : 180, up ? 130 : 40, up ? 60 : 40);
+  doc.text(`${up ? "▲" : "▼"} ${up ? "+" : ""}${d.changePercent.toFixed(2)}%  (${up ? "+" : ""}${fmtMoney2(d.change, d.currency)})`, margin + bodyW - 66, y + 64, { align: "center" });
+  y += heroH + 16;
+
+  // -------- Quick stats grid (3x4) --------
+  ensure(30);
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+  doc.text("Quick stats", margin, y); y += 14;
+
   const stats: Array<[string, string]> = [
-    ["Open", fmtMoney(d.open, d.currency)],
-    ["Prev close", fmtMoney(d.prevClose, d.currency)],
-    ["Day high", fmtMoney(d.high, d.currency)],
-    ["Day low", fmtMoney(d.low, d.currency)],
-    ["52w high", d.weekHigh52 != null ? fmtMoney(d.weekHigh52, d.currency) : "—"],
-    ["52w low", d.weekLow52 != null ? fmtMoney(d.weekLow52, d.currency) : "—"],
+    ["Open", fmtMoney2(d.open, d.currency)],
+    ["Prev close", fmtMoney2(d.prevClose, d.currency)],
+    ["Day high", fmtMoney2(d.high, d.currency)],
+    ["Day low", fmtMoney2(d.low, d.currency)],
+    ["52w high", d.weekHigh52 != null ? fmtMoney2(d.weekHigh52, d.currency) : "—"],
+    ["52w low", d.weekLow52 != null ? fmtMoney2(d.weekLow52, d.currency) : "—"],
     ["P/E", d.pe ? d.pe.toFixed(1) : "—"],
     ["Market cap", d.marketCap ? fmtMoney(d.marketCap, d.currency) : "—"],
-    ["ROE %", d.roe != null ? d.roe.toFixed(1) : "—"],
+    ["ROE %", d.roe != null ? `${d.roe.toFixed(1)}%` : "—"],
     ["D/E", d.debtToEquity != null ? d.debtToEquity.toFixed(2) : "—"],
-    ["Div yield %", d.divYield != null ? d.divYield.toFixed(2) : "—"],
+    ["Div yield %", d.divYield != null ? `${d.divYield.toFixed(2)}%` : "—"],
     ["Beta", d.beta != null ? d.beta.toFixed(2) : "—"],
   ];
-  const cardW = (W - margin * 2 - 8 * 3) / 4;
+  const cols = 4;
+  const gap = 8;
+  const cardW = (bodyW - gap * (cols - 1)) / cols;
+  const cardH = 42;
   stats.forEach((s, i) => {
-    const col = i % 4;
-    if (col === 0) ensure(46);
-    const x = margin + col * (cardW + 8);
-    doc.setDrawColor(230).setFillColor(248, 250, 252).roundedRect(x, y, cardW, 40, 5, 5, "FD");
-    doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(120);
-    doc.text(s[0].toUpperCase(), x + 8, y + 12);
-    doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(20);
-    doc.text(s[1], x + 8, y + 28);
-    if (col === 3 || i === stats.length - 1) y += 46;
+    const col = i % cols;
+    if (col === 0) ensure(cardH + 4);
+    const x = margin + col * (cardW + gap);
+    drawStatCard(doc, x, y, cardW, cardH, s[0], s[1]);
+    if (col === cols - 1 || i === stats.length - 1) y += cardH + gap;
   });
-  line(6);
+  y += 4;
 
-  // Health
-  ensure(50);
-  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(20); doc.text(`Financial health · ${d.healthScore}/100`, margin, y); line(14);
-  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(50);
-  d.healthNotes.slice(0, 6).forEach((n) => { ensure(14); doc.text(`• ${n}`, margin + 8, y); line(13); });
+  // -------- Financial health --------
+  ensure(60);
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+  doc.text(`Financial health  ·  ${d.healthScore}/100`, margin, y); y += 10;
+  // Score bar
+  doc.setDrawColor(226, 232, 240).setFillColor(241, 245, 249);
+  doc.roundedRect(margin, y, bodyW, 8, 4, 4, "FD");
+  const scoreW = Math.max(4, Math.min(bodyW, (d.healthScore / 100) * bodyW));
+  const scoreColor: [number, number, number] = d.healthScore >= 70 ? [16, 185, 129] : d.healthScore >= 45 ? [234, 179, 8] : [239, 68, 68];
+  doc.setFillColor(...scoreColor).roundedRect(margin, y, scoreW, 8, 4, 4, "F");
+  y += 18;
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(51, 65, 85);
+  (d.healthNotes ?? []).slice(0, 6).forEach((n) => {
+    const lines = doc.splitTextToSize(`•  ${n}`, bodyW - 12) as string[];
+    ensure(lines.length * 12);
+    doc.text(lines, margin + 6, y);
+    y += lines.length * 12;
+  });
+  y += 6;
 
-  // News
+  // -------- Latest news --------
   if (b.news?.length) {
-    line(4); ensure(30);
-    doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(20); doc.text("Latest news", margin, y); line(14);
-    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(50);
-    b.news.slice(0, 8).forEach((n) => {
-      const wrapped = doc.splitTextToSize(`• ${n.headline}`, W - margin * 2 - 8) as string[];
-      ensure(wrapped.length * 12 + 4);
-      doc.text(wrapped, margin + 8, y); y += wrapped.length * 12;
-      doc.setTextColor(140).setFontSize(8);
-      doc.text(`   ${n.source} · ${new Date(n.ts).toLocaleDateString()}`, margin + 8, y);
-      doc.setTextColor(50).setFontSize(9);
-      line(12);
+    ensure(30);
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+    doc.text("Latest news", margin, y); y += 14;
+    b.news.slice(0, 8).forEach((n, i) => {
+      const wrapped = doc.splitTextToSize(n.headline, bodyW - 40) as string[];
+      const blockH = wrapped.length * 12 + 18;
+      ensure(blockH + 6);
+      doc.setDrawColor(233, 237, 242).setFillColor(250, 251, 253);
+      doc.roundedRect(margin, y, bodyW, blockH, 6, 6, "FD");
+      doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(15, 23, 42);
+      doc.text(String(i + 1).padStart(2, "0"), margin + 10, y + 16);
+      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30, 41, 59);
+      doc.text(wrapped, margin + 28, y + 16);
+      doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(120, 130, 148);
+      doc.text(`${n.source} · ${new Date(n.ts).toLocaleDateString()}`, margin + 28, y + blockH - 8);
+      y += blockH + 6;
     });
   }
 
-  // Earnings
+  // -------- Earnings --------
   if (b.earnings?.length) {
-    line(6); ensure(60);
-    doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(20); doc.text("Earnings history", margin, y); line(14);
-    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(50);
-    b.earnings.forEach((e) => {
-      ensure(13);
-      doc.text(`${e.period}   Est ${e.estimate ?? "—"} → Act ${e.actual ?? "—"}   Surprise ${e.surprise ?? "—"}`, margin + 8, y);
-      line(13);
+    ensure(40);
+    doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+    doc.text("Earnings history", margin, y); y += 14;
+    const cols2 = [
+      { label: "Period", w: 100 },
+      { label: "Estimate", w: (bodyW - 100) / 3, align: "right" as const },
+      { label: "Actual", w: (bodyW - 100) / 3, align: "right" as const },
+      { label: "Surprise", w: (bodyW - 100) / 3, align: "right" as const },
+    ];
+    doc.setFillColor(241, 245, 249).rect(margin, y, bodyW, 18, "F");
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(71, 85, 105);
+    let x = margin + 8;
+    cols2.forEach((c) => {
+      if (c.align === "right") doc.text(c.label, x + c.w - 8, y + 12, { align: "right" });
+      else doc.text(c.label, x, y + 12);
+      x += c.w;
+    });
+    y += 20;
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(30, 41, 59);
+    b.earnings.forEach((e, i) => {
+      ensure(16);
+      if (i % 2 === 1) { doc.setFillColor(249, 250, 252).rect(margin, y - 12, bodyW, 16, "F"); }
+      let cx = margin + 8;
+      doc.text(String(e.period), cx, y);
+      cx += cols2[0].w;
+      doc.text(e.estimate != null ? String(e.estimate) : "—", cx + cols2[1].w - 8, y, { align: "right" });
+      cx += cols2[1].w;
+      doc.text(e.actual != null ? String(e.actual) : "—", cx + cols2[2].w - 8, y, { align: "right" });
+      cx += cols2[2].w;
+      if (e.surprise != null) {
+        doc.setTextColor(e.surprise >= 0 ? 20 : 180, e.surprise >= 0 ? 130 : 40, e.surprise >= 0 ? 60 : 40);
+      }
+      doc.text(e.surprise != null ? `${e.surprise >= 0 ? "+" : ""}${e.surprise.toFixed(2)}` : "—", cx + cols2[3].w - 8, y, { align: "right" });
+      doc.setTextColor(30, 41, 59);
+      y += 16;
     });
   }
 
-  // Footer
-  const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) {
-    doc.setPage(i);
-    doc.setFont("helvetica", "italic").setFontSize(8).setTextColor(140);
-    doc.text("Calculyx AI · Estimates only, not financial advice. Data may be delayed.", margin, H - 20);
-    doc.text(`Page ${i} / ${pages}`, W - margin - 50, H - 20);
-  }
-
+  drawFooter(doc);
   doc.save(`${d.symbol}_stock_report.pdf`);
 }
+
 
 // ============================= RUN ALL 15 =============================
 
