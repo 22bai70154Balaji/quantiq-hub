@@ -14,7 +14,7 @@ import {
 import type { StockDetail, Candle, NewsItem, AnalystRating, EarningsRow } from "@/lib/finflow/stock-detail.functions";
 import type { StockPrediction } from "@/lib/finflow/stock-prediction.functions";
 import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
-import calculyxLogoUrl from "@/assets/calculyx-logo.png";
+const calculyxLogoUrl = "/__l5e/assets-v1/eb2f4b7e-9a8a-4b5a-aee3-39f5dfd505be/calculyx-logo.png";
 
 function fmtMoney(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
