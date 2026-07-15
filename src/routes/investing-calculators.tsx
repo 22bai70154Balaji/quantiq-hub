@@ -862,13 +862,16 @@ function SwpView({ ctx }: { ctx: StockCtx | null }) {
 }
 
 function DcaView({ ctx }: { ctx: StockCtx | null }) {
-  const { fmt, Toggle } = useCurrency();
+  const { fmt, Toggle } = useCurrency(ctx?.currency ?? "INR");
+  const basePrice = ctx?.price ?? 400;
+  const baseAmt = ctx?.currency === "USD" ? 500 : 5000;
   const [purchases, setPurchases] = useState([
-    { amount: 5000, price: 400 },
-    { amount: 5000, price: 350 },
-    { amount: 5000, price: 500 },
+    { amount: baseAmt, price: basePrice * 1.05 },
+    { amount: baseAmt, price: basePrice * 0.9 },
+    { amount: baseAmt, price: basePrice * 1.15 },
   ]);
   const res = useMemo(() => dca(purchases), [purchases]);
+  const chart = purchases.map((p, i) => ({ name: `Buy ${i + 1}`, Price: p.price, Avg: res.avg }));
   return (
     <div>
       <div className="mb-3 flex justify-end"><Toggle /></div>
@@ -891,6 +894,19 @@ function DcaView({ ctx }: { ctx: StockCtx | null }) {
           <Card label="Total shares" value={res.totalShares.toFixed(4)} />
           <Card label="Total invested" value={fmt(res.totalInvested)} />
         </div>
+      </div>
+      <div className="mt-6 h-48">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chart}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Line dataKey="Price" stroke="#94a3b8" dot={{ r: 3 }} />
+            <Line dataKey="Avg" stroke="hsl(var(--primary))" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
