@@ -145,6 +145,14 @@ export function SipCalc() {
       saveType="sip" analysisPayload={payload} chartNodeIds={["sip-chart-area"]}>
       <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
         <div className="space-y-5 rounded-2xl border border-sheen glass p-6 shadow-soft">
+          {linkedSymbol && (
+            <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-xs">
+              <Link2 className="h-3.5 w-3.5 text-primary" />
+              <span className="text-muted-foreground">Linked to</span>
+              <span className="font-mono font-semibold text-primary">{linkedSymbol}</span>
+              <span className="ml-auto text-muted-foreground">Return {rate}%</span>
+            </div>
+          )}
           {/* Mode switch */}
           <div className="inline-flex w-full rounded-full border bg-background p-1 font-mono text-[11px]">
             <button
