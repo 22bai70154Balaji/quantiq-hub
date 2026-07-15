@@ -30,6 +30,9 @@ export const Route = createFileRoute("/calculators")({
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             Pick a calculator to run precise, country-aware financial math. Every result is an estimate — verify with your bank before deciding.
           </p>
+          <Link to="/investing-calculators" className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20">
+            <LineChart className="h-4 w-4" /> Explore 15 investing calculators (SIP, CAGR, Brokerage, FIRE, SWP…) <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
         <CalculatorsGrid />
       </main>
