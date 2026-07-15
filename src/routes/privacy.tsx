@@ -75,11 +75,28 @@ function PrivacyPage() {
 
             <h2>AI processing</h2>
             <p>
-              When you use the AI assistant or run AI analysis on a stock, your prompts and the associated ticker,
-              price, and chart context are sent to our AI gateway for inference. We do not use your prompts to
-              train third-party models. Do not submit sensitive personal or financial identifiers (e.g. full
-              account numbers, government IDs, brokerage credentials) into the assistant.
+              Calculyx AI uses <strong>Groq</strong> (running the Llama&nbsp;3.3&nbsp;70B model) as its AI inference provider,
+              accessed server-side through our AI gateway. Your prompts never call Groq directly from your browser — they
+              are forwarded from our server with our API key.
             </p>
+            <p><strong>What we send to Groq</strong> depends on the feature you use:</p>
+            <ul>
+              <li><strong>AI assistant:</strong> the message text you type, plus a short system prompt describing the assistant's role.</li>
+              <li><strong>Stock AI analysis &amp; predictions:</strong> the ticker symbol, company name, sector, currency, current price, 52-week high/low, P/E, ROE, dividend yield, and a series of recent closing prices (used to compute moving averages, RSI, momentum and volatility). All of this is public market data.</li>
+              <li><strong>Home-loan / portfolio / calculator insights:</strong> only the numeric inputs and results of that specific calculation (e.g. loan amount, tenure, rate) — never your account email, saved sessions, or unrelated data.</li>
+            </ul>
+            <p>
+              <strong>What we do not send:</strong> your email, password, authentication tokens, full watchlist, portfolio holdings,
+              or any other account-level data unless it is directly required for the calculation you triggered.
+            </p>
+            <p>
+              Groq processes each request only to generate the response shown to you and, per their API terms, does not use
+              API inputs or outputs to train their models. Responses are cached briefly on our server (typically 1 hour for
+              stock reports) to reduce cost and latency, and are then rendered in the app or embedded in PDFs / Excel exports
+              you download. Do not submit sensitive personal or financial identifiers (e.g. full account numbers, government
+              IDs, brokerage credentials) into the assistant — treat AI outputs as estimates, not advice.
+            </p>
+
 
             <h2>Cookies</h2>
             <p>

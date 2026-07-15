@@ -276,6 +276,25 @@ function StockDetailPage() {
               </Section>
 
               <Section icon={<Sparkles className="h-4 w-4" />} title="AI analysis">
+                <details className="mb-3 rounded-xl border border-sheen bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+                  <summary className="cursor-pointer select-none font-medium text-foreground/80">What gets sent to the AI?</summary>
+                  <div className="mt-2 space-y-1.5 leading-relaxed">
+                    <p>
+                      When you view this page or click <strong className="text-foreground/90">AI analysis</strong>, we send the following public market context to our AI provider (<strong className="text-foreground/90">Groq</strong>, running Llama&nbsp;3.3&nbsp;70B) via our server:
+                    </p>
+                    <ul className="ml-4 list-disc space-y-0.5">
+                      <li>Ticker, company name, sector, and currency</li>
+                      <li>Current price, 52-week high/low, P/E, ROE, dividend yield</li>
+                      <li>Recent closing prices used to compute moving averages, RSI, momentum and volatility</li>
+                    </ul>
+                    <p>
+                      We do <strong className="text-foreground/90">not</strong> send your account email, watchlist, portfolio holdings, or any personal financial data. Groq processes the prompt only to generate this report and does not use it to train models. The response is cached for ~1 hour and rendered below; nothing here is investment advice — see our{" "}
+                      <Link to="/privacy" className="text-primary underline underline-offset-4">Privacy Policy</Link> and{" "}
+                      <Link to="/disclaimer" className="text-primary underline underline-offset-4">disclaimer</Link>.
+                    </p>
+                  </div>
+                </details>
+
                 {!d || d.price === 0 ? (
                   <div className="text-sm text-muted-foreground">AI analysis will run once live price data is available for this ticker.</div>
                 ) : ai.isLoading ? (
