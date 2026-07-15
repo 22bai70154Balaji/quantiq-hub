@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as InvestingCalculatorsRouteImport } from './routes/investing-calculators'
@@ -34,11 +33,6 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StocksRoute = StocksRouteImport.update({
-  id: '/stocks',
-  path: '/stocks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -101,9 +95,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const StocksSymbolRoute = StocksSymbolRouteImport.update({
-  id: '/$symbol',
-  path: '/$symbol',
-  getParentRoute: () => StocksRoute,
+  id: '/stocks/$symbol',
+  path: '/stocks/$symbol',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RSlugRoute = RSlugRouteImport.update({
   id: '/r/$slug',
@@ -149,7 +143,6 @@ export interface FileRoutesByFullPath {
   '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -171,7 +164,6 @@ export interface FileRoutesByTo {
   '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -195,7 +187,6 @@ export interface FileRoutesById {
   '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
@@ -219,7 +210,6 @@ export interface FileRouteTypes {
     | '/investing-calculators'
     | '/news'
     | '/privacy'
-    | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
@@ -241,7 +231,6 @@ export interface FileRouteTypes {
     | '/investing-calculators'
     | '/news'
     | '/privacy'
-    | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
@@ -264,7 +253,6 @@ export interface FileRouteTypes {
     | '/investing-calculators'
     | '/news'
     | '/privacy'
-    | '/stocks'
     | '/terms'
     | '/_authenticated/dashboard'
     | '/r/$slug'
@@ -288,9 +276,9 @@ export interface RootRouteChildren {
   InvestingCalculatorsRoute: typeof InvestingCalculatorsRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
-  StocksRoute: typeof StocksRouteWithChildren
   TermsRoute: typeof TermsRoute
   RSlugRoute: typeof RSlugRoute
+  StocksSymbolRoute: typeof StocksSymbolRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -303,13 +291,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stocks': {
-      id: '/stocks'
-      path: '/stocks'
-      fullPath: '/stocks'
-      preLoaderRoute: typeof StocksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -398,10 +379,10 @@ declare module '@tanstack/react-router' {
     }
     '/stocks/$symbol': {
       id: '/stocks/$symbol'
-      path: '/$symbol'
+      path: '/stocks/$symbol'
       fullPath: '/stocks/$symbol'
       preLoaderRoute: typeof StocksSymbolRouteImport
-      parentRoute: typeof StocksRoute
+      parentRoute: typeof rootRouteImport
     }
     '/r/$slug': {
       id: '/r/$slug'
@@ -461,17 +442,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface StocksRouteChildren {
-  StocksSymbolRoute: typeof StocksSymbolRoute
-}
-
-const StocksRouteChildren: StocksRouteChildren = {
-  StocksSymbolRoute: StocksSymbolRoute,
-}
-
-const StocksRouteWithChildren =
-  StocksRoute._addFileChildren(StocksRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -485,9 +455,9 @@ const rootRouteChildren: RootRouteChildren = {
   InvestingCalculatorsRoute: InvestingCalculatorsRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
-  StocksRoute: StocksRouteWithChildren,
   TermsRoute: TermsRoute,
   RSlugRoute: RSlugRoute,
+  StocksSymbolRoute: StocksSymbolRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
