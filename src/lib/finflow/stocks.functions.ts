@@ -39,7 +39,47 @@ export const META_BY_SYMBOL: Record<string, typeof POPULAR[number]> = Object.fro
   POPULAR.map((p) => [p.symbol, p]),
 );
 
-async function fetchQuote(symbol: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
+async function fetchIndianQuote(name: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
+  const key = process.env.INDIAN_STOCK_API_KEY;
+  if (!key) return null;
+  try {
+    const res = await fetch(`https://stock.indianapi.in/stock?name=${encodeURIComponent(name)}`, {
+      headers: { "x-api-key": key },
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as {
+      currentPrice?: { NSE?: string | number; BSE?: string | number };
+      percentChange?: string | number;
+      yearHigh?: string | number;
+      yearLow?: string | number;
+    };
+    const price = Number(j?.currentPrice?.NSE ?? j?.currentPrice?.BSE ?? 0);
+    if (!Number.isFinite(price) || price <= 0) return null;
+    const pct = Number(j?.percentChange ?? 0);
+    const prevClose = pct !== 0 ? price / (1 + pct / 100) : price;
+    const change = price - prevClose;
+    return {
+      symbol: "",
+      price,
+      change,
+      changePercent: pct,
+      high: Number(j?.yearHigh ?? price),
+      low: Number(j?.yearLow ?? price),
+      open: prevClose,
+      prevClose,
+      currency: "INR",
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
+  const isIndian = symbol.endsWith(".NS") || symbol.endsWith(".BO");
+  if (isIndian && companyName) {
+    const ind = await fetchIndianQuote(companyName);
+    if (ind) return { ...ind, symbol };
+  }
   const key = process.env.FINNHUB_API_KEY;
   if (!key) return null;
   const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${key}`);
@@ -47,7 +87,7 @@ async function fetchQuote(symbol: string): Promise<Omit<StockQuote, "name" | "re
   const j = (await res.json()) as { c?: number; d?: number; dp?: number; h?: number; l?: number; o?: number; pc?: number };
   const price = Number(j?.c ?? 0);
   if (!Number.isFinite(price) || price <= 0) return null;
-  const currency = symbol.endsWith(".NS") || symbol.endsWith(".BO") ? "INR" : "USD";
+  const currency = isIndian ? "INR" : "USD";
   return {
     symbol,
     price,
@@ -61,10 +101,11 @@ async function fetchQuote(symbol: string): Promise<Omit<StockQuote, "name" | "re
   };
 }
 
+
 export const listLiveStocks = createServerFn({ method: "GET" }).handler(async (): Promise<StockQuote[]> => {
   const results = await Promise.all(
     POPULAR.map(async (p) => {
-      const q = await fetchQuote(p.symbol);
+      const q = await fetchQuote(p.symbol, p.name);
       if (!q) return null;
       return { ...q, name: p.name, region: p.region } satisfies StockQuote;
     }),
@@ -79,10 +120,11 @@ export const fetchQuotesForSymbols = createServerFn({ method: "POST" })
       data.symbols.map(async (sym) => {
         const s = sym.trim().toUpperCase();
         const meta = META_BY_SYMBOL[s] ?? META_BY_SYMBOL[`${s}.NS`];
-        const q = await fetchQuote(meta?.symbol ?? s);
+        const q = await fetchQuote(meta?.symbol ?? s, meta?.name);
         if (!q) return null;
         return { ...q, name: meta?.name ?? s, region: meta?.region ?? (q.currency === "INR" ? "IN" : "US") } satisfies StockQuote;
       }),
     );
     return results.filter((r): r is StockQuote => r !== null);
   });
+

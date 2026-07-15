@@ -13,7 +13,7 @@ export type RefreshResult = {
 export const refreshPortfolioPrices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<RefreshResult> => {
-    const { fetchFinnhubQuote, fetchCoinGeckoQuote, convert } = await import("./prices.server");
+    const { fetchFinnhubQuote, fetchCoinGeckoQuote, fetchIndianApiQuote, convert } = await import("./prices.server");
 
     const { data: holdings, error } = await context.supabase
       .from("holdings")
@@ -44,7 +44,12 @@ export const refreshPortfolioPrices = createServerFn({ method: "POST" })
         if (t.asset_class === "crypto") {
           quote = await fetchCoinGeckoQuote(t.symbol, t.currency.toLowerCase());
         } else if (t.asset_class === "stock" || t.asset_class === "etf") {
-          quote = await fetchFinnhubQuote(t.symbol);
+          const isIndian = t.symbol.endsWith(".NS") || t.symbol.endsWith(".BO") || t.currency === "INR";
+          if (isIndian) {
+            quote = (await fetchIndianApiQuote(t.symbol)) ?? (await fetchFinnhubQuote(t.symbol));
+          } else {
+            quote = await fetchFinnhubQuote(t.symbol);
+          }
         } else {
           skipped++;
           continue;
