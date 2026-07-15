@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { callGroq } from "./groq.server";
+import { META_BY_SYMBOL } from "./stocks.functions";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant", "system"]),
