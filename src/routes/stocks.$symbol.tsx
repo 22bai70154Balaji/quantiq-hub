@@ -2,15 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap, Brain } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Cell } from "recharts";
+import { toast } from "sonner";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { getStockDetail, getStockCandles, getStockNews, getAnalystRatings, getEarnings } from "@/lib/finflow/stock-detail.functions";
 import { getStockAiInsights } from "@/lib/finflow/stock-ai.functions";
+import { getStockPrediction } from "@/lib/finflow/stock-prediction.functions";
 import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
 import { sip, lumpsum, profitLoss, dividend, stockAverage, positionSize, calcBrokerage, BROKERS_IN, BROKERS_US, type BrokerId } from "@/lib/finflow/investing-calcs";
-import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx } from "@/lib/finflow/stock-exports";
+import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx, exportPredictionPdf } from "@/lib/finflow/stock-exports";
 
 export const Route = createFileRoute("/stocks/$symbol")({
   head: ({ params }) => {
@@ -155,8 +157,48 @@ function StockDetailPage() {
               exportAll15Pdf(bundle);
               exportAll15Xlsx(bundle);
             }}
+            onAiReport={async () => {
+              if (!d) return;
+              const closes = candles.data?.candles?.map((c) => c.c).filter((n) => Number.isFinite(n) && n > 0) ?? [];
+              if (closes.length < 10) {
+                toast.error("Not enough price history to run the AI prediction. Load the 1Y chart first.");
+                return;
+              }
+              try {
+                toast.loading("Generating AI report…", { id: "ai-report" });
+                const prediction = await getStockPrediction({
+                  data: {
+                    symbol: upperSymbol,
+                    name: d.name,
+                    sector: d.sector,
+                    currency: d.currency,
+                    price: d.price,
+                    pe: d.pe,
+                    roe: d.roe,
+                    divYield: d.divYield,
+                    weekHigh52: d.weekHigh52,
+                    weekLow52: d.weekLow52,
+                    closes,
+                  },
+                });
+                await exportPredictionPdf({
+                  symbol: upperSymbol,
+                  name: d.name,
+                  currency: d.currency,
+                  price: d.price,
+                  region: d.region,
+                  sector: d.sector,
+                  prediction,
+                });
+                toast.success("AI report downloaded", { id: "ai-report" });
+              } catch (e) {
+                console.error(e);
+                toast.error("AI report failed. Please try again.", { id: "ai-report" });
+              }
+            }}
             calculatorLink={{ pathname: "/investing-calculators", search: { c: "sip", symbol: upperSymbol } }}
           />
+
 
           {/* QUICK STATS */}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
@@ -427,20 +469,25 @@ function LogoBox({ symbol, name, domain }: { symbol: string; name: string; domai
     className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 bg-white object-contain p-1.5" />;
 }
 
-function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, calculatorLink }: {
+function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, onAiReport, calculatorLink }: {
   disabled: boolean;
   onExportPdf: () => void;
   onExportXlsx: () => void;
   onAnalyzeAll: () => void;
+  onAiReport: () => void | Promise<void>;
   calculatorLink: { pathname: string; search: Record<string, string> };
 }) {
   const [busy, setBusy] = useState(false);
-  const handle = async (fn: () => void) => {
+  const handle = async (fn: () => void | Promise<void>) => {
     setBusy(true);
-    try { fn(); } finally { setTimeout(() => setBusy(false), 400); }
+    try { await fn(); } finally { setTimeout(() => setBusy(false), 400); }
   };
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-2">
+      <button disabled={disabled || busy} onClick={() => handle(onAiReport)}
+        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-elegant transition hover:brightness-110 disabled:opacity-40">
+        <Brain className="h-3.5 w-3.5" /> AI report (PDF)
+      </button>
       <button disabled={disabled || busy} onClick={() => handle(onAnalyzeAll)}
         className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 disabled:opacity-40">
         <Zap className="h-3.5 w-3.5" /> Analyze all 15 calculators
@@ -460,6 +507,7 @@ function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, calcu
     </div>
   );
 }
+
 
 // -------- stock-page embedded calculators --------
 
