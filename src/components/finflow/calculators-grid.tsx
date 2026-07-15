@@ -18,13 +18,13 @@ export function CalculatorsGrid({ compact = false }: { compact?: boolean }) {
     <section className="mx-auto max-w-[1400px] px-6 py-24 sm:py-32">
       <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-end">
         <div className="max-w-2xl">
-          <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-            Calculators — {filtered.length} modules
+          <div className="flex items-center gap-2 text-sm font-medium text-primary">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-primary" /></span>
+            Calculators
+            <span className="text-xs font-normal text-muted-foreground">· {filtered.length} modules</span>
           </div>
-          <h2 className="mt-4 font-display text-5xl leading-[0.95] tracking-[-0.03em] text-balance sm:text-6xl"
-              style={{ fontVariationSettings: '"opsz" 144, "SOFT" 30' }}>
-            Every financial answer,<br />
-            <span className="italic text-muted-foreground/80" style={{ fontFamily: "var(--font-serif)" }}>in one search.</span>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
+            Every financial answer, <span className="font-serif italic text-gold">in one search.</span>
           </h2>
         </div>
         <div className="relative w-full sm:max-w-xs">
