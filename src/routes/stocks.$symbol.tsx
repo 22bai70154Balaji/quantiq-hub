@@ -469,20 +469,25 @@ function LogoBox({ symbol, name, domain }: { symbol: string; name: string; domai
     className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 bg-white object-contain p-1.5" />;
 }
 
-function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, calculatorLink }: {
+function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, onAiReport, calculatorLink }: {
   disabled: boolean;
   onExportPdf: () => void;
   onExportXlsx: () => void;
   onAnalyzeAll: () => void;
+  onAiReport: () => void | Promise<void>;
   calculatorLink: { pathname: string; search: Record<string, string> };
 }) {
   const [busy, setBusy] = useState(false);
-  const handle = async (fn: () => void) => {
+  const handle = async (fn: () => void | Promise<void>) => {
     setBusy(true);
-    try { fn(); } finally { setTimeout(() => setBusy(false), 400); }
+    try { await fn(); } finally { setTimeout(() => setBusy(false), 400); }
   };
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-2">
+      <button disabled={disabled || busy} onClick={() => handle(onAiReport)}
+        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-elegant transition hover:brightness-110 disabled:opacity-40">
+        <Brain className="h-3.5 w-3.5" /> AI report (PDF)
+      </button>
       <button disabled={disabled || busy} onClick={() => handle(onAnalyzeAll)}
         className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 disabled:opacity-40">
         <Zap className="h-3.5 w-3.5" /> Analyze all 15 calculators
@@ -502,6 +507,7 @@ function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, calcu
     </div>
   );
 }
+
 
 // -------- stock-page embedded calculators --------
 
