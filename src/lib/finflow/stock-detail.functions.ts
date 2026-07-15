@@ -62,16 +62,23 @@ async function fetchFinnhubProfile(symbol: string) {
 
 async function fetchIndian(symbol: string) {
   const key = process.env.INDIAN_STOCK_API_KEY;
-  if (!key) return null;
+  if (!key) { console.error("[indianapi] missing INDIAN_STOCK_API_KEY"); return null; }
   const q = symbol.replace(/\.(NS|BO)$/i, "");
   const cat = getCatalogEntry(symbol);
   const name = cat?.name ?? q;
   try {
     const res = await fetch(`https://stock.indianapi.in/stock?name=${encodeURIComponent(name)}`, { headers: { "x-api-key": key } });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error("[indianapi] /stock", symbol, res.status, body.slice(0, 200));
+      return null;
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (await res.json()) as any;
-  } catch {
+    const j = (await res.json()) as any;
+    console.log("[indianapi] /stock ok", symbol, Object.keys(j ?? {}).slice(0, 20).join(","));
+    return j;
+  } catch (e) {
+    console.error("[indianapi] /stock error", symbol, e);
     return null;
   }
 }

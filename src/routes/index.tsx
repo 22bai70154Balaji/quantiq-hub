@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { LineChart, Zap, FileDown, Sparkles, ArrowUpRight, TrendingUp } from "lucide-react";
+import { LineChart, Zap, FileDown, ArrowUpRight, TrendingUp } from "lucide-react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { Hero } from "@/components/finflow/hero";
@@ -93,15 +93,16 @@ function WhatsNew() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-10 flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
-              <Sparkles className="h-3 w-3" /> What&apos;s new
+            <div className="flex items-center gap-2 text-sm font-medium text-primary">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-primary" /></span>
+              What&apos;s new
+              <span className="text-xs font-normal text-muted-foreground">· shipped this week</span>
             </div>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              The latest in Calculyx AI
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
+              The latest, <span className="font-serif italic text-gold">shipped</span> by Calculyx AI.
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-              Shipped this week — a full stock intelligence hub, 15 unified investing calculators,
-              one-click all-calculator analysis, and live PDF + Excel exports.
+              A full stock intelligence hub, 15 unified investing calculators, one-click all-calculator analysis, and live PDF + Excel exports.
             </p>
           </div>
           <Link

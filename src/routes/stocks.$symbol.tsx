@@ -75,7 +75,7 @@ function StockDetailPage() {
   });
 
   const ai = useQuery({
-    enabled: !!detail.data,
+    enabled: !!detail.data && (detail.data.price ?? 0) > 0,
     queryKey: ["stock-ai", upperSymbol, detail.data?.pe, detail.data?.roe],
     queryFn: () => getStockAiInsights({
       data: {
@@ -188,9 +188,19 @@ function StockDetailPage() {
             </div>
           </div>
 
+          {d && d.price === 0 && (
+            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-200">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <div>
+                <div className="font-semibold">Live data temporarily unavailable for {upperSymbol}</div>
+                <div className="mt-0.5 text-xs text-amber-200/80">Our upstream market-data provider didn't return a quote for this ticker just now. Prices, chart, and AI analysis will populate as soon as the feed recovers — refresh in a minute or try another symbol from the <Link to="/stocks" className="underline">live stocks list</Link>.</div>
+              </div>
+            </div>
+          )}
+
           {/* ACTION TOOLBAR */}
           <StockActions
-            disabled={!d}
+            disabled={!d || d.price === 0}
             onExportPdf={() => d && exportStockPdf({ detail: d, candles: candles.data?.candles, news: news.data, analyst: analyst.data, earnings: earnings.data })}
             onExportXlsx={() => d && exportStockXlsx({ detail: d, candles: candles.data?.candles, news: news.data, analyst: analyst.data, earnings: earnings.data })}
             onAnalyzeAll={() => {
@@ -211,6 +221,7 @@ function StockDetailPage() {
             onAiReport={handleAiAnalysis}
             calculatorLink={{ pathname: "/investing-calculators", search: { c: "sip", symbol: upperSymbol } }}
           />
+
 
 
           {/* QUICK STATS */}
@@ -265,7 +276,9 @@ function StockDetailPage() {
               </Section>
 
               <Section icon={<Sparkles className="h-4 w-4" />} title="AI analysis">
-                {ai.isLoading ? (
+                {!d || d.price === 0 ? (
+                  <div className="text-sm text-muted-foreground">AI analysis will run once live price data is available for this ticker.</div>
+                ) : ai.isLoading ? (
                   <div className="text-sm text-muted-foreground">Generating AI insights…</div>
                 ) : ai.data ? (
                   <div className="space-y-4">
