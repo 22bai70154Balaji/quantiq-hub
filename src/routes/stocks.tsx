@@ -190,6 +190,37 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
   );
 }
 
+function StockLogo({ symbol, name }: { symbol: string; name: string }) {
+  const token = import.meta.env.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY as string | undefined;
+  const [errored, setErrored] = useState(false);
+  const ticker = symbol.replace(/\.(NS|BO)$/i, "");
+  const initials = name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+
+  if (!token || errored) {
+    return (
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] font-mono text-xs font-semibold text-foreground/80">
+        {initials || ticker.slice(0, 2)}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={`https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`}
+      alt={`${name} logo`}
+      width={40}
+      height={40}
+      loading="lazy"
+      onError={() => setErrored(true)}
+      className="h-10 w-10 shrink-0 rounded-lg border border-white/10 bg-white object-contain p-0.5"
+    />
+  );
+}
+
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-white/5 bg-white/[0.02] px-2 py-1.5">
