@@ -63,12 +63,12 @@ function Dashboard() {
           </div>
 
           <div className="mt-8 inline-flex flex-wrap rounded-full border bg-card p-1">
-            {((["networth", "portfolio", "saved", "favorites", "profile", ...(isAdmin ? ["users" as const] : [])]) as Tab[]).map((t) => {
+            {(["networth", "portfolio", "saved", "favorites", "profile"] as Tab[]).map((t) => {
               const label =
                 t === "networth" ? "Net Worth" :
                 t === "portfolio" ? "Portfolio" :
                 t === "saved" ? "Saved calculations" :
-                t === "users" ? "Users" : t;
+                t;
               const Icon = t === "networth" ? Wallet : t === "portfolio" ? PieChart : null;
               return (
                 <button key={t} onClick={() => setTab(t)}
@@ -86,7 +86,6 @@ function Dashboard() {
             {tab === "saved" && <SavedList />}
             {tab === "favorites" && <FavoritesList />}
             {tab === "profile" && <Profile />}
-            {tab === "users" && isAdmin && <UsersList />}
           </div>
         </div>
       </main>
