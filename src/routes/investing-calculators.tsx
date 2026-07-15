@@ -28,12 +28,10 @@ const CALCS = [
 
 type CalcId = typeof CALCS[number]["id"];
 
-const searchSchema = z.object({
-  c: fallback(z.string(), "sip").default("sip"),
-});
+const searchSchema = z.object({ c: z.string().optional().default("sip") });
 
 export const Route = createFileRoute("/investing-calculators")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   head: () => ({
     meta: [
       { title: "Investing Calculators — SIP, CAGR, Brokerage & more | Calculyx AI" },
