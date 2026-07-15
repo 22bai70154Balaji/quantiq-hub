@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { CATALOG, US_TOP_50, IN_TOP_50, getCatalogEntry } from "./stocks-catalog";
 
 export type StockQuote = {
   symbol: string;
@@ -15,28 +16,10 @@ export type StockQuote = {
   region: "US" | "IN";
 };
 
-// Curated popular tickers per region.
-const POPULAR: Array<{ symbol: string; name: string; region: "US" | "IN"; currency: string; assumedReturn: number }> = [
-  { symbol: "AAPL", name: "Apple Inc.", region: "US", currency: "USD", assumedReturn: 15 },
-  { symbol: "MSFT", name: "Microsoft Corp.", region: "US", currency: "USD", assumedReturn: 14 },
-  { symbol: "GOOGL", name: "Alphabet Inc.", region: "US", currency: "USD", assumedReturn: 13 },
-  { symbol: "AMZN", name: "Amazon.com Inc.", region: "US", currency: "USD", assumedReturn: 13 },
-  { symbol: "NVDA", name: "NVIDIA Corp.", region: "US", currency: "USD", assumedReturn: 22 },
-  { symbol: "META", name: "Meta Platforms", region: "US", currency: "USD", assumedReturn: 15 },
-  { symbol: "TSLA", name: "Tesla Inc.", region: "US", currency: "USD", assumedReturn: 18 },
-  { symbol: "JPM", name: "JPMorgan Chase", region: "US", currency: "USD", assumedReturn: 10 },
-  { symbol: "RELIANCE.NS", name: "Reliance Industries", region: "IN", currency: "INR", assumedReturn: 14 },
-  { symbol: "TCS.NS", name: "Tata Consultancy Services", region: "IN", currency: "INR", assumedReturn: 13 },
-  { symbol: "INFY.NS", name: "Infosys", region: "IN", currency: "INR", assumedReturn: 12 },
-  { symbol: "HDFCBANK.NS", name: "HDFC Bank", region: "IN", currency: "INR", assumedReturn: 13 },
-  { symbol: "ICICIBANK.NS", name: "ICICI Bank", region: "IN", currency: "INR", assumedReturn: 14 },
-  { symbol: "BHARTIARTL.NS", name: "Bharti Airtel", region: "IN", currency: "INR", assumedReturn: 13 },
-  { symbol: "SBIN.NS", name: "State Bank of India", region: "IN", currency: "INR", assumedReturn: 12 },
-  { symbol: "TATAMOTORS.NS", name: "Tata Motors", region: "IN", currency: "INR", assumedReturn: 16 },
-];
-
-export const META_BY_SYMBOL: Record<string, typeof POPULAR[number]> = Object.fromEntries(
-  POPULAR.map((p) => [p.symbol, p]),
+// Backwards-compatible export used elsewhere in the app.
+const POPULAR = CATALOG.slice(0, 16);
+export const META_BY_SYMBOL: Record<string, { symbol: string; name: string; region: "US" | "IN"; currency: string; assumedReturn: number }> = Object.fromEntries(
+  CATALOG.map((p) => [p.symbol, { symbol: p.symbol, name: p.name, region: p.region, currency: p.currency, assumedReturn: p.assumedReturn }]),
 );
 
 async function fetchIndianQuote(name: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
