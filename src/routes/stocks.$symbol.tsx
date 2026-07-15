@@ -276,7 +276,9 @@ function StockDetailPage() {
               </Section>
 
               <Section icon={<Sparkles className="h-4 w-4" />} title="AI analysis">
-                {ai.isLoading ? (
+                {!d || d.price === 0 ? (
+                  <div className="text-sm text-muted-foreground">AI analysis will run once live price data is available for this ticker.</div>
+                ) : ai.isLoading ? (
                   <div className="text-sm text-muted-foreground">Generating AI insights…</div>
                 ) : ai.data ? (
                   <div className="space-y-4">
