@@ -18,13 +18,13 @@ const calculyxLogoUrl = "/__l5e/assets-v1/eb2f4b7e-9a8a-4b5a-aee3-39f5dfd505be/c
 
 function fmtMoney(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  if (currency === "INR") return `₹${Math.round(v).toLocaleString("en-IN")}`;
+  if (currency === "INR") return `INR ${Math.round(v).toLocaleString("en-IN")}`;
   return `$${Math.round(v).toLocaleString("en-US")}`;
 }
 function fmtMoney2(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  const sym = currency === "INR" ? "₹" : "$";
-  return `${sym}${v.toLocaleString(currency === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 2 })}`;
+  if (currency === "INR") return `INR ${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  return `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
 function download(blob: Blob, filename: string) {
@@ -252,7 +252,7 @@ export async function exportStockPdf(b: StockExportBundle): Promise<void> {
   doc.setFillColor(up ? 220 : 254, up ? 252 : 226, up ? 231 : 226);
   doc.roundedRect(margin + bodyW - 116, y + 50, 100, 20, 10, 10, "F");
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(up ? 20 : 180, up ? 130 : 40, up ? 60 : 40);
-  doc.text(`${up ? "▲" : "▼"} ${up ? "+" : ""}${d.changePercent.toFixed(2)}%  (${up ? "+" : ""}${fmtMoney2(d.change, d.currency)})`, margin + bodyW - 66, y + 64, { align: "center" });
+  doc.text(`${up ? "UP" : "DOWN"} ${up ? "+" : ""}${d.changePercent.toFixed(2)}%  (${up ? "+" : ""}${fmtMoney2(d.change, d.currency)})`, margin + bodyW - 66, y + 64, { align: "center" });
   y += heroH + 16;
 
   // -------- Quick stats grid (3x4) --------
