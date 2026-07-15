@@ -23,6 +23,7 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StocksIndexRouteImport } from './routes/stocks.index'
 import { Route as StocksSymbolRouteImport } from './routes/stocks.$symbol'
 import { Route as RSlugRouteImport } from './routes/r.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -100,6 +101,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StocksIndexRoute = StocksIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StocksRoute,
+} as any)
 const StocksSymbolRoute = StocksSymbolRouteImport.update({
   id: '/$symbol',
   path: '/$symbol',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
   '/stocks/$symbol': typeof StocksSymbolRoute
+  '/stocks/': typeof StocksIndexRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -171,11 +178,11 @@ export interface FileRoutesByTo {
   '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
   '/stocks/$symbol': typeof StocksSymbolRoute
+  '/stocks': typeof StocksIndexRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -200,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
   '/stocks/$symbol': typeof StocksSymbolRoute
+  '/stocks/': typeof StocksIndexRoute
   '/_authenticated/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -224,6 +232,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/r/$slug'
     | '/stocks/$symbol'
+    | '/stocks/'
     | '/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -241,11 +250,11 @@ export interface FileRouteTypes {
     | '/investing-calculators'
     | '/news'
     | '/privacy'
-    | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
     | '/stocks/$symbol'
+    | '/stocks'
     | '/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -269,6 +278,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/r/$slug'
     | '/stocks/$symbol'
+    | '/stocks/'
     | '/_authenticated/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -396,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stocks/': {
+      id: '/stocks/'
+      path: '/'
+      fullPath: '/stocks/'
+      preLoaderRoute: typeof StocksIndexRouteImport
+      parentRoute: typeof StocksRoute
+    }
     '/stocks/$symbol': {
       id: '/stocks/$symbol'
       path: '/$symbol'
@@ -463,10 +480,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface StocksRouteChildren {
   StocksSymbolRoute: typeof StocksSymbolRoute
+  StocksIndexRoute: typeof StocksIndexRoute
 }
 
 const StocksRouteChildren: StocksRouteChildren = {
   StocksSymbolRoute: StocksSymbolRoute,
+  StocksIndexRoute: StocksIndexRoute,
 }
 
 const StocksRouteWithChildren =
