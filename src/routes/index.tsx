@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { LineChart, Zap, FileDown, Sparkles, ArrowUpRight, TrendingUp } from "lucide-react";
+import { LineChart, Zap, FileDown, ArrowUpRight, TrendingUp } from "lucide-react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { Hero } from "@/components/finflow/hero";
