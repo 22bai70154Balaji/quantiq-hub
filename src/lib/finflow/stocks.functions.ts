@@ -111,3 +111,29 @@ export const fetchQuotesForSymbols = createServerFn({ method: "POST" })
     return results.filter((r): r is StockQuote => r !== null);
   });
 
+export const listTopStocks = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ market: z.enum(["US", "IN", "GLOBAL"]) }).parse(d))
+  .handler(async ({ data }): Promise<StockQuote[]> => {
+    const src = data.market === "US" ? US_TOP_50
+      : data.market === "IN" ? IN_TOP_50
+      : [...US_TOP_50.slice(0, 25), ...IN_TOP_50.slice(0, 25)];
+    // Batch in chunks of 10 to keep per-request latency reasonable.
+    const results: (StockQuote | null)[] = [];
+    const chunk = 10;
+    for (let i = 0; i < src.length; i += chunk) {
+      const batch = src.slice(i, i + chunk);
+      // eslint-disable-next-line no-await-in-loop
+      const settled = await Promise.all(batch.map(async (p) => {
+        const q = await fetchQuote(p.symbol, p.name);
+        if (!q) return null;
+        return { ...q, name: p.name, region: p.region } satisfies StockQuote;
+      }));
+      results.push(...settled);
+    }
+    return results.filter((r): r is StockQuote => r !== null);
+  });
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _keepCatalog = getCatalogEntry;
+
+
