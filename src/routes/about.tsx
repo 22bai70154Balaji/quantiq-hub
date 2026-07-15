@@ -41,6 +41,7 @@ function AboutPage() {
             <Feature icon={<Calculator className="h-5 w-5" />} title="12 precise calculators" body="EMI, SIP, mortgage, currency, property, tax — country-aware math with clean, readable outputs." />
             <Feature icon={<Sparkles className="h-5 w-5" />} title="AI you can question" body="Ask follow-ups, compare scenarios, and get plain-English explanations of your numbers." />
             <Feature icon={<Newspaper className="h-5 w-5" />} title="Live financial digest" body="Region-filtered market summaries refreshed automatically every 10 minutes." />
+            <Feature icon={<Sparkles className="h-5 w-5" />} title="Stocks with AI analysis" body="Live quotes and charts for Indian and global tickers, plus Groq-powered predictive reports exportable to branded PDF and Excel." />
             <Feature icon={<ShieldCheck className="h-5 w-5" />} title="Privacy-first" body="Inputs stay in your browser wherever possible. No ad trackers. Ever." />
           </div>
 

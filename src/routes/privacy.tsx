@@ -48,10 +48,23 @@ function PrivacyPage() {
             <h2>How we use your data</h2>
             <ul>
               <li>To operate calculators, save your preferences, and personalize results.</li>
+              <li>To power the <strong>Stocks</strong> module — showing live quotes, historical charts, watchlists, and AI-generated analysis for the tickers you view.</li>
               <li>To provide the AI assistant and generate PDFs / reports you request.</li>
               <li>To respond to support requests you send us.</li>
               <li>To detect abuse and keep the service secure.</li>
             </ul>
+
+            <h2>Stocks & market data</h2>
+            <p>
+              The Stocks section displays quotes, fundamentals, historical candles, and news sourced from
+              third-party market-data providers (including Yahoo Finance and other public feeds). This data is
+              provided <strong>as-is</strong>, may be delayed by 15 minutes or more, and can be incomplete or
+              inaccurate — we do not guarantee its timeliness or correctness. Tickers you view, search, or add
+              to a watchlist are logged only to render the page and personalize your dashboard; we do not sell
+              this activity. AI-generated stock analysis (predictions, valuation views, PDF / Excel reports) is
+              produced by large language models on request and is <strong>not investment advice</strong> — see our{" "}
+              <a href="/disclaimer" className="text-primary underline underline-offset-4">disclaimer</a>.
+            </p>
 
             <h2>Data storage & security</h2>
             <p>
@@ -62,9 +75,10 @@ function PrivacyPage() {
 
             <h2>AI processing</h2>
             <p>
-              When you use the AI assistant, your prompts are sent to our AI gateway for inference. We do not use
-              your prompts to train third-party models. Do not submit sensitive personal or financial identifiers
-              (e.g. full account numbers, government IDs) into the assistant.
+              When you use the AI assistant or run AI analysis on a stock, your prompts and the associated ticker,
+              price, and chart context are sent to our AI gateway for inference. We do not use your prompts to
+              train third-party models. Do not submit sensitive personal or financial identifiers (e.g. full
+              account numbers, government IDs, brokerage credentials) into the assistant.
             </p>
 
             <h2>Cookies</h2>
