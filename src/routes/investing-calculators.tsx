@@ -257,9 +257,9 @@ function SipView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
             <Area dataKey="Invested" stackId="1" stroke="#94a3b8" fill="#94a3b833" />
             <Area dataKey="FutureValue" stackId="0" stroke="hsl(var(--primary))" fill="url(#g1)" />
@@ -301,9 +301,9 @@ function LumpsumView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Line dataKey="Value" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
             <Line dataKey="Invested" stroke="#94a3b8" strokeDasharray="4 4" dot={false} />
@@ -340,9 +340,9 @@ function CagrView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={growth}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
             <Line dataKey="Value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
           </LineChart>
@@ -382,9 +382,9 @@ function DividendView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-52">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={projection}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Bar dataKey="Dividends" fill="hsl(var(--primary))" />
           </BarChart>
@@ -484,9 +484,9 @@ function AverageView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Bar dataKey="Price" fill="hsl(var(--primary))" />
             <Bar dataKey="Avg" fill="#f59e0b" />
@@ -574,9 +574,9 @@ function PLView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={rows}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Bar dataKey="value">{rows.map((r, i) => <Cell key={i} fill={r.color} />)}</Bar>
           </BarChart>
@@ -611,9 +611,9 @@ function CompareView({ ctx }: { ctx: StockCtx | null }) {
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rows}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-              <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
               <Bar dataKey="value">{rows.map((r, i) => <Cell key={i} fill={r.color} />)}</Bar>
             </BarChart>
@@ -654,9 +654,9 @@ function FireView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-52">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={bars}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Bar dataKey="value">{bars.map((b, i) => <Cell key={i} fill={b.color} />)}</Bar>
           </BarChart>
@@ -699,9 +699,9 @@ function GoalView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={growth}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Area dataKey="Value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" strokeWidth={2} />
           </AreaChart>
@@ -801,9 +801,9 @@ function RebalanceView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chart}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => `${v}%`} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Bar dataKey="Current" fill="#94a3b8" />
@@ -849,9 +849,9 @@ function SwpView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-56">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={timeline}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="year" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Area dataKey="Balance" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" strokeWidth={2} />
           </AreaChart>
@@ -898,9 +898,9 @@ function DcaView({ ctx }: { ctx: StockCtx | null }) {
       <div className="mt-6 h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chart}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} />
-            <YAxis stroke="rgba(255,255,255,0.4)" fontSize={10} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} formatter={(v) => fmt(v as number)} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Line dataKey="Price" stroke="#94a3b8" dot={{ r: 3 }} />
