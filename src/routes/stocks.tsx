@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownRight, RefreshCw, TrendingUp, Search } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, RefreshCw, TrendingUp, Search, FileDown, FileSpreadsheet } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
 import { listTopStocks, type StockQuote, META_BY_SYMBOL } from "@/lib/finflow/stocks.functions";
 import { getCatalogEntry } from "@/lib/finflow/stocks-catalog";
+import { exportTopStocksPdf, exportTopStocksXlsx } from "@/lib/finflow/stock-exports";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
