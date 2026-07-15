@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StocksRouteImport } from './routes/stocks'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as InvestingCalculatorsRouteImport } from './routes/investing-calculators'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -22,6 +23,7 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StocksSymbolRouteImport } from './routes/stocks.$symbol'
 import { Route as RSlugRouteImport } from './routes/r.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalcTypeRouteImport } from './routes/_authenticated/calc.$type'
@@ -47,6 +49,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestingCalculatorsRoute = InvestingCalculatorsRouteImport.update({
+  id: '/investing-calculators',
+  path: '/investing-calculators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisclaimerRoute = DisclaimerRouteImport.update({
@@ -93,6 +100,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StocksSymbolRoute = StocksSymbolRouteImport.update({
+  id: '/$symbol',
+  path: '/$symbol',
+  getParentRoute: () => StocksRoute,
+} as any)
 const RSlugRoute = RSlugRouteImport.update({
   id: '/r/$slug',
   path: '/r/$slug',
@@ -134,12 +146,14 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRoute
+  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
+  '/stocks/$symbol': typeof StocksSymbolRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -154,12 +168,14 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRoute
+  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
+  '/stocks/$symbol': typeof StocksSymbolRoute
   '/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -176,12 +192,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/investing-calculators': typeof InvestingCalculatorsRoute
   '/news': typeof NewsRoute
   '/privacy': typeof PrivacyRoute
-  '/stocks': typeof StocksRoute
+  '/stocks': typeof StocksRouteWithChildren
   '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/r/$slug': typeof RSlugRoute
+  '/stocks/$symbol': typeof StocksSymbolRoute
   '/_authenticated/calc/$type': typeof AuthenticatedCalcTypeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -198,12 +216,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
+    | '/stocks/$symbol'
     | '/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -218,12 +238,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
     | '/terms'
     | '/dashboard'
     | '/r/$slug'
+    | '/stocks/$symbol'
     | '/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -239,12 +261,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/investing-calculators'
     | '/news'
     | '/privacy'
     | '/stocks'
     | '/terms'
     | '/_authenticated/dashboard'
     | '/r/$slug'
+    | '/stocks/$symbol'
     | '/_authenticated/calc/$type'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -261,9 +285,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  InvestingCalculatorsRoute: typeof InvestingCalculatorsRoute
   NewsRoute: typeof NewsRoute
   PrivacyRoute: typeof PrivacyRoute
-  StocksRoute: typeof StocksRoute
+  StocksRoute: typeof StocksRouteWithChildren
   TermsRoute: typeof TermsRoute
   RSlugRoute: typeof RSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -299,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investing-calculators': {
+      id: '/investing-calculators'
+      path: '/investing-calculators'
+      fullPath: '/investing-calculators'
+      preLoaderRoute: typeof InvestingCalculatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disclaimer': {
@@ -364,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stocks/$symbol': {
+      id: '/stocks/$symbol'
+      path: '/$symbol'
+      fullPath: '/stocks/$symbol'
+      preLoaderRoute: typeof StocksSymbolRouteImport
+      parentRoute: typeof StocksRoute
+    }
     '/r/$slug': {
       id: '/r/$slug'
       path: '/r/$slug'
@@ -422,6 +461,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface StocksRouteChildren {
+  StocksSymbolRoute: typeof StocksSymbolRoute
+}
+
+const StocksRouteChildren: StocksRouteChildren = {
+  StocksSymbolRoute: StocksSymbolRoute,
+}
+
+const StocksRouteWithChildren =
+  StocksRoute._addFileChildren(StocksRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -432,9 +482,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   DisclaimerRoute: DisclaimerRoute,
+  InvestingCalculatorsRoute: InvestingCalculatorsRoute,
   NewsRoute: NewsRoute,
   PrivacyRoute: PrivacyRoute,
-  StocksRoute: StocksRoute,
+  StocksRoute: StocksRouteWithChildren,
   TermsRoute: TermsRoute,
   RSlugRoute: RSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

@@ -5,15 +5,15 @@ import { ArrowUpRight, ArrowDownRight, RefreshCw, TrendingUp, Search } from "luc
 import { useState, useMemo } from "react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
-import { listLiveStocks, type StockQuote, META_BY_SYMBOL } from "@/lib/finflow/stocks.functions";
+import { listTopStocks, type StockQuote, META_BY_SYMBOL } from "@/lib/finflow/stocks.functions";
 
 export const Route = createFileRoute("/stocks")({
   head: () => ({
     meta: [
-      { title: "Live Stocks — Calculyx AI" },
-      { name: "description", content: "Live stock prices for top US and Indian equities. Apply any stock's historical return to your SIP plan in one click." },
-      { property: "og:title", content: "Live Stocks — Calculyx AI" },
-      { property: "og:description", content: "Real-time quotes for AAPL, NVDA, RELIANCE, TCS and more — with instant SIP margin projections." },
+      { title: "Top 50 Live Stocks — India, US & Global | Calculyx AI" },
+      { name: "description", content: "Live top-50 stock prices for Indian (Nifty 50), US, and Global markets. Click any stock for a full AI-powered analysis and investment calculators." },
+      { property: "og:title", content: "Top 50 Live Stocks — Calculyx AI" },
+      { property: "og:description", content: "Real-time quotes for Nifty 50, US large-caps and a Global blend — plus AI analysis and calculators per stock." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://calculyxai.online/stocks" },
       { property: "og:image", content: "https://calculyxai.online/og-image.jpg" },
@@ -25,26 +25,21 @@ export const Route = createFileRoute("/stocks")({
 });
 
 function StocksPage() {
-  const [region, setRegion] = useState<"All" | "US" | "IN">("All");
+  const [market, setMarket] = useState<"IN" | "US" | "GLOBAL">("IN");
   const [q, setQ] = useState("");
   const query = useQuery({
-    queryKey: ["live-stocks"],
-    queryFn: () => listLiveStocks(),
+    queryKey: ["top-stocks", market],
+    queryFn: () => listTopStocks({ data: { market } }),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
 
   const stocks = useMemo(() => {
     const data = query.data ?? [];
-    return data.filter((s) => {
-      if (region !== "All" && s.region !== region) return false;
-      if (q.trim()) {
-        const t = q.toLowerCase();
-        if (!s.symbol.toLowerCase().includes(t) && !s.name.toLowerCase().includes(t)) return false;
-      }
-      return true;
-    });
-  }, [query.data, region, q]);
+    if (!q.trim()) return data;
+    const t = q.toLowerCase();
+    return data.filter((s) => s.symbol.toLowerCase().includes(t) || s.name.toLowerCase().includes(t));
+  }, [query.data, q]);
 
   return (
     <div className="bg-page-gradient min-h-screen">
@@ -55,22 +50,21 @@ function StocksPage() {
             <TrendingUp className="h-4 w-4" /> Live market
           </div>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-6xl">
-            Live <span className="font-serif italic text-gold">stocks</span>
+            Top 50 live <span className="font-serif italic text-gold">stocks</span>
           </h1>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Real-time quotes from Finnhub. Click <span className="text-foreground font-medium">Use in SIP</span> on any
-            stock to project a monthly SIP against its assumed long-run return.
+            Real-time quotes across India (Nifty 50), the US large-caps, and a Global blend. Click any stock for a full analysis — AI bull/bear, financial health, news, earnings, and 7 embedded calculators.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <div className="inline-flex rounded-full border bg-card/70 backdrop-blur p-1 shadow-soft">
-              {(["All", "US", "IN"] as const).map((r) => (
+              {(["IN", "US", "GLOBAL"] as const).map((r) => (
                 <button
                   key={r}
-                  onClick={() => setRegion(r)}
-                  className={`rounded-full px-4 py-1.5 text-sm transition ${region === r ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setMarket(r)}
+                  className={`rounded-full px-4 py-1.5 text-sm transition ${market === r ? "bg-primary text-primary-foreground shadow-elegant" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  {r === "All" ? "All markets" : r === "US" ? "🇺🇸 US" : "🇮🇳 India"}
+                  {r === "IN" ? "🇮🇳 India 50" : r === "US" ? "🇺🇸 US 50" : "🌍 Global 50"}
                 </button>
               ))}
             </div>
@@ -134,61 +128,75 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
     <motion.div
       initial={{ y: 16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, delay: index * 0.03 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.02, 0.4) }}
       className="relative rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-3">
-          <StockLogo symbol={stock.symbol} name={stock.name} />
-          <div className="min-w-0">
-            <div className="font-mono text-xs font-semibold tracking-wider text-muted-foreground">
-              {stock.region === "US" ? "🇺🇸" : "🇮🇳"} {stock.symbol}
+      <Link to="/stocks/$symbol" params={{ symbol: stock.symbol }} className="absolute inset-0 z-0" aria-label={`Open ${stock.name} details`} />
+      <div className="relative z-10 pointer-events-none">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <StockLogo symbol={stock.symbol} name={stock.name} />
+            <div className="min-w-0">
+              <div className="font-mono text-xs font-semibold tracking-wider text-muted-foreground">
+                {stock.region === "US" ? "🇺🇸" : "🇮🇳"} {stock.symbol}
+              </div>
+              <div className="mt-1 truncate font-display text-lg font-semibold tracking-tight">{stock.name}</div>
             </div>
-            <div className="mt-1 truncate font-display text-lg font-semibold tracking-tight">{stock.name}</div>
+          </div>
+          <div
+            className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+              up ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+            }`}
+          >
+            {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+            {stock.changePercent.toFixed(2)}%
           </div>
         </div>
-        <div
-          className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-            up ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
-          }`}
+
+        <div className="mt-4 font-mono text-2xl font-semibold tabular-nums">{fmt(stock.price)}</div>
+        <div className={`font-mono text-xs tabular-nums ${up ? "text-emerald-400" : "text-red-400"}`}>
+          {up ? "+" : ""}
+          {fmt(stock.change)} today
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+          <MiniStat label="Open" value={fmt(stock.open)} />
+          <MiniStat label="Prev close" value={fmt(stock.prevClose)} />
+          <MiniStat label="Day high" value={fmt(stock.high)} />
+          <MiniStat label="Day low" value={fmt(stock.low)} />
+        </div>
+
+        <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Assumed long-run return
+          </div>
+          <div className="mt-0.5 font-mono text-sm font-semibold text-primary">{assumedReturn}% p.a.</div>
+        </div>
+      </div>
+
+      <div className="relative z-20 mt-3 flex gap-2">
+        <Link
+          to="/stocks/$symbol"
+          params={{ symbol: stock.symbol }}
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:bg-foreground/90"
         >
-          {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-          {stock.changePercent.toFixed(2)}%
-        </div>
+          View analysis <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+        <Link
+          to="/calc/$type"
+          params={{ type: "sip" }}
+          search={{ symbol: stock.symbol, rate: assumedReturn } as never}
+          className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-medium hover:bg-white/[0.06]"
+          title="Use in SIP calculator"
+        >
+          SIP
+        </Link>
       </div>
-
-
-      <div className="mt-4 font-mono text-2xl font-semibold tabular-nums">{fmt(stock.price)}</div>
-      <div className={`font-mono text-xs tabular-nums ${up ? "text-emerald-400" : "text-red-400"}`}>
-        {up ? "+" : ""}
-        {fmt(stock.change)} today
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-        <MiniStat label="Open" value={fmt(stock.open)} />
-        <MiniStat label="Prev close" value={fmt(stock.prevClose)} />
-        <MiniStat label="Day high" value={fmt(stock.high)} />
-        <MiniStat label="Day low" value={fmt(stock.low)} />
-      </div>
-
-      <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3">
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          Assumed long-run return
-        </div>
-        <div className="mt-0.5 font-mono text-sm font-semibold text-primary">{assumedReturn}% p.a.</div>
-      </div>
-
-      <Link
-        to="/calc/$type"
-        params={{ type: "sip" }}
-        search={{ symbol: stock.symbol, rate: assumedReturn } as never}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:bg-foreground/90"
-      >
-        Use in SIP Calculator <ArrowUpRight className="h-3.5 w-3.5" />
-      </Link>
     </motion.div>
   );
 }
+
+
 
 // Domain map — Logo.dev's /ticker/ index skips most .NS/.BO listings, so we
 // fall back to the company's primary domain for Indian tickers.
