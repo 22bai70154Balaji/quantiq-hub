@@ -22,9 +22,12 @@ export function InteractiveChart() {
     <section className="mx-auto max-w-7xl px-6 py-16 sm:py-24">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div>
-          <div className="text-sm font-medium text-primary">Visualise</div>
+          <div className="flex items-center gap-2 text-sm font-medium text-primary">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-primary" /></span>
+            Visualise
+          </div>
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-            See compounding<br />before you commit.
+            See <span className="font-serif italic text-gold">compounding</span> before you commit.
           </h2>
           <p className="mt-4 max-w-md text-muted-foreground">
             Every calculator ships with rich, interactive charts — so you can feel the shape of your money over time.
