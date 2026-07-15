@@ -31,16 +31,11 @@ function Dashboard() {
   const [tab, setTab] = useState<Tab>("networth");
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
       setEmail(data.user?.email ?? "");
-      if (data.user) {
-        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-        setIsAdmin(!!roles?.some((r) => r.role === "admin"));
-      }
     })();
   }, []);
 
