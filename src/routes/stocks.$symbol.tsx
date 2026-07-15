@@ -157,8 +157,48 @@ function StockDetailPage() {
               exportAll15Pdf(bundle);
               exportAll15Xlsx(bundle);
             }}
+            onAiReport={async () => {
+              if (!d) return;
+              const closes = candles.data?.candles?.map((c) => c.c).filter((n) => Number.isFinite(n) && n > 0) ?? [];
+              if (closes.length < 10) {
+                toast.error("Not enough price history to run the AI prediction. Load the 1Y chart first.");
+                return;
+              }
+              try {
+                toast.loading("Generating AI report…", { id: "ai-report" });
+                const prediction = await getStockPrediction({
+                  data: {
+                    symbol: upperSymbol,
+                    name: d.name,
+                    sector: d.sector,
+                    currency: d.currency,
+                    price: d.price,
+                    pe: d.pe,
+                    roe: d.roe,
+                    divYield: d.divYield,
+                    weekHigh52: d.weekHigh52,
+                    weekLow52: d.weekLow52,
+                    closes,
+                  },
+                });
+                await exportPredictionPdf({
+                  symbol: upperSymbol,
+                  name: d.name,
+                  currency: d.currency,
+                  price: d.price,
+                  region: d.region,
+                  sector: d.sector,
+                  prediction,
+                });
+                toast.success("AI report downloaded", { id: "ai-report" });
+              } catch (e) {
+                console.error(e);
+                toast.error("AI report failed. Please try again.", { id: "ai-report" });
+              }
+            }}
             calculatorLink={{ pathname: "/investing-calculators", search: { c: "sip", symbol: upperSymbol } }}
           />
+
 
           {/* QUICK STATS */}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
