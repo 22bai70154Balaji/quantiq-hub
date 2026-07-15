@@ -70,23 +70,35 @@ async function drawBrandedHeader(doc: jsPDF, subtitle: string): Promise<number> 
   const margin = 40;
   // Deep navy header strip
   doc.setFillColor(15, 23, 42);
-  doc.rect(0, 0, W, 78, "F");
-  // Calculyx logo (fetched once)
+  doc.rect(0, 0, W, 86, "F");
+
+  // Calculyx logo: the source asset is a wide wordmark, so keep its aspect
+  // ratio and place it on a white badge for clean visibility in every PDF.
+  const badgeX = margin;
+  const badgeY = 18;
+  const badgeW = 170;
+  const badgeH = 50;
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 10, 10, "F");
   const logo = await urlToDataUrl(calculyxLogoUrl);
   if (logo) {
-    try { doc.addImage(logo, "PNG", margin, 18, 42, 42); } catch { /* ignore */ }
+    try { doc.addImage(logo, "PNG", badgeX + 10, badgeY + 9, 150, 44); } catch { /* ignore */ }
+  } else {
+    doc.setFont("helvetica", "bold").setFontSize(16).setTextColor(15, 23, 42);
+    doc.text("Calculyx AI", badgeX + badgeW / 2, badgeY + 31, { align: "center" });
   }
-  doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(255, 255, 255);
-  doc.text("Calculyx AI", margin + 54, 42);
-  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(180, 200, 230);
-  doc.text(subtitle, margin + 54, 58);
+
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(255, 255, 255);
+  doc.text(subtitle, margin + 190, 41);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(180, 200, 230);
+  doc.text("Processed structured report", margin + 190, 58);
   // Timestamp on the right
   doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(180, 200, 230);
   const ts = new Date().toLocaleString();
   doc.text(ts, W - margin, 42, { align: "right" });
   doc.setFontSize(7);
   doc.text("calculyxai.online", W - margin, 58, { align: "right" });
-  return 100; // Y position where body should start
+  return 108; // Y position where body should start
 }
 
 function drawFooter(doc: jsPDF, note = "Estimates only · Not financial advice · Data may be delayed") {
