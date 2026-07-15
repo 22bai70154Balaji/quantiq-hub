@@ -480,3 +480,115 @@ export function exportAll15Pdf(b: Calc15Bundle): void {
   }
   doc.save(`${m.symbol}_15_calculators.pdf`);
 }
+
+// ============================= TOP-LIST EXPORTS (bulk) =============================
+// Bulk exports for the /stocks page toolbar. Takes the currently loaded
+// StockQuote[] and emits a PDF or XLSX with every row.
+
+export type TopStockRow = {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  high: number;
+  low: number;
+  open: number;
+  prevClose: number;
+  currency: string;
+  region: "US" | "IN";
+};
+
+export function exportTopStocksXlsx(rows: TopStockRow[], marketLabel: string): void {
+  const wb = XLSX.utils.book_new();
+  const header = ["Symbol", "Name", "Region", "Currency", "Price", "Change", "Change %", "Open", "Prev close", "Day high", "Day low"];
+  const body = rows.map((r) => [
+    r.symbol, r.name, r.region, r.currency,
+    r.price, r.change, r.changePercent, r.open, r.prevClose, r.high, r.low,
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([
+    [`Calculyx AI — ${marketLabel} live top stocks`],
+    ["Generated", new Date().toISOString()],
+    [],
+    header,
+    ...body,
+  ]);
+  ws["!cols"] = [{ wch: 12 }, { wch: 28 }, { wch: 8 }, { wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, ws, marketLabel.slice(0, 28));
+  const buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `top_stocks_${marketLabel.toLowerCase()}.xlsx`);
+}
+
+export function exportTopStocksPdf(rows: TopStockRow[], marketLabel: string): void {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const margin = 40;
+
+  doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(20);
+  doc.text(`Calculyx AI — ${marketLabel} live top stocks`, margin, 60);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(120);
+  doc.text(new Date().toLocaleString(), margin, 78);
+  doc.text(`${rows.length} tickers`, W - margin - 80, 78);
+
+  // Table header
+  let y = 110;
+  const cols = [
+    { label: "Symbol", w: 70 },
+    { label: "Name", w: 170 },
+    { label: "Price", w: 70, align: "right" as const },
+    { label: "Chg %", w: 55, align: "right" as const },
+    { label: "Open", w: 60, align: "right" as const },
+    { label: "Prev", w: 60, align: "right" as const },
+    { label: "High", w: 60, align: "right" as const },
+  ];
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(40);
+  let x = margin;
+  cols.forEach((c) => {
+    if (c.align === "right") doc.text(c.label, x + c.w - 4, y, { align: "right" });
+    else doc.text(c.label, x, y);
+    x += c.w;
+  });
+  y += 6;
+  doc.setDrawColor(200).line(margin, y, W - margin, y);
+  y += 12;
+
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(40);
+  for (const r of rows) {
+    if (y > H - 60) {
+      doc.addPage();
+      y = 60;
+    }
+    x = margin;
+    const cur = r.currency === "INR" ? "₹" : "$";
+    const fields: Array<{ text: string; align?: "right" }> = [
+      { text: r.symbol },
+      { text: r.name.length > 32 ? r.name.slice(0, 30) + "…" : r.name },
+      { text: `${cur}${r.price.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
+      { text: `${r.changePercent >= 0 ? "+" : ""}${r.changePercent.toFixed(2)}%`, align: "right" },
+      { text: `${cur}${r.open.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
+      { text: `${cur}${r.prevClose.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
+      { text: `${cur}${r.high.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
+    ];
+    if (r.changePercent >= 0) doc.setTextColor(20, 130, 60); else doc.setTextColor(180, 40, 40);
+    fields.forEach((f, i) => {
+      const c = cols[i];
+      // colour only the change% cell
+      if (i !== 3) doc.setTextColor(40);
+      else doc.setTextColor(r.changePercent >= 0 ? 20 : 180, r.changePercent >= 0 ? 130 : 40, r.changePercent >= 0 ? 60 : 40);
+      if (f.align === "right") doc.text(f.text, x + c.w - 4, y, { align: "right" });
+      else doc.text(f.text, x, y);
+      x += c.w;
+    });
+    y += 16;
+  }
+
+  const pages = doc.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "italic").setFontSize(8).setTextColor(140);
+    doc.text(`Calculyx AI · Live snapshot · Not financial advice.`, margin, H - 20);
+    doc.text(`Page ${i} / ${pages}`, W - margin - 50, H - 20);
+  }
+  doc.save(`top_stocks_${marketLabel.toLowerCase()}.pdf`);
+}

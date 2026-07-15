@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Users as UsersIcon, Mail, Phone, Link2, Check, Globe, Wallet, PieChart } from "lucide-react";
+import { Bookmark, LogOut, Sparkles, Star, MessageSquare, Trash2, ArrowRight, User as UserIcon, Link2, Check, Globe, Wallet, PieChart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
@@ -25,22 +25,17 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "networth" | "portfolio" | "saved" | "favorites" | "profile" | "users";
+type Tab = "networth" | "portfolio" | "saved" | "favorites" | "profile";
 
 function Dashboard() {
   const [tab, setTab] = useState<Tab>("networth");
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
       setEmail(data.user?.email ?? "");
-      if (data.user) {
-        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-        setIsAdmin(!!roles?.some((r) => r.role === "admin"));
-      }
     })();
   }, []);
 
@@ -68,12 +63,12 @@ function Dashboard() {
           </div>
 
           <div className="mt-8 inline-flex flex-wrap rounded-full border bg-card p-1">
-            {((["networth", "portfolio", "saved", "favorites", "profile", ...(isAdmin ? ["users" as const] : [])]) as Tab[]).map((t) => {
+            {(["networth", "portfolio", "saved", "favorites", "profile"] as Tab[]).map((t) => {
               const label =
                 t === "networth" ? "Net Worth" :
                 t === "portfolio" ? "Portfolio" :
                 t === "saved" ? "Saved calculations" :
-                t === "users" ? "Users" : t;
+                t;
               const Icon = t === "networth" ? Wallet : t === "portfolio" ? PieChart : null;
               return (
                 <button key={t} onClick={() => setTab(t)}
@@ -91,7 +86,6 @@ function Dashboard() {
             {tab === "saved" && <SavedList />}
             {tab === "favorites" && <FavoritesList />}
             {tab === "profile" && <Profile />}
-            {tab === "users" && isAdmin && <UsersList />}
           </div>
         </div>
       </main>
@@ -331,70 +325,5 @@ function EmptyState({ icon: Icon, title, body, cta }: { icon: React.ComponentTyp
   );
 }
 
-function UsersList() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["admin_users"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, display_name, email, phone, country, created_at")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  if (isLoading) return <div className="text-sm text-muted-foreground">Loading users…</div>;
-  if (error) return <div className="text-sm text-destructive">Failed to load users</div>;
-  if (!data?.length) return <EmptyState icon={UsersIcon} title="No users yet" body="Signups will appear here." />;
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="font-display text-xl font-semibold tracking-tight">Signed-up users</div>
-          <div className="text-sm text-muted-foreground">{data.length} total</div>
-        </div>
-      </div>
-      <div className="overflow-hidden rounded-2xl border bg-card shadow-soft">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Phone</th>
-                <th className="px-4 py-3 font-medium">Country</th>
-                <th className="px-4 py-3 font-medium">Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((u) => (
-                <tr key={u.id} className="border-t hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">{u.display_name ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="tabular-nums">{u.email ?? "—"}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span className="tabular-nums">{u.phone ?? "—"}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{u.country ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{new Date(u.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Silence unused import warning; MessageSquare kept if needed elsewhere
+// Silence unused import warning
 void MessageSquare;
