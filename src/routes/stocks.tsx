@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownRight, RefreshCw, TrendingUp, Search, FileDown, FileSpreadsheet } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, RefreshCw, TrendingUp, Search, FileDown, FileSpreadsheet, Brain } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Navbar } from "@/components/finflow/navbar";
 import { Footer } from "@/components/finflow/footer";
@@ -199,13 +199,14 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
       </div>
 
       <div className="relative mt-3 flex gap-2">
-        <Link
-          to="/stocks/$symbol"
-          params={{ symbol: stock.symbol }}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:bg-foreground/90"
-        >
-          View analysis <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
+          <Link
+            to="/stocks/$symbol"
+            params={{ symbol: stock.symbol }}
+            search={{ ai: "report" } as never}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-elegant transition hover:brightness-110"
+          >
+            <Brain className="h-3.5 w-3.5" /> AI analysis <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
         <Link
           to="/calc/$type"
           params={{ type: "sip" }}
