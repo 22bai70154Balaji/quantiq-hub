@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-type Tab = "networth" | "portfolio" | "saved" | "favorites" | "profile" | "users";
+type Tab = "networth" | "portfolio" | "saved" | "favorites" | "profile";
 
 function Dashboard() {
   const [tab, setTab] = useState<Tab>("networth");
