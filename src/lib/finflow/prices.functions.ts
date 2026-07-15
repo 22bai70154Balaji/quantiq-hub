@@ -13,7 +13,7 @@ export type RefreshResult = {
 export const refreshPortfolioPrices = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<RefreshResult> => {
-    const { fetchFinnhubQuote, fetchCoinGeckoQuote, convert } = await import("./prices.server");
+    const { fetchFinnhubQuote, fetchCoinGeckoQuote, fetchIndianApiQuote, convert } = await import("./prices.server");
 
     const { data: holdings, error } = await context.supabase
       .from("holdings")
