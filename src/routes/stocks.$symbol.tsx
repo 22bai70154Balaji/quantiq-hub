@@ -75,7 +75,7 @@ function StockDetailPage() {
   });
 
   const ai = useQuery({
-    enabled: !!detail.data,
+    enabled: !!detail.data && (detail.data.price ?? 0) > 0,
     queryKey: ["stock-ai", upperSymbol, detail.data?.pe, detail.data?.roe],
     queryFn: () => getStockAiInsights({
       data: {
