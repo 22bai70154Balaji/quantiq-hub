@@ -105,7 +105,7 @@ async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<St
 export const listLiveStocks = createServerFn({ method: "GET" }).handler(async (): Promise<StockQuote[]> => {
   const results = await Promise.all(
     POPULAR.map(async (p) => {
-      const q = await fetchQuote(p.symbol);
+      const q = await fetchQuote(p.symbol, p.name);
       if (!q) return null;
       return { ...q, name: p.name, region: p.region } satisfies StockQuote;
     }),
@@ -120,10 +120,11 @@ export const fetchQuotesForSymbols = createServerFn({ method: "POST" })
       data.symbols.map(async (sym) => {
         const s = sym.trim().toUpperCase();
         const meta = META_BY_SYMBOL[s] ?? META_BY_SYMBOL[`${s}.NS`];
-        const q = await fetchQuote(meta?.symbol ?? s);
+        const q = await fetchQuote(meta?.symbol ?? s, meta?.name);
         if (!q) return null;
         return { ...q, name: meta?.name ?? s, region: meta?.region ?? (q.currency === "INR" ? "IN" : "US") } satisfies StockQuote;
       }),
     );
     return results.filter((r): r is StockQuote => r !== null);
   });
+
