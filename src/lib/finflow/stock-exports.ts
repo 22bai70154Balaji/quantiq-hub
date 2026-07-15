@@ -18,13 +18,13 @@ const calculyxLogoUrl = "/__l5e/assets-v1/eb2f4b7e-9a8a-4b5a-aee3-39f5dfd505be/c
 
 function fmtMoney(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  if (currency === "INR") return `₹${Math.round(v).toLocaleString("en-IN")}`;
+  if (currency === "INR") return `Rs. ${Math.round(v).toLocaleString("en-IN")}`;
   return `$${Math.round(v).toLocaleString("en-US")}`;
 }
 function fmtMoney2(v: number, currency: string): string {
   if (!Number.isFinite(v)) return "—";
-  const sym = currency === "INR" ? "₹" : "$";
-  return `${sym}${v.toLocaleString(currency === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 2 })}`;
+  if (currency === "INR") return `Rs. ${v.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  return `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
 function download(blob: Blob, filename: string) {
@@ -70,23 +70,35 @@ async function drawBrandedHeader(doc: jsPDF, subtitle: string): Promise<number> 
   const margin = 40;
   // Deep navy header strip
   doc.setFillColor(15, 23, 42);
-  doc.rect(0, 0, W, 78, "F");
-  // Calculyx logo (fetched once)
+  doc.rect(0, 0, W, 86, "F");
+
+  // Calculyx logo: the source asset is a wide wordmark, so keep its aspect
+  // ratio and place it on a white badge for clean visibility in every PDF.
+  const badgeX = margin;
+  const badgeY = 18;
+  const badgeW = 170;
+  const badgeH = 50;
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 10, 10, "F");
   const logo = await urlToDataUrl(calculyxLogoUrl);
   if (logo) {
-    try { doc.addImage(logo, "PNG", margin, 18, 42, 42); } catch { /* ignore */ }
+    try { doc.addImage(logo, "PNG", badgeX + 10, badgeY + 9, 150, 44); } catch { /* ignore */ }
+  } else {
+    doc.setFont("helvetica", "bold").setFontSize(16).setTextColor(15, 23, 42);
+    doc.text("Calculyx AI", badgeX + badgeW / 2, badgeY + 31, { align: "center" });
   }
-  doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(255, 255, 255);
-  doc.text("Calculyx AI", margin + 54, 42);
-  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(180, 200, 230);
-  doc.text(subtitle, margin + 54, 58);
+
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(255, 255, 255);
+  doc.text(subtitle, margin + 190, 41);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(180, 200, 230);
+  doc.text("Processed structured report", margin + 190, 58);
   // Timestamp on the right
   doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(180, 200, 230);
   const ts = new Date().toLocaleString();
   doc.text(ts, W - margin, 42, { align: "right" });
   doc.setFontSize(7);
   doc.text("calculyxai.online", W - margin, 58, { align: "right" });
-  return 100; // Y position where body should start
+  return 108; // Y position where body should start
 }
 
 function drawFooter(doc: jsPDF, note = "Estimates only · Not financial advice · Data may be delayed") {
@@ -240,7 +252,7 @@ export async function exportStockPdf(b: StockExportBundle): Promise<void> {
   doc.setFillColor(up ? 220 : 254, up ? 252 : 226, up ? 231 : 226);
   doc.roundedRect(margin + bodyW - 116, y + 50, 100, 20, 10, 10, "F");
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(up ? 20 : 180, up ? 130 : 40, up ? 60 : 40);
-  doc.text(`${up ? "▲" : "▼"} ${up ? "+" : ""}${d.changePercent.toFixed(2)}%  (${up ? "+" : ""}${fmtMoney2(d.change, d.currency)})`, margin + bodyW - 66, y + 64, { align: "center" });
+  doc.text(`${up ? "UP" : "DOWN"} ${up ? "+" : ""}${d.changePercent.toFixed(2)}%  (${up ? "+" : ""}${fmtMoney2(d.change, d.currency)})`, margin + bodyW - 66, y + 64, { align: "center" });
   y += heroH + 16;
 
   // -------- Quick stats grid (3x4) --------
