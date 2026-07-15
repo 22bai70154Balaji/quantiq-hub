@@ -174,7 +174,7 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
         </div>
       </div>
 
-      <div className="relative z-20 mt-3 flex gap-2">
+      <div className="relative mt-3 flex gap-2">
         <Link
           to="/stocks/$symbol"
           params={{ symbol: stock.symbol }}
