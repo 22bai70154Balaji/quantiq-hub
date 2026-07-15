@@ -57,6 +57,39 @@ async function fetchIndianQuote(name: string): Promise<Omit<StockQuote, "name" |
   }
 }
 
+async function fetchYahooQuote(symbol: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`,
+      { headers: { "User-Agent": "Mozilla/5.0" } },
+    );
+    if (!res.ok) return null;
+    const j = (await res.json()) as {
+      chart?: { result?: Array<{ meta?: Record<string, number | string> }> };
+    };
+    const m = j?.chart?.result?.[0]?.meta as Record<string, number | string> | undefined;
+    if (!m) return null;
+    const price = Number(m.regularMarketPrice ?? 0);
+    if (!Number.isFinite(price) || price <= 0) return null;
+    const prevClose = Number(m.chartPreviousClose ?? m.previousClose ?? price);
+    const change = price - prevClose;
+    const pct = prevClose > 0 ? (change / prevClose) * 100 : 0;
+    return {
+      symbol,
+      price,
+      change,
+      changePercent: pct,
+      high: Number(m.regularMarketDayHigh ?? price),
+      low: Number(m.regularMarketDayLow ?? price),
+      open: Number(m.regularMarketOpen ?? prevClose),
+      prevClose,
+      currency: String(m.currency ?? (symbol.endsWith(".NS") || symbol.endsWith(".BO") ? "INR" : "USD")),
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<StockQuote, "name" | "region"> | null> {
   const isIndian = symbol.endsWith(".NS") || symbol.endsWith(".BO");
   if (isIndian && companyName) {
@@ -64,24 +97,31 @@ async function fetchQuote(symbol: string, companyName?: string): Promise<Omit<St
     if (ind) return { ...ind, symbol };
   }
   const key = process.env.FINNHUB_API_KEY;
-  if (!key) return null;
-  const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${key}`);
-  if (!res.ok) return null;
-  const j = (await res.json()) as { c?: number; d?: number; dp?: number; h?: number; l?: number; o?: number; pc?: number };
-  const price = Number(j?.c ?? 0);
-  if (!Number.isFinite(price) || price <= 0) return null;
-  const currency = isIndian ? "INR" : "USD";
-  return {
-    symbol,
-    price,
-    change: Number(j.d ?? 0),
-    changePercent: Number(j.dp ?? 0),
-    high: Number(j.h ?? 0),
-    low: Number(j.l ?? 0),
-    open: Number(j.o ?? 0),
-    prevClose: Number(j.pc ?? 0),
-    currency,
-  };
+  if (key) {
+    try {
+      const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${key}`);
+      if (res.ok) {
+        const j = (await res.json()) as { c?: number; d?: number; dp?: number; h?: number; l?: number; o?: number; pc?: number };
+        const price = Number(j?.c ?? 0);
+        if (Number.isFinite(price) && price > 0) {
+          const currency = isIndian ? "INR" : "USD";
+          return {
+            symbol,
+            price,
+            change: Number(j.d ?? 0),
+            changePercent: Number(j.dp ?? 0),
+            high: Number(j.h ?? 0),
+            low: Number(j.l ?? 0),
+            open: Number(j.o ?? 0),
+            prevClose: Number(j.pc ?? 0),
+            currency,
+          };
+        }
+      }
+    } catch { /* fall through to Yahoo */ }
+  }
+  // Yahoo Finance fallback — free, no key, supports .NS/.BO listings and global tickers.
+  return await fetchYahooQuote(symbol);
 }
 
 
