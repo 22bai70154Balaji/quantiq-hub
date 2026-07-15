@@ -190,17 +190,42 @@ function StockCard({ stock, index }: { stock: StockQuote; index: number }) {
   );
 }
 
+// Domain map — Logo.dev's /ticker/ index skips most .NS/.BO listings, so we
+// fall back to the company's primary domain for Indian tickers.
+const LOGO_DOMAIN_BY_SYMBOL: Record<string, string> = {
+  "RELIANCE.NS": "ril.com",
+  "TCS.NS": "tcs.com",
+  "INFY.NS": "infosys.com",
+  "HDFCBANK.NS": "hdfcbank.com",
+  "ICICIBANK.NS": "icicibank.com",
+  "BHARTIARTL.NS": "airtel.in",
+  "SBIN.NS": "sbi.co.in",
+  "TATAMOTORS.NS": "tatamotors.com",
+};
+
 function StockLogo({ symbol, name }: { symbol: string; name: string }) {
   const token = import.meta.env.VITE_LOVABLE_CONNECTOR_LOGO_DEV_API_KEY as string | undefined;
-  const [errored, setErrored] = useState(false);
+  const [stage, setStage] = useState<"primary" | "fallback" | "initials">("primary");
   const ticker = symbol.replace(/\.(NS|BO)$/i, "");
+  const isIndian = /\.(NS|BO)$/i.test(symbol);
+  const domain = LOGO_DOMAIN_BY_SYMBOL[symbol.toUpperCase()];
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
 
-  if (!token || errored) {
+  // For Indian tickers, try domain first, then ticker. For US, ticker first, then domain (none).
+  const primary = isIndian && domain
+    ? `https://img.logo.dev/${domain}?token=${token}&size=80&format=png&fallback=404`
+    : `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`;
+  const fallback = isIndian && domain
+    ? `https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`
+    : domain
+      ? `https://img.logo.dev/${domain}?token=${token}&size=80&format=png&fallback=404`
+      : null;
+
+  if (!token || stage === "initials") {
     return (
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] font-mono text-xs font-semibold text-foreground/80">
         {initials || ticker.slice(0, 2)}
@@ -208,18 +233,23 @@ function StockLogo({ symbol, name }: { symbol: string; name: string }) {
     );
   }
 
+  const src = stage === "primary" ? primary : (fallback ?? primary);
+
   return (
     <img
-      src={`https://img.logo.dev/ticker/${encodeURIComponent(ticker)}?token=${token}&size=80&format=png&fallback=404`}
+      key={src}
+      src={src}
       alt={`${name} logo`}
       width={40}
       height={40}
       loading="lazy"
-      onError={() => setErrored(true)}
+      onError={() => setStage((s) => (s === "primary" && fallback ? "fallback" : "initials"))}
       className="h-10 w-10 shrink-0 rounded-lg border border-white/10 bg-white object-contain p-0.5"
     />
   );
 }
+
+
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
