@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowUpRight, ArrowDownRight, Sparkles, TrendingUp, TrendingDown, ShieldCheck, AlertTriangle, Newspaper, LineChart as LineIcon, Calculator, FileDown, FileSpreadsheet, Zap, Brain } from "lucide-react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Cell } from "recharts";
 import { toast } from "sonner";
@@ -15,6 +15,9 @@ import { sip, lumpsum, profitLoss, dividend, stockAverage, positionSize, calcBro
 import { exportStockPdf, exportStockXlsx, runAll15, exportAll15Pdf, exportAll15Xlsx, exportPredictionPdf } from "@/lib/finflow/stock-exports";
 
 export const Route = createFileRoute("/stocks/$symbol")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ai: search.ai === "report" ? "report" : undefined,
+  }),
   head: ({ params }) => {
     const cat = getCatalogEntry(params.symbol);
     const name = cat?.name ?? params.symbol;
@@ -35,7 +38,9 @@ export const Route = createFileRoute("/stocks/$symbol")({
 
 function StockDetailPage() {
   const { symbol } = Route.useParams();
+  const search = Route.useSearch();
   const upperSymbol = symbol.toUpperCase();
+  const [autoReportStarted, setAutoReportStarted] = useState(false);
 
   const detail = useQuery({
     queryKey: ["stock-detail", upperSymbol],
@@ -104,6 +109,52 @@ function StockDetailPage() {
     return `$${v.toLocaleString("en-US")}`;
   };
 
+  const handleAiAnalysis = useCallback(async () => {
+    if (!d) return;
+    const closes = candles.data?.candles?.map((c) => c.c).filter((n) => Number.isFinite(n) && n > 0) ?? [];
+    if (closes.length < 10) {
+      toast.error("Not enough price history to run the AI prediction. Load the 1Y chart first.");
+      return;
+    }
+    try {
+      toast.loading("Generating Groq AI analysis…", { id: "ai-report" });
+      const prediction = await getStockPrediction({
+        data: {
+          symbol: upperSymbol,
+          name: d.name,
+          sector: d.sector,
+          currency: d.currency,
+          price: d.price,
+          pe: d.pe,
+          roe: d.roe,
+          divYield: d.divYield,
+          weekHigh52: d.weekHigh52,
+          weekLow52: d.weekLow52,
+          closes,
+        },
+      });
+      await exportPredictionPdf({
+        symbol: upperSymbol,
+        name: d.name,
+        currency: d.currency,
+        price: d.price,
+        region: d.region,
+        sector: d.sector,
+        prediction,
+      });
+      toast.success("AI analysis report downloaded", { id: "ai-report" });
+    } catch (e) {
+      console.error(e);
+      toast.error("AI analysis failed. Please try again.", { id: "ai-report" });
+    }
+  }, [candles.data?.candles, d, upperSymbol]);
+
+  useEffect(() => {
+    if (search.ai !== "report" || autoReportStarted || !d || candles.isLoading || !candles.data) return;
+    setAutoReportStarted(true);
+    void handleAiAnalysis();
+  }, [autoReportStarted, candles.data, candles.isLoading, d, handleAiAnalysis, search.ai]);
+
   return (
     <div className="bg-page-gradient min-h-screen">
       <Navbar />
@@ -157,45 +208,7 @@ function StockDetailPage() {
               exportAll15Pdf(bundle);
               exportAll15Xlsx(bundle);
             }}
-            onAiReport={async () => {
-              if (!d) return;
-              const closes = candles.data?.candles?.map((c) => c.c).filter((n) => Number.isFinite(n) && n > 0) ?? [];
-              if (closes.length < 10) {
-                toast.error("Not enough price history to run the AI prediction. Load the 1Y chart first.");
-                return;
-              }
-              try {
-                toast.loading("Generating AI report…", { id: "ai-report" });
-                const prediction = await getStockPrediction({
-                  data: {
-                    symbol: upperSymbol,
-                    name: d.name,
-                    sector: d.sector,
-                    currency: d.currency,
-                    price: d.price,
-                    pe: d.pe,
-                    roe: d.roe,
-                    divYield: d.divYield,
-                    weekHigh52: d.weekHigh52,
-                    weekLow52: d.weekLow52,
-                    closes,
-                  },
-                });
-                await exportPredictionPdf({
-                  symbol: upperSymbol,
-                  name: d.name,
-                  currency: d.currency,
-                  price: d.price,
-                  region: d.region,
-                  sector: d.sector,
-                  prediction,
-                });
-                toast.success("AI report downloaded", { id: "ai-report" });
-              } catch (e) {
-                console.error(e);
-                toast.error("AI report failed. Please try again.", { id: "ai-report" });
-              }
-            }}
+            onAiReport={handleAiAnalysis}
             calculatorLink={{ pathname: "/investing-calculators", search: { c: "sip", symbol: upperSymbol } }}
           />
 
@@ -486,7 +499,7 @@ function StockActions({ disabled, onExportPdf, onExportXlsx, onAnalyzeAll, onAiR
     <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-2">
       <button disabled={disabled || busy} onClick={() => handle(onAiReport)}
         className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white shadow-elegant transition hover:brightness-110 disabled:opacity-40">
-        <Brain className="h-3.5 w-3.5" /> AI report (PDF)
+        <Brain className="h-3.5 w-3.5" /> AI analysis
       </button>
       <button disabled={disabled || busy} onClick={() => handle(onAnalyzeAll)}
         className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-elegant transition hover:brightness-110 disabled:opacity-40">
