@@ -670,76 +670,293 @@ export function exportTopStocksXlsx(rows: TopStockRow[], marketLabel: string): v
   download(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `top_stocks_${marketLabel.toLowerCase()}.xlsx`);
 }
 
-export function exportTopStocksPdf(rows: TopStockRow[], marketLabel: string): void {
+export async function exportTopStocksPdf(rows: TopStockRow[], marketLabel: string): Promise<void> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const margin = 40;
+  const bodyW = W - margin * 2;
 
-  doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(20);
-  doc.text(`Calculyx AI — ${marketLabel} live top stocks`, margin, 60);
-  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(120);
-  doc.text(new Date().toLocaleString(), margin, 78);
-  doc.text(`${rows.length} tickers`, W - margin - 80, 78);
+  let y = await drawBrandedHeader(doc, `${marketLabel} live top stocks · ${rows.length} tickers`);
 
-  // Table header
-  let y = 110;
-  const cols = [
-    { label: "Symbol", w: 70 },
-    { label: "Name", w: 170 },
-    { label: "Price", w: 70, align: "right" as const },
-    { label: "Chg %", w: 55, align: "right" as const },
-    { label: "Open", w: 60, align: "right" as const },
-    { label: "Prev", w: 60, align: "right" as const },
-    { label: "High", w: 60, align: "right" as const },
-  ];
-  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(40);
-  let x = margin;
-  cols.forEach((c) => {
-    if (c.align === "right") doc.text(c.label, x + c.w - 4, y, { align: "right" });
-    else doc.text(c.label, x, y);
-    x += c.w;
-  });
-  y += 6;
-  doc.setDrawColor(200).line(margin, y, W - margin, y);
-  y += 12;
+  // Preload every logo in parallel (cheap since already cached by the browser).
+  const logos = await Promise.all(rows.map((r) => urlToDataUrl(tickerLogoUrl(r.symbol) ?? "")));
 
-  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(40);
-  for (const r of rows) {
-    if (y > H - 60) {
+  // Column layout — sizes chosen so text can never overflow the box.
+  //  # | Logo | Symbol · Name | Price | Chg% | Open | Prev
+  const colW = {
+    num: 28,
+    logo: 32,
+    name: bodyW - 28 - 32 - 74 - 66 - 66 - 66,
+    price: 74,
+    chg: 66,
+    open: 66,
+    prev: 66,
+  };
+  const rowH = 34;
+
+  // Header row
+  const drawTableHead = () => {
+    doc.setFillColor(15, 23, 42).rect(margin, y, bodyW, 22, "F");
+    doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(226, 232, 240);
+    let x = margin + 8;
+    doc.text("#", x, y + 14); x += colW.num;
+    x += colW.logo;
+    doc.text("COMPANY", x, y + 14); x += colW.name;
+    doc.text("PRICE", x + colW.price - 8, y + 14, { align: "right" }); x += colW.price;
+    doc.text("CHG %", x + colW.chg - 8, y + 14, { align: "right" }); x += colW.chg;
+    doc.text("OPEN", x + colW.open - 8, y + 14, { align: "right" }); x += colW.open;
+    doc.text("PREV", x + colW.prev - 8, y + 14, { align: "right" });
+    y += 22;
+  };
+
+  drawTableHead();
+
+  rows.forEach((r, i) => {
+    if (y + rowH > H - 50) {
       doc.addPage();
-      y = 60;
+      y = 50;
+      drawTableHead();
     }
-    x = margin;
-    const cur = r.currency === "INR" ? "₹" : "$";
-    const fields: Array<{ text: string; align?: "right" }> = [
-      { text: r.symbol },
-      { text: r.name.length > 32 ? r.name.slice(0, 30) + "…" : r.name },
-      { text: `${cur}${r.price.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
-      { text: `${r.changePercent >= 0 ? "+" : ""}${r.changePercent.toFixed(2)}%`, align: "right" },
-      { text: `${cur}${r.open.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
-      { text: `${cur}${r.prevClose.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
-      { text: `${cur}${r.high.toLocaleString("en", { maximumFractionDigits: 2 })}`, align: "right" },
-    ];
-    if (r.changePercent >= 0) doc.setTextColor(20, 130, 60); else doc.setTextColor(180, 40, 40);
-    fields.forEach((f, i) => {
-      const c = cols[i];
-      // colour only the change% cell
-      if (i !== 3) doc.setTextColor(40);
-      else doc.setTextColor(r.changePercent >= 0 ? 20 : 180, r.changePercent >= 0 ? 130 : 40, r.changePercent >= 0 ? 60 : 40);
-      if (f.align === "right") doc.text(f.text, x + c.w - 4, y, { align: "right" });
-      else doc.text(f.text, x, y);
-      x += c.w;
-    });
-    y += 16;
-  }
+    // Zebra stripe
+    if (i % 2 === 1) {
+      doc.setFillColor(248, 250, 252).rect(margin, y, bodyW, rowH, "F");
+    }
+    // Row border bottom
+    doc.setDrawColor(233, 237, 242).line(margin, y + rowH, margin + bodyW, y + rowH);
 
-  const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) {
-    doc.setPage(i);
-    doc.setFont("helvetica", "italic").setFontSize(8).setTextColor(140);
-    doc.text(`Calculyx AI · Live snapshot · Not financial advice.`, margin, H - 20);
-    doc.text(`Page ${i} / ${pages}`, W - margin - 50, H - 20);
-  }
+    let x = margin + 8;
+
+    // Number
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(100, 116, 139);
+    doc.text(String(i + 1).padStart(2, "0"), x, y + rowH / 2 + 3);
+    x += colW.num;
+
+    // Logo
+    const logo = logos[i];
+    if (logo) {
+      try { doc.addImage(logo, "PNG", x, y + 5, 24, 24); } catch { /* ignore */ }
+    } else {
+      doc.setFillColor(226, 232, 240).roundedRect(x, y + 5, 24, 24, 4, 4, "F");
+      doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(71, 85, 105);
+      doc.text(r.symbol.slice(0, 2).toUpperCase(), x + 12, y + 20, { align: "center" });
+    }
+    x += colW.logo;
+
+    // Symbol + name (stacked, truncated)
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(15, 23, 42);
+    doc.text(r.symbol, x, y + 14);
+    doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(100, 116, 139);
+    let name = r.name;
+    while (doc.getTextWidth(name) > colW.name - 12 && name.length > 4) {
+      name = name.slice(0, -2) + "…";
+    }
+    doc.text(name, x, y + 26);
+    x += colW.name;
+
+    // Price
+    doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(15, 23, 42);
+    doc.text(fmtMoney2(r.price, r.currency), x + colW.price - 8, y + rowH / 2 + 3, { align: "right" });
+    x += colW.price;
+
+    // Change % (pill-tinted)
+    const up = r.changePercent >= 0;
+    doc.setFont("helvetica", "bold").setFontSize(9);
+    doc.setTextColor(up ? 20 : 180, up ? 130 : 40, up ? 60 : 40);
+    doc.text(`${up ? "+" : ""}${r.changePercent.toFixed(2)}%`, x + colW.chg - 8, y + rowH / 2 + 3, { align: "right" });
+    x += colW.chg;
+
+    // Open / Prev
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(51, 65, 85);
+    doc.text(fmtMoney2(r.open, r.currency), x + colW.open - 8, y + rowH / 2 + 3, { align: "right" });
+    x += colW.open;
+    doc.text(fmtMoney2(r.prevClose, r.currency), x + colW.prev - 8, y + rowH / 2 + 3, { align: "right" });
+
+    y += rowH;
+  });
+
+  drawFooter(doc, "Live snapshot · Estimates only · Not financial advice");
   doc.save(`top_stocks_${marketLabel.toLowerCase()}.pdf`);
 }
+
+// ============================= AI PREDICTION PDF =============================
+
+export type PredictionPdfBundle = {
+  symbol: string;
+  name: string;
+  currency: string;
+  price: number;
+  region: "US" | "IN";
+  sector?: string;
+  prediction: StockPrediction;
+};
+
+export async function exportPredictionPdf(b: PredictionPdfBundle): Promise<void> {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const bodyW = W - margin * 2;
+
+  let y = await drawBrandedHeader(doc, `AI stock report · ${b.symbol}`);
+  const ensure = (need: number) => { if (y + need > H - 50) { doc.addPage(); y = 50; } };
+
+  const p = b.prediction;
+  const cur = b.currency;
+
+  // -------- Hero card --------
+  const heroH = 96;
+  doc.setDrawColor(226, 232, 240).setFillColor(255, 255, 255);
+  doc.roundedRect(margin, y, bodyW, heroH, 10, 10, "FD");
+  const logoData = await urlToDataUrl(tickerLogoUrl(b.symbol) ?? "");
+  if (logoData) {
+    try { doc.addImage(logoData, "PNG", margin + 16, y + 18, 60, 60); } catch { /* ignore */ }
+  }
+  doc.setFont("helvetica", "bold").setFontSize(16).setTextColor(15, 23, 42);
+  doc.text(b.name, margin + 92, y + 30);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(100, 116, 139);
+  doc.text(`${b.symbol}  ·  ${b.region === "IN" ? "NSE / BSE" : "US Market"}  ·  ${b.sector || "—"}`, margin + 92, y + 46);
+  const hLines = doc.splitTextToSize(p.headline, bodyW - 260) as string[];
+  doc.setFont("helvetica", "italic").setFontSize(9).setTextColor(30, 41, 59);
+  doc.text(hLines, margin + 92, y + 62);
+  // Outlook pill on right
+  const tint = p.outlook === "bullish"
+    ? { bg: [220, 252, 231] as [number, number, number], fg: [20, 130, 60] as [number, number, number] }
+    : p.outlook === "bearish"
+      ? { bg: [254, 226, 226] as [number, number, number], fg: [180, 40, 40] as [number, number, number] }
+      : { bg: [241, 245, 249] as [number, number, number], fg: [71, 85, 105] as [number, number, number] };
+  doc.setFillColor(...tint.bg).roundedRect(margin + bodyW - 130, y + 20, 114, 24, 12, 12, "F");
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(...tint.fg);
+  doc.text(p.outlook.toUpperCase(), margin + bodyW - 73, y + 36, { align: "center" });
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(100, 116, 139);
+  doc.text(`Confidence: ${p.confidence}`, margin + bodyW - 16, y + 58, { align: "right" });
+  doc.text(`Timeframe: ${p.timeframe}`, margin + bodyW - 16, y + 72, { align: "right" });
+  doc.setFont("helvetica", "bold").setFontSize(14).setTextColor(15, 23, 42);
+  doc.text(fmtMoney2(b.price, cur), margin + bodyW - 16, y + heroH - 8, { align: "right" });
+  y += heroH + 16;
+
+  // -------- Summary --------
+  ensure(60);
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+  doc.text("Summary", margin, y); y += 14;
+  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(30, 41, 59);
+  const sumLines = doc.splitTextToSize(p.summary, bodyW - 4) as string[];
+  ensure(sumLines.length * 13);
+  doc.text(sumLines, margin, y);
+  y += sumLines.length * 13 + 10;
+
+  // -------- Key levels grid --------
+  ensure(90);
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+  doc.text("Key price levels (predicted)", margin, y); y += 12;
+  const kl = p.keyLevels;
+  const items: Array<[string, string]> = [
+    ["Predicted high", fmtMoney2(kl.predictedHigh, cur)],
+    ["Predicted low", fmtMoney2(kl.predictedLow, cur)],
+    ["Fair price", kl.fairPrice != null ? fmtMoney2(kl.fairPrice, cur) : "—"],
+    ["Resistance", kl.resistance.length ? kl.resistance.map((n) => fmtMoney2(n, cur)).join(" · ") : "—"],
+    ["Support", kl.support.length ? kl.support.map((n) => fmtMoney2(n, cur)).join(" · ") : "—"],
+    ["RSI-14", p.technicals.rsi14.toFixed(1)],
+  ];
+  const kCols = 3;
+  const kGap = 8;
+  const kCardW = (bodyW - kGap * (kCols - 1)) / kCols;
+  items.forEach((it, i) => {
+    const col = i % kCols;
+    if (col === 0) ensure(50);
+    const x = margin + col * (kCardW + kGap);
+    drawStatCard(doc, x, y, kCardW, 44, it[0], it[1]);
+    if (col === kCols - 1 || i === items.length - 1) y += 44 + kGap;
+  });
+  y += 4;
+
+  // -------- Scenarios --------
+  ensure(120);
+  doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(15, 23, 42);
+  doc.text("Scenarios (30-day)", margin, y); y += 12;
+  const scen = [
+    { name: "Bull", data: p.scenarios.bull, color: [16, 185, 129] as [number, number, number] },
+    { name: "Base", data: p.scenarios.base, color: [59, 130, 246] as [number, number, number] },
+    { name: "Bear", data: p.scenarios.bear, color: [239, 68, 68] as [number, number, number] },
+  ];
+  const sCardW = (bodyW - kGap * 2) / 3;
+  const sCardH = 92;
+  scen.forEach((s, i) => {
+    const x = margin + i * (sCardW + kGap);
+    ensure(sCardH);
+    doc.setDrawColor(226, 232, 240).setFillColor(255, 255, 255);
+    doc.roundedRect(x, y, sCardW, sCardH, 8, 8, "FD");
+    doc.setFillColor(...s.color).roundedRect(x, y, sCardW, 4, 2, 2, "F");
+    doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(...s.color);
+    doc.text(s.name.toUpperCase(), x + 12, y + 22);
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(15, 23, 42);
+    doc.text(`${s.data.probability}%`, x + sCardW - 12, y + 22, { align: "right" });
+    doc.setFont("helvetica", "bold").setFontSize(16).setTextColor(15, 23, 42);
+    doc.text(fmtMoney2(s.data.target, cur), x + 12, y + 46);
+    doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(100, 116, 139);
+    const nLines = doc.splitTextToSize(s.data.note || "", sCardW - 20) as string[];
+    doc.text(nLines.slice(0, 3), x + 12, y + 60);
+  });
+  y += sCardH + 12;
+
+  // Helper for bullet-list boxes
+  const bulletBox = (title: string, list: string[], tint: [number, number, number]) => {
+    if (!list.length) return;
+    doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(15, 23, 42);
+    ensure(20);
+    doc.text(title, margin, y); y += 12;
+    const inner = bodyW - 20;
+    const wrapped = list.map((s) => doc.splitTextToSize(`•  ${s}`, inner) as string[]);
+    const totalH = wrapped.reduce((a, l) => a + l.length * 12, 0) + 12;
+    ensure(totalH);
+    doc.setDrawColor(...tint).setFillColor(tint[0], tint[1], tint[2]);
+    // light background — use alpha via lighter fill by mixing to near-white
+    doc.setFillColor(Math.min(255, tint[0] + 200), Math.min(255, tint[1] + 200), Math.min(255, tint[2] + 200));
+    doc.roundedRect(margin, y, bodyW, totalH, 6, 6, "FD");
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(30, 41, 59);
+    let cy = y + 12;
+    wrapped.forEach((lines) => { doc.text(lines, margin + 10, cy); cy += lines.length * 12; });
+    y += totalH + 8;
+  };
+
+  bulletBox("Key drivers to watch", p.drivers, [16, 185, 129]);
+  bulletBox("Recommended action plan", p.actionPlan, [59, 130, 246]);
+  bulletBox("Risks", p.risks, [239, 68, 68]);
+
+  // Technicals footer strip
+  ensure(60);
+  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(15, 23, 42);
+  doc.text("Technical snapshot", margin, y); y += 12;
+  const t = p.technicals;
+  const tItems: Array<[string, string]> = [
+    ["Last price", fmtMoney2(t.lastPrice, cur)],
+    ["MA20", fmtMoney2(t.ma20, cur)],
+    ["MA50", fmtMoney2(t.ma50, cur)],
+    ["MA200", t.ma200 != null ? fmtMoney2(t.ma200, cur) : "—"],
+    ["52w high", fmtMoney2(t.high52w, cur)],
+    ["52w low", fmtMoney2(t.low52w, cur)],
+    ["30d momentum", `${t.momentum30d.toFixed(2)}%`],
+    ["Ann. vol.", `${t.volatilityPct.toFixed(1)}%`],
+  ];
+  const tCols = 4;
+  const tCardW = (bodyW - kGap * (tCols - 1)) / tCols;
+  tItems.forEach((it, i) => {
+    const col = i % tCols;
+    if (col === 0) ensure(44);
+    const x = margin + col * (tCardW + kGap);
+    drawStatCard(doc, x, y, tCardW, 40, it[0], it[1]);
+    if (col === tCols - 1 || i === tItems.length - 1) y += 40 + kGap;
+  });
+
+  // Disclaimer band
+  y += 6;
+  ensure(30);
+  doc.setFillColor(254, 249, 195).roundedRect(margin, y, bodyW, 22, 6, 6, "F");
+  doc.setFont("helvetica", "italic").setFontSize(8).setTextColor(120, 80, 20);
+  const dLines = doc.splitTextToSize(p.disclaimer, bodyW - 16) as string[];
+  doc.text(dLines[0] ?? "Estimates only — not investment advice.", margin + 8, y + 14);
+
+  drawFooter(doc, "AI-generated report · Estimates only · Not investment advice");
+  doc.save(`${b.symbol}_ai_report.pdf`);
+}
+
